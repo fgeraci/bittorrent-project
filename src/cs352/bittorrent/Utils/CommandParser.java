@@ -1,5 +1,7 @@
 package cs352.bittorrent.Utils;
 
+import java.util.StringTokenizer;
+
 /**
  * 
  * @author Yke, Rob and Fernando
@@ -12,4 +14,9 @@ package cs352.bittorrent.Utils;
 
 public class CommandParser {
 
+	StringTokenizer st;
+	
+	public CommandParser() {}
+	
+	
 }
