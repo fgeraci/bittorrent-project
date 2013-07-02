@@ -70,6 +70,7 @@ public class Bittorrent {
 			// get file info
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
+			Utilities.generateID();
 			// request the tracker for peers
 			this.sendRequestToTracker();
 		} catch (Exception e) {

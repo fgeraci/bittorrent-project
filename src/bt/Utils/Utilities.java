@@ -14,7 +14,6 @@ public class Utilities {
 	 * @param file
 	 * @return byte[] File Bytes
 	 */
-	
 	public static byte[] getBytesFromFile(File file) {
 		ArrayList<Byte> bytes = new ArrayList<Byte>();
 		DataInputStream dis;
@@ -109,6 +108,22 @@ public class Utilities {
 		else
 			encodedURL += ch+encodeInfoHashToURL(infoHash.substring(1));
 		return encodedURL;
+	}
+	
+	/**
+	 * Generates a random 20 character string as a peerID.
+	 * @return String peer ID
+	 */
+	public static String generateID() {
+		StringBuilder generatedID = new StringBuilder();
+		char nextChar;
+		for(int i = 0 ; i < 20; ++i) {
+			// create a random character between 65 - 90 ASCII
+			nextChar = (char)(65 + (int)(Math.random()*25));
+			generatedID.append(nextChar);
+		}
+		System.out.println("Random ID is: "+generatedID);
+		return generatedID.toString();
 	}
 	
 }
