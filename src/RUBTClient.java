@@ -18,7 +18,7 @@ public class RUBTClient {
 		if(args.length >= 2) {
 			Bittorrent bittorrent = Bittorrent.getInstance(args[0], args[1]);
 		} else {
-			System.err.println("Insuficient arguments");
+			System.err.println("ERROR: Insuficient arguments");
 		}
 	}
 }

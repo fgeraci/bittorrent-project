@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
-
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
 
@@ -65,6 +64,8 @@ public class Bittorrent {
 			// get file info
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
+			// request the tracker for peers
+			this.sendRequestToTracker();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -125,11 +126,12 @@ public class Bittorrent {
 	 */
 	private void printTorrentInfoFields() {
 		System.out.println("\nTRACKER INFO (Successfully Decoded):");
-		System.out.println("----------------------");
+		System.out.println("-----------------------------------");
 		System.out.println("Announce: "+this.torrentInfo.announce_url);
-		System.out.println("Info Hash: "+this.torrentInfo.info_hash);
+		System.out.println("Info Hash: "+Utilities.getStringFromByteBuffer(this.torrentInfo.info_hash));
 		System.out.println("File Name: "+this.torrentInfo.file_name);
 		System.out.println("File Length: "+this.torrentInfo.file_length);
+		System.out.println("-----------------------------------");
 		System.out.println();
 	}
 

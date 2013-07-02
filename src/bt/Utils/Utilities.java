@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.ServerSocket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class Utilities {
@@ -69,6 +70,37 @@ public class Utilities {
 			}
 		}
 		return port;
+	}
+	
+	/**
+	 * Returns a String representation of a ByteBuffer.
+	 * @param ByteBuffer bb
+	 * @return String message
+	 */
+	public static String getStringFromByteBuffer(ByteBuffer bb) {
+		StringBuilder message = new StringBuilder();
+		int bytes;
+		while(true) {
+			try {
+				bytes = bb.get();
+				// format the product of two bytes and a bitwise AND with 0xFF
+				message.append("\\x"+String.format("%02x", bytes&0xff));
+			} catch (Exception e) {
+				break;
+			}
+		}
+		return message.toString();
+	}
+	
+	/**
+	 * It will encode the info_hash to a URL parameter.
+	 * @param String info_hash
+	 * @return String encoded info_hash URL
+	 */
+	
+	public static String encodeInfoHashToURL(String infoHash) {
+		String URLEnconded = "";
+		return URLEnconded;
 	}
 	
 }
