@@ -15,6 +15,10 @@ public class RUBTClient {
 	 * @param String[] command-line arguments.
 	 */
 	public static void main(String[] args) {
-		Bittorrent bittorrent = Bittorrent.getInstance();
+		if(args.length >= 2) {
+			Bittorrent bittorrent = Bittorrent.getInstance(args[0], args[1]);
+		} else {
+			System.err.println("Insuficient arguments");
+		}
 	}
 }

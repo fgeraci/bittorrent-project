@@ -27,7 +27,7 @@ public class Bittorrent {
 	/**
 	 * Hard coded .torrent file path.
 	 */
-	private String dotTorrentFilePath = "rsc"+File.separator+"cs352.png.torrent";
+	private String dotTorrentFileFolder = "rsc"+File.separator;;
 	
 	/**
 	 * Decoded .torrent file information.
@@ -49,12 +49,12 @@ public class Bittorrent {
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
-	private Bittorrent() {
+	private Bittorrent(String torrentFile, String saveFile) {
 		// open the file
-		File torrentFile = new File(this.dotTorrentFilePath);
+		File file = new File((this.dotTorrentFileFolder+torrentFile));
 		try {
 			// get file info
-			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(torrentFile));
+			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -65,9 +65,9 @@ public class Bittorrent {
 	 * Returns a singleton instance of the Bittorrent main client.
 	 * @return Bittorrent instance
 	 */
-	public static Bittorrent getInstance() {
+	public static Bittorrent getInstance(String torrentFile, String saveFile) {
 		if(Bittorrent.instance == null) {
-			Bittorrent.instance = new Bittorrent();
+			Bittorrent.instance = new Bittorrent(torrentFile, saveFile);
 		}
 		return Bittorrent.instance;
 	}
@@ -79,7 +79,10 @@ public class Bittorrent {
 	private void printTorrentInfoFields() {
 		System.out.println("\nTRACKER INFO (Successfully Decoded):");
 		System.out.println("----------------------");
-		System.out.println(this.torrentInfo.announce_url);
+		System.out.println("Announce: "+this.torrentInfo.announce_url);
+		System.out.println("Info Hash: "+this.torrentInfo.info_hash);
+		System.out.println("File Name: "+this.torrentInfo.file_name);
+		System.out.println("File Length: "+this.torrentInfo.file_length);
 		System.out.println();
 	}
 
