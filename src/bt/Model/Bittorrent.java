@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Properties;
+
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
 
@@ -30,7 +33,7 @@ public class Bittorrent {
 	/**
 	 * Hard coded .torrent file path.
 	 */
-	private String dotTorrentFileFolder = "rsc"+File.separator;;
+	private String rscFileFolder = "rsc"+File.separator;;
 	
 	/**
 	 * Decoded .torrent file information.
@@ -61,16 +64,22 @@ public class Bittorrent {
 	private int clientID;
 	
 	/**
+	 * Properties file.
+	 */
+	private Properties properties;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile) {
 		// open the file
-		File file = new File((this.dotTorrentFileFolder+torrentFile));
+		File file = new File((this.rscFileFolder+torrentFile));
 		try {
 			// get file info
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
-			Utilities.generateID();
+			this.properties = new Properties();
+			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
 		} catch (Exception e) {
@@ -97,16 +106,18 @@ public class Bittorrent {
 		int port = Utilities.getAvailablePort(6881, 6889);
 		String response = null;
 		try {
+			
 			// create the tracker URL for the GET request
 			URL tracker = new URL(
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
-				"&peer_id="+
+				"&peer_id="+Utilities.generateID()+
 				"&port="+port+
-				"&uploaded="+
-				"&downloaded="+
-				"&left="+
-				"&event=");
+				"&uploaded="+ this.properties.getProperty("uploaded")+
+				"&downloaded="+ this.properties.getProperty("downloaded")+
+				"&left="+ this.properties.getProperty("left")+
+				"&event="+ this.properties.getProperty("event"));
+			
 			// establish the connection
 			URLConnection trackerConnection = tracker.openConnection();
 			// open streams
