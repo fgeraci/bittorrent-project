@@ -34,4 +34,15 @@ Roles:
 		* Seed
 	Client Side
 		* Peer
+		
+IMPLEMENTATION
+==============
+
+The path for the implementation at initialization time is the following:
+	
+1.	RUBTClient holds the main method.
+1.a		> Create a new Bittorrent instance
+2.			> Bittorrent class
+				In its constructor, Bittorrent will initialize its fields by reading a give 
+				.torrent file in order to communicate with the tracker.
 
