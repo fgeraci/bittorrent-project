@@ -93,14 +93,22 @@ public class Utilities {
 	}
 	
 	/**
-	 * It will encode the info_hash to a URL parameter.
+	 * It will encode the info_hash to a URL parameter recursively.
 	 * @param String info_hash
 	 * @return String encoded info_hash URL
 	 */
 	
 	public static String encodeInfoHashToURL(String infoHash) {
-		String URLEnconded = "";
-		return URLEnconded;
+		String encodedURL = "";
+		if(infoHash.length() == 0) return infoHash;
+		char ch = infoHash.charAt(0);
+		if(ch == 'x') 
+			encodedURL += "%"+encodeInfoHashToURL(infoHash.substring(1));
+		else if(ch == '\\')
+			encodedURL += encodeInfoHashToURL(infoHash.substring(1));
+		else
+			encodedURL += ch+encodeInfoHashToURL(infoHash.substring(1));
+		return encodedURL;
 	}
 	
 }

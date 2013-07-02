@@ -36,6 +36,12 @@ public class Bittorrent {
 	 * Decoded .torrent file information.
 	 */
 	private TorrentInfo torrentInfo;
+	
+	/**
+	 * Decoded info hash from the .torrent file.
+	 */
+	private String info_hash;
+	
 	/**
 	 * Input stream from server.
 	 */
@@ -93,7 +99,7 @@ public class Bittorrent {
 			// create the tracker URL for the GET request
 			URL tracker = new URL(
 				this.torrentInfo.announce_url+
-				"?info_hash="+
+				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
 				"&peer_id="+
 				"&port="+port+
 				"&uploaded="+
@@ -125,10 +131,12 @@ public class Bittorrent {
 	 * after the file was succesfully decoded by the Bittorrent ctor.
 	 */
 	private void printTorrentInfoFields() {
+		this.info_hash = Utilities.getStringFromByteBuffer(this.torrentInfo.info_hash);
 		System.out.println("\nTRACKER INFO (Successfully Decoded):");
 		System.out.println("-----------------------------------");
 		System.out.println("Announce: "+this.torrentInfo.announce_url);
-		System.out.println("Info Hash: "+Utilities.getStringFromByteBuffer(this.torrentInfo.info_hash));
+		System.out.println("Info Hash: "+this.info_hash);
+		System.out.println("Info Hash URL Encoded: "+Utilities.encodeInfoHashToURL(this.info_hash));
 		System.out.println("File Name: "+this.torrentInfo.file_name);
 		System.out.println("File Length: "+this.torrentInfo.file_length);
 		System.out.println("-----------------------------------");
