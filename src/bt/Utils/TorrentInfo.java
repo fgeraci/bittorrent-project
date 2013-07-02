@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.rutgers.cs.cs352.bt;
+package bt.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -27,8 +27,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-import edu.rutgers.cs.cs352.bt.exceptions.BencodingException;
-import edu.rutgers.cs.cs352.bt.util.Bencoder2;
+import bt.Exceptions.*;
 
 /**
  * This is a data structure class that extracts basic information from a bencoded torrent metainfo
