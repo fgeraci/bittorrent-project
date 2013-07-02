@@ -8,7 +8,14 @@ import java.net.Socket;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
 
-
+/**
+ * Bittorrent is the main class for the client. It will initialize the
+ * Tracker data fields in its constructor for then establishing a connection
+ * with it.
+ * 
+ * @author Yke, Rob and Fernando
+ *
+ */
 
 public class Bittorrent {
 	
@@ -22,10 +29,21 @@ public class Bittorrent {
 	 */
 	private String dotTorrentFilePath = "rsc"+File.separator+"cs352.png.torrent";
 	
-	// fields
+	/**
+	 * Decoded .torrent file information.
+	 */
 	private TorrentInfo torrentInfo;
+	/**
+	 * Input stream from server.
+	 */
 	private DataInputStream readFromServer;
+	/**
+	 * Output stream to server.
+	 */
 	private DataOutputStream writeToServer;
+	/**
+	 * Client socket to communicate with the tracker server.
+	 */
 	private Socket clientSocket;
 	
 	/**
@@ -37,17 +55,32 @@ public class Bittorrent {
 		try {
 			// get file info
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(torrentFile));
-			System.out.println("DEBUG: .torrent File successfully read and decoded.");
+			this.printTorrentInfoFields();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
 	
+	/**
+	 * Returns a singleton instance of the Bittorrent main client.
+	 * @return Bittorrent instance
+	 */
 	public static Bittorrent getInstance() {
 		if(Bittorrent.instance == null) {
 			Bittorrent.instance = new Bittorrent();
 		}
 		return Bittorrent.instance;
+	}
+	
+	/**
+	 * Prints a list of decoded information from the .torrent file
+	 * after the file was succesfully decoded by the Bittorrent ctor.
+	 */
+	private void printTorrentInfoFields() {
+		System.out.println("\nTRACKER INFO (Successfully Decoded):");
+		System.out.println("----------------------");
+		System.out.println(this.torrentInfo.announce_url);
+		System.out.println();
 	}
 
 }
