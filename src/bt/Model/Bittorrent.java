@@ -1,9 +1,13 @@
 package bt.Model;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
 
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
@@ -47,6 +51,11 @@ public class Bittorrent {
 	private Socket clientSocket;
 	
 	/**
+	 * Randomly generated user ID.
+	 */
+	private int clientID;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile) {
@@ -70,6 +79,44 @@ public class Bittorrent {
 			Bittorrent.instance = new Bittorrent(torrentFile, saveFile);
 		}
 		return Bittorrent.instance;
+	}
+	
+	/**
+	 * It will issue and HTTP GET request to obtain bencoded information 
+	 * about peers and seeds in the server.
+	 */
+	public String sendRequestToTracker() {
+		int port = Utilities.getAvailablePort(6881, 6889);
+		String response = null;
+		try {
+			// create the tracker URL for the GET request
+			URL tracker = new URL(
+				this.torrentInfo.announce_url+
+				"?info_hash="+
+				"&peer_id="+
+				"&port="+port+
+				"&uploaded="+
+				"&downloaded="+
+				"&left="+
+				"&event=");
+			// establish the connection
+			URLConnection trackerConnection = tracker.openConnection();
+			// open streams
+			BufferedReader fromServer = new BufferedReader(
+					new InputStreamReader(trackerConnection.getInputStream()));
+			
+			// read all the response from the server
+			String line = null;
+			while((line += fromServer.readLine()) != null) {
+				response+=line;
+			}
+			// close streams
+			fromServer.close();
+			// close connection
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return response;
 	}
 	
 	/**

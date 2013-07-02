@@ -3,6 +3,7 @@ package bt.Utils;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 
 public class Utilities {
@@ -39,6 +40,35 @@ public class Utilities {
 		}
 
 		return bytesArray;
+	}
+	
+	/**
+	* Returns the first available port given the range or -1 if non if available.
+	* @param int left bound
+	* @param int right bound
+	* @return int port
+	*/
+	public static int getAvailablePort(int from, int to) {
+		int port = from;
+		ServerSocket ss = null;
+		while(true) {
+			try {
+				ss = new ServerSocket(port);
+				ss.close();
+				break;
+			} catch (Exception e) {
+				++port;
+				if(port > to) {
+					port = -1;
+					break;
+				}
+			} finally {
+				try {
+					if(ss != null) ss.close();
+				} catch (Exception e) { System.err.println(e.getMessage()); }
+			}
+		}
+		return port;
 	}
 	
 }
