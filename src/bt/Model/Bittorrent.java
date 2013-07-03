@@ -69,6 +69,26 @@ public class Bittorrent {
 	private Properties properties;
 	
 	/**
+	 * Last event in client's activity.
+	 */
+	private String event;
+	
+	/**
+	 * Bytes uploaded so far.
+	 */
+	private int uploaded;
+	
+	/**
+	 * Bytes downloaded so far.
+	 */
+	private int downloaded;
+	
+	/**
+	 * Bytes left to downloaded for current file.
+	 */
+	private int left;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile) {
@@ -78,13 +98,23 @@ public class Bittorrent {
 			// get file info
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
-			this.properties = new Properties();
+			this.initClientState();
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
+	}
+	
+	private void initClientState() throws Exception {
+		this.properties = new Properties();
+		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
+		this.event = this.properties.getProperty("event");
+		this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
+		this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
+		this.left = Integer.parseInt(this.properties.getProperty("left"));
+		
 	}
 	
 	/**
@@ -108,27 +138,30 @@ public class Bittorrent {
 		try {
 			
 			// create the tracker URL for the GET request
+
 			URL tracker = new URL(
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
 				"&peer_id="+Utilities.generateID()+
 				"&port="+port+
-				"&uploaded="+ this.properties.getProperty("uploaded")+
-				"&downloaded="+ this.properties.getProperty("downloaded")+
-				"&left="+ this.properties.getProperty("left")+
-				"&event="+ this.properties.getProperty("event"));
+				"&uploaded="+ this.uploaded+
+				"&downloaded="+ this.downloaded+
+				"&left="+ this.left+
+				"&event="+ this.event);
 			
 			// establish the connection
-			URLConnection trackerConnection = tracker.openConnection();
+			//URLConnection trackerConnection = tracker.openConnection();
 			// open streams
 			BufferedReader fromServer = new BufferedReader(
-					new InputStreamReader(trackerConnection.getInputStream()));
+					new InputStreamReader(tracker.openStream()));
 			
 			// read all the response from the server
-			String line = null;
-			while((line += fromServer.readLine()) != null) {
+			//String line = null;
+			response += fromServer.readLine();
+			/*while((line += fromServer.readLine()) != null) {
 				response+=line;
-			}
+			}*/
+			System.out.println(response);
 			// close streams
 			fromServer.close();
 			// close connection
