@@ -19,7 +19,7 @@ import bt.Utils.Utilities;
  * Tracker data fields in its constructor for then establishing a connection
  * with it.
  * 
- * @author Yke, Rob and Fernando
+ * @author Yke, Robert and Fernando
  *
  */
 
