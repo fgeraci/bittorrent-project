@@ -6,6 +6,7 @@ package bt.Exceptions;
  * @author Yke, Robert and Fernando
  *
  */
+
 public class BencodingException extends Exception {
 	
 	/**

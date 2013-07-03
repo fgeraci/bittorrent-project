@@ -8,9 +8,11 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
 
@@ -157,14 +159,20 @@ public class Bittorrent {
 			// read all the response from the server
 			
 			response += fromServer.readLine();
+			response = response.substring(response.indexOf('8')-1);
 			System.out.println("Tracker Response: "+response);
-			
+			String[] peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(response.getBytes()));
+			System.out.println("Peers List:");
+			for(String s: peers) {
+				System.out.println(s);
+			}
 			// close streams
 			fromServer.close();
 			// close connection
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
+		System.out.println("-----------------------------------");
 		return response;
 	}
 	

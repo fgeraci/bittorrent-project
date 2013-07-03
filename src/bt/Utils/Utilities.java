@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A pure utilities class filled of static methods for specific tasks.
@@ -132,4 +133,26 @@ public class Utilities {
 		return generatedID.toString();
 	}
 	
+	/**
+	 * Returns a peer list from the ByteBuffer return.
+	 * @param Map map
+	 * @return
+	 */
+	 public static String[] decodeCompressedPeers(Map map) {
+	        ByteBuffer peers = (ByteBuffer)map.get(ByteBuffer.wrap("peers".getBytes()));
+	        ArrayList<String> peerURLs = new ArrayList<String>();
+	        try {
+	            while (true) {
+	                String ip = String.format("%d.%d.%d.%d",
+	                    peers.get() & 0xff,
+	                    peers.get() & 0xff,
+	                    peers.get() & 0xff,
+	                    peers.get() & 0xff);
+	                int port = peers.get() * 256 + peers.get();
+	                peerURLs.add(ip + ":" + port);
+	            }
+	        } catch (Exception e) {
+	        }
+	        return peerURLs.toArray(new String[peerURLs.size()]);
+	  }
 }
