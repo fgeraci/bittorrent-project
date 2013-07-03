@@ -150,19 +150,15 @@ public class Bittorrent {
 				"&left="+ this.left+
 				"&event="+ this.event);
 			
-			// establish the connection
-			//URLConnection trackerConnection = tracker.openConnection();
 			// open streams
 			BufferedReader fromServer = new BufferedReader(
 					new InputStreamReader(tracker.openStream()));
 			
 			// read all the response from the server
-			//String line = null;
+			
 			response += fromServer.readLine();
-			/*while((line += fromServer.readLine()) != null) {
-				response+=line;
-			}*/
-			System.out.println(response);
+			System.out.println("Tracker Response: "+response);
+			
 			// close streams
 			fromServer.close();
 			// close connection

@@ -7,6 +7,12 @@ import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+/**
+ * A pure utilities class filled of static methods for specific tasks.
+ * 
+ * @author Yke, Robert and Fernando
+ *
+ */
 public class Utilities {
 	
 	/**
