@@ -19,7 +19,7 @@ import bt.Utils.Utilities;
  * Tracker data fields in its constructor for then establishing a connection
  * with it.
  * 
- * @author Yke, Rob and Fernando
+ * @author Yke, Robert and Fernando
  *
  */
 
@@ -91,7 +91,8 @@ public class Bittorrent {
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
-	private Bittorrent(String torrentFile, String saveFile) {
+	private Bittorrent(String torrentFile, String saveFile) //throws Exception 
+	{	
 		// open the file
 		File file = new File((this.rscFileFolder+torrentFile));
 		try {
