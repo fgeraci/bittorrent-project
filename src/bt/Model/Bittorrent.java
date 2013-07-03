@@ -71,7 +71,8 @@ public class Bittorrent {
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
-	private Bittorrent(String torrentFile, String saveFile) {
+	private Bittorrent(String torrentFile, String saveFile) throws Exception 
+	{	
 		// open the file
 		File file = new File((this.rscFileFolder+torrentFile));
 		try {
