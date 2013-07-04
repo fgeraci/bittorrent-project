@@ -5,10 +5,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -26,6 +27,11 @@ import bt.Utils.Utilities;
  */
 
 public class Bittorrent {
+	
+	/**
+	 * Listener server of the client
+	 */
+	ServerSocket ss;
 	
 	/**
 	 * Single Bittorrent instance.
@@ -140,12 +146,19 @@ public class Bittorrent {
 		return Bittorrent.instance;
 	}
 	
+	public static Bittorrent getInstance() throws Exception {
+		if(Bittorrent.instance == null) throw new Exception("Client was never initialized");
+		return Bittorrent.instance;
+	}
+	
 	/**
 	 * It will issue and HTTP GET request to obtain bencoded information 
 	 * about peers and seeds in the server.
+	 * @throws IOException 
 	 */
 	public String sendRequestToTracker() {
-		int port = Utilities.getAvailablePort(6881, 6889);
+		// initializes the server and returns its port
+		int port = this.initServer(6881, 6889);
 		String response = null;
 		try {
 			
@@ -177,6 +190,7 @@ public class Bittorrent {
 			}
 			// close streams
 			fromServer.close();
+			
 			// close connection
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -198,6 +212,42 @@ public class Bittorrent {
 		System.out.println("Info Hash URL Encoded: "+Utilities.encodeInfoHashToURL(this.info_hash));
 		System.out.println("File Name: "+this.torrentInfo.file_name);
 		System.out.println("File Length: "+this.torrentInfo.file_length);
+	}
+	
+	/**
+	* Returns the first available port given the range or -1 if non if available.
+	* @param int left bound
+	* @param int right bound
+	* @return int port
+	*/
+	private int initServer(int from, int to) {
+		int port = from;
+		while(true) {
+			try {
+				ss = new ServerSocket(port);
+				// ss.close();
+				break;
+			} catch (Exception e) {
+				++port;
+				if(port > to) {
+					port = -1;
+					break;
+				}
+			} finally {
+				try {
+					// if(ss != null) ss.close(); // NOT NECESSARY
+				} catch (Exception e) { System.err.println(e.getMessage()); }
+			}
+		}
+		return port;
+	}
+	
+	/**
+	 * Terminates server on close.
+	 * @throws IOException
+	 */
+	public void stopServer() throws IOException {
+		this.ss.close();
 	}
 
 }

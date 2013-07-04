@@ -16,9 +16,21 @@ public class CommandParser {
 		switch(command) {
 		case "quit":
 			Utilities.callClose();
+		case "help":
+			CommandParser.printHelp();
+			break;
 		default:
-			throw new IllegalArgumentException("Invalid command");
+			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}
+	}
+	
+	/**
+	 * Prints a list of available commands. It will expand as we advance.
+	 */
+	public static void printHelp() {
+		System.out.println("\nHELP - Available Commands (so far):");
+		System.out.println("quit\t - terminates the client.");
+		System.out.println("--------------------------------\n");
 	}
 	
 }

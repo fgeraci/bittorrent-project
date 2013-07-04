@@ -8,6 +8,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Map;
 
+import bt.Model.Bittorrent;
+
 /**
  * A pure utilities class filled of static methods for specific tasks.
  * 
@@ -49,34 +51,7 @@ public class Utilities {
 		return bytesArray;
 	}
 	
-	/**
-	* Returns the first available port given the range or -1 if non if available.
-	* @param int left bound
-	* @param int right bound
-	* @return int port
-	*/
-	public static int getAvailablePort(int from, int to) {
-		int port = from;
-		ServerSocket ss = null;
-		while(true) {
-			try {
-				ss = new ServerSocket(port);
-				ss.close();
-				break;
-			} catch (Exception e) {
-				++port;
-				if(port > to) {
-					port = -1;
-					break;
-				}
-			} finally {
-				try {
-					if(ss != null) ss.close();
-				} catch (Exception e) { System.err.println(e.getMessage()); }
-			}
-		}
-		return port;
-	}
+	
 	
 	/**
 	 * Returns a String representation of a ByteBuffer.
@@ -161,7 +136,10 @@ public class Utilities {
 	  */
 	 public static void callClose() {
 		 // do stuff
-		 System.out.println("\n -- Client Terminated -- ");
-		 System.exit(0);
+		 try {
+			 Bittorrent.getInstance().stopServer();
+			 System.out.println("\n -- Client Terminated -- ");
+			 System.exit(0);
+		 } catch (Exception e) { /* this should never happen */	 } 
 	 }
 }
