@@ -7,7 +7,7 @@ import bt.Utils.CommandParser;
  * This is the main entry point for the client. It will just simply
  * initialize the Bittorrent client.
  * 
- * @author Yke, Robert and Fernando
+ * @author Ike, Robert and Fernando
  *
  */
 
@@ -26,6 +26,8 @@ public class RUBTClient {
 			Bittorrent bittorrent = Bittorrent.getInstance(args[0], args[1]);
 		} else {
 			System.err.println("ERROR: Insuficient arguments");
+			System.out.println("usage: RUBTClient <torrent filename> <output filename>");
+			System.exit(-1);
 		}
 		
 		// Program's loop

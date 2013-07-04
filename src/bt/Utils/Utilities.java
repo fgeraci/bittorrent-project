@@ -13,7 +13,7 @@ import bt.Model.Bittorrent;
 /**
  * A pure utilities class filled of static methods for specific tasks.
  * 
- * @author Yke, Robert and Fernando
+ * @author Ike, Robert and Fernando
  *
  */
 public class Utilities {

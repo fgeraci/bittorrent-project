@@ -2,7 +2,7 @@ package bt.Utils;
 
 /**
  * It will statically handle commands and parse them while the client runs.
- * @author Yke, Robert and Fernando
+ * @author Ike, Robert and Fernando
  *
  */
 
