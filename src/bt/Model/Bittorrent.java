@@ -91,9 +91,14 @@ public class Bittorrent {
 	private int left;
 	
 	/**
+	 * Peers list as per the server's response.
+	 */
+	private String[] peers;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
-	private Bittorrent(String torrentFile, String saveFile) //throws Exception 
+	private Bittorrent(String torrentFile, String saveFile)
 	{	
 		// open the file
 		File file = new File((this.rscFileFolder+torrentFile));
@@ -110,6 +115,10 @@ public class Bittorrent {
 		}
 	}
 	
+	/**
+	 * Initializes the state of the client from the properties file.
+	 * @throws Exception
+	 */
 	private void initClientState() throws Exception {
 		this.properties = new Properties();
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
@@ -161,9 +170,9 @@ public class Bittorrent {
 			response += fromServer.readLine();
 			response = response.substring(response.indexOf('8')-1);
 			System.out.println("Tracker Response: "+response);
-			String[] peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(response.getBytes()));
+			this.peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(response.getBytes()));
 			System.out.println("Peers List:");
-			for(String s: peers) {
+			for(String s: this.peers) {
 				System.out.println(s);
 			}
 			// close streams
@@ -178,7 +187,7 @@ public class Bittorrent {
 	
 	/**
 	 * Prints a list of decoded information from the .torrent file
-	 * after the file was succesfully decoded by the Bittorrent ctor.
+	 * after the file was successfully decoded by the Bittorrent ctor.
 	 */
 	private void printTorrentInfoFields() {
 		this.info_hash = Utilities.getStringFromByteBuffer(this.torrentInfo.info_hash);
@@ -189,8 +198,6 @@ public class Bittorrent {
 		System.out.println("Info Hash URL Encoded: "+Utilities.encodeInfoHashToURL(this.info_hash));
 		System.out.println("File Name: "+this.torrentInfo.file_name);
 		System.out.println("File Length: "+this.torrentInfo.file_length);
-		System.out.println("-----------------------------------");
-		System.out.println();
 	}
 
 }

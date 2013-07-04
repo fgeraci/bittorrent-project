@@ -155,4 +155,13 @@ public class Utilities {
 	        }
 	        return peerURLs.toArray(new String[peerURLs.size()]);
 	  }
+	 
+	 /**
+	  * Terminates the client.
+	  */
+	 public static void callClose() {
+		 // do stuff
+		 System.out.println("\n -- Client Terminated -- ");
+		 System.exit(0);
+	 }
 }
