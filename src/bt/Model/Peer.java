@@ -1,8 +1,14 @@
 package bt.Model;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -18,12 +24,17 @@ public class Peer implements Runnable {
 	private boolean choked = true;
 	private boolean interested = false;
 	private Socket dataSocket = null;
+	private InputStream in = null;
+	private OutputStream out = null;
+	private BufferedReader inReader = null;
+	private PrintWriter outWriter = null;
 	/**
 	 * interestedQueue is a maintained list of the piece requests a particular peer has made to this client.
 	 * When there is space on the outgoing TCP queue, and the connection is not choked, the oldest value in
 	 * this queue will be sent to the peer.
 	 */
 	private Queue <Integer> interestedQueue;
+	
 	/**
 	 * This is a constructor for a Peer taking the address and port as parameters.  The address and port of a
 	 * peer object are immutable during running, and therefore can only be set with this constructor.
@@ -35,16 +46,54 @@ public class Peer implements Runnable {
 	public Peer(final String address, final int port) throws UnknownHostException, IOException {
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
+		in = dataSocket.getInputStream();
+		out = dataSocket.getOutputStream();
+		inReader = new BufferedReader(new InputStreamReader(in));
+		outWriter = new PrintWriter(out);
 	}
 	
 	/**
-	 * This method will request a piece of the file from the peer this object represents so that
-	 * the piece will be added to the queue of interested pieces that peer maintains for this client.
-	 * @param piece The piece of the file to be requested.
-	 * @return true if the request is acknowledged before timeout, false otherwise.
+	 * Sends a message to the peer this object represents that it has been choked.
+	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
 	 */
-	boolean showInterested (int piece) {
-		return false;
+	void choke () throws IOException {
+		byte[] b = new byte[1];
+		b[0] = (byte) 0;
+		out.write(b);
+		out.flush();
+	}
+	
+	/**
+	 * Sends a message to the peer this object represents that it has been unchoked.
+	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
+	 */
+	void unChoke () throws IOException {
+		byte[] b = new byte[1];
+		b[0] = (byte) 1;
+		out.write(b);
+		out.flush();
+	}
+	
+	/**
+	 * Sends a message to the peer this object represents we are interested in data it holds.
+	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
+	 */
+	void showInterested() throws IOException {
+		byte[] b = new byte[1];
+		b[0] = (byte) 2;
+		out.write(b);
+		out.flush();
+	}
+	
+	/**
+	 * Sends a message to the peer this object represents that we are not interested in the data it holds.
+	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
+	 */
+	void showNotInterested() throws IOException {
+		byte[] b = new byte[1];
+		b[0] = (byte) 3;
+		out.write(b);
+		out.flush();
 	}
 	
 	/**
@@ -57,6 +106,56 @@ public class Peer implements Runnable {
 		//stub
 	}
 	
+	/**
+	 * This method sends a request message to the peer this object represents.
+	 * @param index piece of the file to be requested.
+	 * @param begin byte offset
+	 * @param length byte offset
+	 * @throws IOException will be thrown if the system is unable to dispatch the message.
+	 */
+	void requestIndex(int index, int begin, int length) throws IOException {
+		Byte b = (byte) 6;
+		byte[] message = new byte[17];
+		ByteBuffer messageBuffer = ByteBuffer.allocate(13);
+		messageBuffer.put(b).putInt(index).putInt(begin).putInt(length);
+		messageBuffer.get(message);
+		out.write(message);
+		out.flush();
+	}
+	
+	/**
+	 * This method sends a cancel message to the peer this object represents.
+	 * @param index piece of the file to be requested.
+	 * @param begin byte offset
+	 * @param length byte offset
+	 * @throws IOException will be thrown if the system is unable to dispatch the message.
+	 */
+	void cancelIndex(int index, int begin, int length) throws IOException {
+		Byte b = (byte) 8;
+		byte[] message = new byte[17];
+		ByteBuffer messageBuffer = ByteBuffer.allocate(13);
+		messageBuffer.put(b).putInt(index).putInt(begin).putInt(length);
+		messageBuffer.get(message);
+		out.write(message);
+		out.flush();
+	}
+	
+	/**
+	 * This method can be used to send a bitfield to the peer this object represents.  This should only
+	 * be done as the first message to this peer.  A bitfield is a byte[] with each index that the downloader,
+	 * this client, has sent set to one and the rest set to zero. Downloaders which don't have anything yet
+	 * may skip the 'bitfield' message. The first byte of the bitfield corresponds to indices 0 - 7 from high
+	 * bit to low bit, respectively. The next one 8-15, etc. Spare bits at the end are set to zero.
+	 * @param bitfield a byte[] bitfield to form the message
+	 * @throws IOException if the system fails to send the TCP packet properly, this exception will be thrown.
+	 */
+	void sendBitfield(byte[] bitfield) throws IOException {
+		out.write(bitfield);
+		out.flush();
+	}
+	
+	// setInterested and setChoke are both placeholders for the single peer client.  When there are more than one
+	// peer, choke and interested will be set by those peers by TCP messages.
 	/**
 	 * Sets the interested bit flag on this peer's connection.
 	 * @param value Value for interested flag.
@@ -74,7 +173,11 @@ public class Peer implements Runnable {
 	}
 	
 	public void run() {
-		
+		handShake();
+	}
+	
+	private void handShake() {
+		//handshake code needs to go here.
 	}
 	
 }
