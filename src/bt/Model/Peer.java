@@ -1,5 +1,6 @@
 package bt.Model;
 
+import RUBTClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -177,7 +178,14 @@ public class Peer implements Runnable {
 	}
 	
 	private void handShake() {
-		//handshake code needs to go here.
+		byte[] b1 = new byte[1];
+		b1[0] = (byte) 19;
+		byte[] b2 = new byte[8];
+		for (int i = 0; i < 8; i++)
+			b2[i] = (byte) 0;		
+		String handShakeStr = "" + b1[0] + "BitTorrent protocol" + b2
+			+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.info_hash) 
+			+ bittorrent.peer_id;
 	}
 	
 }
