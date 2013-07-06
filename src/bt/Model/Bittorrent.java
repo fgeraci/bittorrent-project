@@ -22,7 +22,7 @@ import bt.Utils.Utilities;
  * Tracker data fields in its constructor for then establishing a connection
  * with it.
  * 
- * @author Yke, Robert and Fernando
+ * @author Ike, Robert and Fernando
  *
  */
 
@@ -102,11 +102,6 @@ public class Bittorrent {
 	private String[] peers;
 	
 	/**
-	 * Random id for requesting peer
-	 */
-	private String peer_id;			
-	
-	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile)
@@ -169,12 +164,10 @@ public class Bittorrent {
 			
 			// create the tracker URL for the GET request
 
-			peer_id = Utilities.generateID();
-			
 			URL tracker = new URL(
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
-				"&peer_id="+peer_id+
+				"&peer_id="+Utilities.generateID()+
 				"&port="+port+
 				"&uploaded="+ this.uploaded+
 				"&downloaded="+ this.downloaded+

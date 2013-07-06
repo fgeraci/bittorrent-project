@@ -1,7 +1,6 @@
 package bt.Model;
 
 import RUBTClient;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -179,7 +178,6 @@ public class Peer implements Runnable {
 	}
 	
 	private void handShake() {
-		//handshake code needs to go here.
 		byte[] b1 = new byte[1];
 		b1[0] = (byte) 19;
 		byte[] b2 = new byte[8];
@@ -191,4 +189,3 @@ public class Peer implements Runnable {
 	}
 	
 }
-
