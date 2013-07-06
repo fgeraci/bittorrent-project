@@ -243,6 +243,18 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Returns the current info hash.
+	 * @return String info_hash.
+	 */
+	public String getInfoHash() {
+		return this.info_hash;
+	}
+	
+	public String getPeerId() {
+		return this.clientID+"";
+	}
+	
+	/**
 	 * Terminates server on close.
 	 * @throws IOException
 	 */

@@ -1,6 +1,5 @@
 package bt.Model;
 
-import RUBTClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +22,7 @@ import java.util.Queue;
 public class Peer implements Runnable {
 
 	private boolean choked = true;
+	private Bittorrent bittorrent;
 	private boolean interested = false;
 	private Socket dataSocket = null;
 	private InputStream in = null;
@@ -44,7 +44,8 @@ public class Peer implements Runnable {
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
 	 */
-	public Peer(final String address, final int port) throws UnknownHostException, IOException {
+	public Peer(final String address, final int port) throws UnknownHostException, IOException, Exception {
+		bittorrent = Bittorrent.getInstance();
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
@@ -184,8 +185,8 @@ public class Peer implements Runnable {
 		for (int i = 0; i < 8; i++)
 			b2[i] = (byte) 0;		
 		String handShakeStr = "" + b1[0] + "BitTorrent protocol" + b2
-			+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.info_hash) 
-			+ bittorrent.peer_id;
+			+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.getInfoHash()) 
+			+ bittorrent.getPeerId();
 	}
 	
 }
