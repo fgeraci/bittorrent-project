@@ -1,11 +1,8 @@
 package bt.Model;
 
-<<<<<<< HEAD
 //import RUBTClient;
 //import bt.Model.*;//Bittorent;
 
-=======
->>>>>>> 04f0b82509e3694e40353fa594759f8ce7c484d9
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,10 +25,7 @@ import java.util.Queue;
 public class Peer implements Runnable {
 
 	private boolean choked = true;
-<<<<<<< HEAD
-=======
 	private Bittorrent bittorrent;
->>>>>>> 04f0b82509e3694e40353fa594759f8ce7c484d9
 	private boolean interested = false;
 	private Socket dataSocket = null;
 	private InputStream in = null;
@@ -53,12 +47,9 @@ public class Peer implements Runnable {
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
 	 */
-<<<<<<< HEAD
-	public Peer(final String address, final int port) throws UnknownHostException, IOException {
-=======
+
 	public Peer(final String address, final int port) throws UnknownHostException, IOException, Exception {
 		bittorrent = Bittorrent.getInstance();
->>>>>>> 04f0b82509e3694e40353fa594759f8ce7c484d9
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
@@ -192,21 +183,20 @@ public class Peer implements Runnable {
 	}
 	
 	private void handShake() {
-<<<<<<< HEAD
+
 		//handshake code needs to go here.
 		String handShakeStr = null;
-=======
->>>>>>> 04f0b82509e3694e40353fa594759f8ce7c484d9
+
 		byte[] b1 = new byte[1];
 		b1[0] = (byte) 19;
 		byte[] b2 = new byte[8];
 		for (int i = 0; i < 8; i++)
 			b2[i] = (byte) 0;		
-<<<<<<< HEAD
+
 		try {
 			handShakeStr = b1 + "BitTorrent protocol" + b2
-				+ bt.Utils.Utilities.encodeInfoHashToURL(Bittorrent.info_hash)
-				+ Bittorrent.peer_id;
+				+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.getInfoHash())
+				+ bittorrent.getPeerId();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -217,11 +207,5 @@ public class Peer implements Runnable {
 	
 }
 
-=======
-		String handShakeStr = "" + b1[0] + "BitTorrent protocol" + b2
-			+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.getInfoHash()) 
-			+ bittorrent.getPeerId();
-	}
-	
-}
->>>>>>> 04f0b82509e3694e40353fa594759f8ce7c484d9
+
+
