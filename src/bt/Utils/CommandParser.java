@@ -2,7 +2,11 @@ package bt.Utils;
 
 /**
  * It will statically handle commands and parse them while the client runs.
+<<<<<<< HEAD
  * @author Yke, Robert and Fernando
+=======
+ * @author Ike, Robert and Fernando
+>>>>>>> 04f0b82509e3694e40353fa594759f8ce7c484d9
  *
  */
 
@@ -14,9 +18,12 @@ public class CommandParser {
 	 */
 	public static void execute(String command) {
 		switch(command) {
+<<<<<<< HEAD
 		case "run":
 //			bt.Model.Peer.run();
 			break;
+=======
+>>>>>>> 04f0b82509e3694e40353fa594759f8ce7c484d9
 		case "quit":
 			Utilities.callClose();
 		case "help":

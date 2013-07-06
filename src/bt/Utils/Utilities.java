@@ -6,7 +6,16 @@ import java.io.FileInputStream;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Map;
 
+import bt.Model.Bittorrent;
+
+/**
+ * A pure utilities class filled of static methods for specific tasks.
+ * 
+ * @author Ike, Robert and Fernando
+ *
+ */
 public class Utilities {
 	
 	/**
@@ -42,34 +51,7 @@ public class Utilities {
 		return bytesArray;
 	}
 	
-	/**
-	* Returns the first available port given the range or -1 if non if available.
-	* @param int left bound
-	* @param int right bound
-	* @return int port
-	*/
-	public static int getAvailablePort(int from, int to) {
-		int port = from;
-		ServerSocket ss = null;
-		while(true) {
-			try {
-				ss = new ServerSocket(port);
-				ss.close();
-				break;
-			} catch (Exception e) {
-				++port;
-				if(port > to) {
-					port = -1;
-					break;
-				}
-			} finally {
-				try {
-					if(ss != null) ss.close();
-				} catch (Exception e) { System.err.println(e.getMessage()); }
-			}
-		}
-		return port;
-	}
+	
 	
 	/**
 	 * Returns a String representation of a ByteBuffer.
@@ -126,4 +108,38 @@ public class Utilities {
 		return generatedID.toString();
 	}
 	
+	/**
+	 * Returns a peer list from the ByteBuffer return.
+	 * @param Map map
+	 * @return
+	 */
+	 public static String[] decodeCompressedPeers(Map map) {
+	        ByteBuffer peers = (ByteBuffer)map.get(ByteBuffer.wrap("peers".getBytes()));
+	        ArrayList<String> peerURLs = new ArrayList<String>();
+	        try {
+	            while (true) {
+	                String ip = String.format("%d.%d.%d.%d",
+	                    peers.get() & 0xff,
+	                    peers.get() & 0xff,
+	                    peers.get() & 0xff,
+	                    peers.get() & 0xff);
+	                int port = peers.get() * 256 + peers.get();
+	                peerURLs.add(ip + ":" + port);
+	            }
+	        } catch (Exception e) {
+	        }
+	        return peerURLs.toArray(new String[peerURLs.size()]);
+	  }
+	 
+	 /**
+	  * Terminates the client.
+	  */
+	 public static void callClose() {
+		 // do stuff
+		 try {
+			 Bittorrent.getInstance().stopServer();
+			 System.out.println("\n -- Client Terminated -- ");
+			 System.exit(0);
+		 } catch (Exception e) { /* this should never happen */	 } 
+	 }
 }

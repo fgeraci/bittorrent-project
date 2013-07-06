@@ -3,9 +3,10 @@ package bt.Exceptions;
 /**
  * Custom exception for Bencoding.
  * 
- * @author Yke, Rob and Fernando
+ * @author Ike, Robert and Fernando
  *
  */
+
 public class BencodingException extends Exception {
 	
 	/**
