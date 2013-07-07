@@ -27,8 +27,16 @@ public class Peer implements Runnable {
 	private Socket dataSocket = null;
 	private InputStream in = null;
 	private OutputStream out = null;
-	private BufferedReader inReader = null;
-	private PrintWriter outWriter = null;
+	
+	/**
+	 * This field, hash, holds the 20 byte hash of the .Torrent file being used by the client which
+	 * instantiated this object.
+	 */
+	private byte[] hash;
+	/**
+	 * This field, clientID, holds the 20 byte peer id of the client which instantiated this object.
+	 */
+	private byte[] clientID;
 	/**
 	 * interestedQueue is a maintained list of the piece requests a particular peer has made to this client.
 	 * When there is space on the outgoing TCP queue, and the connection is not choked, the oldest value in
@@ -41,17 +49,31 @@ public class Peer implements Runnable {
 	 * peer object are immutable during running, and therefore can only be set with this constructor.
 	 * @param address Address of the peer this object represents.
 	 * @param port Port on which to contact the peer which this object represents.
+	 * @param hashIn This field will hold 20 byte hash of the .Torrent file being used by the client which
+	 * instantiated this object.
+	 * @param peerID This field will hold the 20 byte peer id of the client which instantiated this object.
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
 	 */
-	public Peer(final String address, final int port) throws UnknownHostException, IOException, Exception {
+	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID)
+			throws UnknownHostException, IOException, Exception {
 		bittorrent = Bittorrent.getInstance();
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
 		out = dataSocket.getOutputStream();
-		inReader = new BufferedReader(new InputStreamReader(in));
-		outWriter = new PrintWriter(out);
+		hash = hashIn;
+		clientID = peerID;
+	}
+	
+	/**
+	 * Sends a keep alive signal to the peer this object represents.
+	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
+	 */
+	void keepalive () throws IOException {
+		byte[] b = {(byte) 0};
+		out.write(b);
+		out.flush();
 	}
 	
 	/**
@@ -59,8 +81,12 @@ public class Peer implements Runnable {
 	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
 	 */
 	void choke () throws IOException {
-		byte[] b = new byte[1];
-		b[0] = (byte) 0;
+		byte[] b = new byte[5];
+		b[0] = 0;
+		b[1] = 0;
+		b[2] = 0;
+		b[3] = (byte) 1;
+		b[4] = (byte) 0;
 		out.write(b);
 		out.flush();
 	}
@@ -70,8 +96,12 @@ public class Peer implements Runnable {
 	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
 	 */
 	void unChoke () throws IOException {
-		byte[] b = new byte[1];
-		b[0] = (byte) 1;
+		byte[] b = new byte[5];
+		b[0] = 0;
+		b[1] = 0;
+		b[2] = 0;
+		b[3] = (byte) 1;
+		b[4] = (byte) 1;
 		out.write(b);
 		out.flush();
 	}
@@ -81,8 +111,12 @@ public class Peer implements Runnable {
 	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
 	 */
 	void showInterested() throws IOException {
-		byte[] b = new byte[1];
-		b[0] = (byte) 2;
+		byte[] b = new byte[5];
+		b[0] = 0;
+		b[1] = 0;
+		b[2] = 0;
+		b[3] = (byte) 1;
+		b[4] = (byte) 2;
 		out.write(b);
 		out.flush();
 	}
@@ -92,8 +126,12 @@ public class Peer implements Runnable {
 	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
 	 */
 	void showNotInterested() throws IOException {
-		byte[] b = new byte[1];
-		b[0] = (byte) 3;
+		byte[] b = new byte[5];
+		b[0] = 0;
+		b[1] = 0;
+		b[2] = 0;
+		b[3] = (byte) 1;
+		b[4] = (byte) 3;
 		out.write(b);
 		out.flush();
 	}
