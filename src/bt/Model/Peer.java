@@ -1,14 +1,13 @@
 package bt.Model;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -20,16 +19,16 @@ import java.util.Queue;
  */
 
 public class Peer implements Runnable {
-	private byte[][] fileHeap;
-	
+	private byte[][] fileHeap = null;
+	private byte[][] verifyHash = null;
+	private boolean[] completed = null;
 	private PeerListener listener = null;
 	private boolean choked = true;
-	private Bittorrent bittorrent;
 	private boolean interested = false;
 	private Socket dataSocket = null;
 	private InputStream in = null;
 	private OutputStream out = null;
-	
+	private MessageDigest sha = null;
 	/**
 	 * This field, hash, holds the 20 byte hash of the .Torrent file being used by the client which
 	 * instantiated this object.
@@ -54,12 +53,17 @@ public class Peer implements Runnable {
 	 * @param hashIn This field will hold 20 byte hash of the .Torrent file being used by the client which
 	 * instantiated this object.
 	 * @param peerID This field will hold the 20 byte peer id of the client which instantiated this object.
+	 * @param heapReference A reference to the section of the heap where the file is stored during download.
+	 * @param verifyReference A reference to a byte array storing the correct SHA-1 hashes of the pieces of
+	 * the file.
+	 * @param completedReference A reference to a boolean array storing the completeness status of each piece
+	 * of the file.
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
 	 */
-	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID, byte[][] heapReference)
-			throws UnknownHostException, IOException, Exception {
-		bittorrent = Bittorrent.getInstance();
+	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID,
+			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
+			throws UnknownHostException, IOException {
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
@@ -67,6 +71,21 @@ public class Peer implements Runnable {
 		out = dataSocket.getOutputStream();
 		hash = hashIn;
 		clientID = peerID;
+		fileHeap = heapReference;
+		verifyHash = verifyReference;
+		completed = completedReference;
+		try {
+			sha = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		Thread listenerThread = new Thread(listener);
+		listenerThread.run();
+		handShake();
 	}
 	
 	/**
@@ -174,6 +193,42 @@ public class Peer implements Runnable {
 	}
 	
 	/**
+	 * This method is called by the PeerListener child of this object when a piece of the file is received
+	 * from the peer this object represents.  If this piece is already marked completed, we will assume that
+	 * this peer's have message has been lost, and will resend it.  If it is not marked completed, we will
+	 * add this data to the fileHeap and attempt to verify that the piece is complete.
+	 * @param index The index of this piece of the file.
+	 * @param begin The base zero offset from the beginning of this piece where the payload begins.
+	 * @param payloadSize The number of bytes in the payload.
+	 * @param payload A byte array of the incoming data.
+	 */
+	void getPiece (int index, int begin, int payloadSize, byte[] payload) {
+		if (completed[index]) {
+			boolean sent = false;
+			// This is a bit complicated looking, but this block attempts to send a have message every
+			// 50 Milliseconds until it succeeds.
+			while (!sent) {
+				try {
+					showFinished(index);
+					sent = true;
+				} catch (IOException e) {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e1) {
+						continue;
+					}
+				}
+			}
+		} else {
+		// This loops over the bytes in payload and writes them into the file heap.
+			for (int offset = 0; offset < payloadSize; ++offset) {
+			fileHeap[index][begin + offset] = payload[offset];
+			}
+			verifySHA(index);
+		}
+	}
+
+	/**
 	 * This method sends a request message to the peer this object represents.
 	 * @param index piece of the file to be requested.
 	 * @param begin byte offset
@@ -187,6 +242,24 @@ public class Peer implements Runnable {
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
+	}
+	
+	/**
+	 * This method is called by the PeerListener child of this object when a request is received from
+	 * the peer this object represents.
+	 * @param index The index of the piece that the peer has requested.
+	 */
+	void requestReceived (int index) {
+		interestedQueue.add(index);
+	}
+	
+	/**
+	 * This method is called by the PeerListener child of this object when a have is received from
+	 * the peer this object represents.
+	 * @param index The index of the piece that the peer has acknowledged complete..
+	 */
+	void haveReceived (int index) {
+		interestedQueue.remove(index);
 	}
 	
 	/**
@@ -233,15 +306,13 @@ public class Peer implements Runnable {
 	/**
 	 * Sets the choked bit flag on this peer's connection.
 	 * @param value Value for the choked flag.
+	private void verifySHA(int index) {
+		// TODO Auto-generated method stub
+		
+	}
 	 */
 	void setChoke (boolean value) {
 		choked = value;
-	}
-	
-	public void run() {
-		Thread listenerThread = new Thread(listener);
-		listenerThread.run();
-		handShake();
 	}
 	
 	private void handShake() {
@@ -257,8 +328,9 @@ public class Peer implements Runnable {
 
 		try {
 			handShakeStr = b1 + "BitTorrent protocol" + b2
-				+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.getInfoHash())
-				+ bittorrent.getPeerId();
+					// why is this being enforced as a URL?
+				+ bt.Utils.Utilities.encodeInfoHashToURL(hash.toString())
+				+ clientID;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -266,6 +338,32 @@ public class Peer implements Runnable {
 		// See what the peer will see!
 		System.out.println(handShakeStr);
 	}
-	
+/**
+ * This method verifies that the piece of the file with the given index is complete and valid.  If the
+ * file is complete and valid, It will be marked complete in the completed array, and a The peer will be
+ * sent a have message.
+ * @param index The piece of the file being verified
+ */
+	private void verifySHA(int index) {
+		byte[] test = sha.digest(fileHeap[index]);
+		if (verifyHash[index] == test) {
+			boolean sent = false;
+			// This is a bit complicated looking, but this block attempts to send a have message every
+			// 50 Milliseconds until it succeeds.
+			while (!sent) {
+				try {
+					showFinished(index);
+					sent = true;
+				} catch (IOException e) {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e1) {
+						continue;
+					}
+				}
+			}
+			completed[index] = true;
+		}
+	}
 }
 
