@@ -14,6 +14,9 @@ public class CommandParser {
 	 */
 	public static void execute(String command) {
 		switch(command) {
+		case "run":
+//			bt.Model.Peer.run();
+			break;
 		case "quit":
 			Utilities.callClose();
 		case "help":

@@ -57,6 +57,9 @@ public class Peer implements Runnable {
 	 */
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID)
 			throws UnknownHostException, IOException, Exception {
+=======
+
+	public Peer(final String address, final int port) throws UnknownHostException, IOException, Exception {
 		bittorrent = Bittorrent.getInstance();
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
@@ -217,14 +220,27 @@ public class Peer implements Runnable {
 	}
 	
 	private void handShake() {
+
+		//handshake code needs to go here.  Handshake is a byt[], not a string, please fix.
+		String handShakeStr = null;
+
 		byte[] b1 = new byte[1];
 		b1[0] = (byte) 19;
 		byte[] b2 = new byte[8];
 		for (int i = 0; i < 8; i++)
 			b2[i] = (byte) 0;		
-		String handShakeStr = "" + b1[0] + "BitTorrent protocol" + b2
-			+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.getInfoHash()) 
-			+ bittorrent.getPeerId();
+
+		try {
+			handShakeStr = b1 + "BitTorrent protocol" + b2
+				+ bt.Utils.Utilities.encodeInfoHashToURL(bittorrent.getInfoHash())
+				+ bittorrent.getPeerId();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// See what the peer will see!
+		System.out.println(handShakeStr);
 	}
 	
 }
+
