@@ -338,6 +338,43 @@ public class Peer implements Runnable {
 		// See what the peer will see!
 		System.out.println(handShakeStr);
 	}
+	
+	/**
+	 * This method can be called before removing the last reference to this object to clear system
+	 * resources and heap memory.
+	 */
+	void dispose () {
+		listener.dispose();
+		fileHeap = null;
+		verifyHash = null;
+		completed = null;
+		listener = null;
+		choked = true;
+		interested = false;
+		boolean closed = false;
+		// This loop attempts to close dataSocket once every 50 Milliseconds until it succeeds.
+		while (!closed) {
+			try {
+				dataSocket.close();
+			} catch (IOException e) {
+				try {
+					Thread.sleep(50);
+					closed = true;
+				} catch (InterruptedException e1) {
+					continue;
+				}
+			}
+		}
+		in = null;
+		out = null;
+		dataSocket = null;
+		sha = null;
+		hash = null;
+		clientID = null;
+		interestedQueue.clear();
+		interestedQueue = null;	
+	}
+	
 /**
  * This method verifies that the piece of the file with the given index is complete and valid.  If the
  * file is complete and valid, It will be marked complete in the completed array, and a The peer will be

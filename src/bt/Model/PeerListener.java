@@ -31,5 +31,13 @@ class PeerListener implements Runnable{
 			}
 		}
 	}
-
+	
+	/**
+	 * This method is called by the parent of this object as the first action of its own dispose method to
+	 * remove references to itself which might prevent garbage collection.
+	 */
+	void dispose () {
+		in = null;
+		parent = null;
+	}
 }
