@@ -20,7 +20,7 @@ import java.util.Queue;
  */
 
 public class Peer implements Runnable {
-
+	private PeerListener listener = null;
 	private boolean choked = true;
 	private Bittorrent bittorrent;
 	private boolean interested = false;
@@ -61,6 +61,7 @@ public class Peer implements Runnable {
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
+		listener = new PeerListener(this, in);
 		out = dataSocket.getOutputStream();
 		hash = hashIn;
 		clientID = peerID;
@@ -178,10 +179,9 @@ public class Peer implements Runnable {
 	 * @throws IOException will be thrown if the system is unable to dispatch the message.
 	 */
 	void requestIndex(int index, int begin, int length) throws IOException {
-		Byte b = (byte) 6;
 		byte[] message = new byte[17];
 		ByteBuffer messageBuffer = ByteBuffer.allocate(17);
-		messageBuffer.putInt(13).put(b).putInt(index).putInt(begin).putInt(length);
+		messageBuffer.putInt(13).put((byte) 6).putInt(index).putInt(begin).putInt(length);
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
@@ -237,6 +237,8 @@ public class Peer implements Runnable {
 	}
 	
 	public void run() {
+		Thread listenerThread = new Thread(listener);
+		listenerThread.run();
 		handShake();
 	}
 	
