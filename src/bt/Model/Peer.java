@@ -57,9 +57,6 @@ public class Peer implements Runnable {
 	 */
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID)
 			throws UnknownHostException, IOException, Exception {
-=======
-
-	public Peer(final String address, final int port) throws UnknownHostException, IOException, Exception {
 		bittorrent = Bittorrent.getInstance();
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
@@ -144,9 +141,33 @@ public class Peer implements Runnable {
 	 * the file from some peer.  The peer this object represents will therefore be able to remove this
 	 * piece from the queue of interested pieces it is maintaining for this client.
 	 * @param piece The piece of the file which has been completed.
+	 * @throws IOException 
 	 */
-	void showFinished (int piece) {
-		//stub
+	void showFinished (int piece) throws IOException {
+		byte[] message = null;
+		ByteBuffer messageBuffer = ByteBuffer.allocate(9);
+		messageBuffer.putInt(5).put((byte)4).putInt(piece);
+		messageBuffer.get(message);
+		out.write(message);
+		out.flush();
+	}
+	
+	/**
+	 * This message sends a piece of the file to the peer this object represents.
+	 * @param index Index of this piece of the file
+	 * @param begin byte offset in the piece where the payload of this message begins.
+	 * @param payloadSize size of the payload in bytes.
+	 * @param payload byte array of the payload.
+	 * @throws IOException will be thrown if the system is unable to dispatch the message.
+	 */
+	void  sendPiece (int index, int begin, int payloadSize, byte[] payload) throws IOException {
+		int length = payloadSize + 9;
+		byte[] message = null;
+		ByteBuffer messageBuffer = ByteBuffer.allocate(length + 4);
+		messageBuffer.putInt(length).put((byte)7).putInt(index).putInt(begin).put(payload);
+		messageBuffer.get(message);
+		out.write(message);
+		out.flush();
 	}
 	
 	/**
@@ -159,8 +180,8 @@ public class Peer implements Runnable {
 	void requestIndex(int index, int begin, int length) throws IOException {
 		Byte b = (byte) 6;
 		byte[] message = new byte[17];
-		ByteBuffer messageBuffer = ByteBuffer.allocate(13);
-		messageBuffer.put(b).putInt(index).putInt(begin).putInt(length);
+		ByteBuffer messageBuffer = ByteBuffer.allocate(17);
+		messageBuffer.putInt(13).put(b).putInt(index).putInt(begin).putInt(length);
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
