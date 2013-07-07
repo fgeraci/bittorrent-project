@@ -165,6 +165,7 @@ public class Bittorrent {
 		// initializes the server and returns its port
 		this.server = Server.getInstance();
 		int port = this.server.getPort();
+		
 		String response = null;
 		try {
 			
@@ -218,6 +219,8 @@ public class Bittorrent {
 		System.out.println("Info Hash URL Encoded: "+Utilities.encodeInfoHashToURL(this.info_hash));
 		System.out.println("File Name: "+this.torrentInfo.file_name);
 		System.out.println("File Length: "+this.torrentInfo.file_length);
+		System.out.println("Piece Size: "+this.torrentInfo.piece_length);
+		
 	}
 	
 	/**
@@ -267,5 +270,6 @@ public class Bittorrent {
 	public void stopServer() throws IOException, Exception {
 		this.server.terminateServer();
 	}
+	 
 
 }

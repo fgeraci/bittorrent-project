@@ -31,6 +31,7 @@ public class CommandParser {
 			} else {
 				System.out.println("Server unbounded listening for incoming connections");
 			}
+			break;
 		default:
 			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}

@@ -99,6 +99,7 @@ public class Server implements Runnable {
 	public void run() {
 		this.initServer(6881, 6889);
 		System.out.println("Server intiated OK");
+		
 	}
 
 }
