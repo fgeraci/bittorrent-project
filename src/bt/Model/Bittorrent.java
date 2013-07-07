@@ -107,6 +107,11 @@ public class Bittorrent {
 	private String[] peers;
 	
 	/**
+	 * double array pieces collection
+	 */
+	private byte[][] colletion;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile)
@@ -120,6 +125,7 @@ public class Bittorrent {
 			this.initClientState();
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
+			this.initPiecesColletion();
 			this.sendRequestToTracker();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -151,6 +157,11 @@ public class Bittorrent {
 		return Bittorrent.instance;
 	}
 	
+	/**
+	 * Returns the singleton instance of the client.
+	 * @return Bittorrent instance
+	 * @throws Exception
+	 */
 	public static Bittorrent getInstance() throws Exception {
 		if(Bittorrent.instance == null) throw new Exception("Client was never initialized");
 		return Bittorrent.instance;
@@ -180,7 +191,6 @@ public class Bittorrent {
 				"&downloaded="+ this.downloaded+
 				"&left="+ this.left+
 				"&event="+ this.event);
-			
 			// open streams
 			BufferedReader fromServer = new BufferedReader(
 					new InputStreamReader(tracker.openStream()));
@@ -197,6 +207,8 @@ public class Bittorrent {
 			}
 			// close streams
 			fromServer.close();
+			
+			// connect to peer
 			
 			// close connection
 		} catch (Exception e) {
@@ -259,6 +271,10 @@ public class Bittorrent {
 		return this.info_hash;
 	}
 	
+	/**
+	 * Return the current peer id.
+	 * @return
+	 */
 	public String getPeerId() {
 		return this.clientID+"";
 	}
@@ -271,5 +287,13 @@ public class Bittorrent {
 		this.server.terminateServer();
 	}
 	 
+	/**
+	 * Initiates the bytes collections. 
+	 */
+	private void initPiecesColletion() {
+		int segments = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
+		int segmentLength = this.torrentInfo.file_length / segments;
+		this.colletion = new byte[segments][segmentLength];
+	}
 
 }
