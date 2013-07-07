@@ -20,6 +20,7 @@ import java.util.Queue;
  */
 
 public class Peer implements Runnable {
+	private byte[][] fileHeap;
 	private PeerListener listener = null;
 	private boolean choked = true;
 	private Bittorrent bittorrent;
@@ -55,7 +56,7 @@ public class Peer implements Runnable {
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
 	 */
-	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID)
+	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID, byte[][] heapReference)
 			throws UnknownHostException, IOException, Exception {
 		bittorrent = Bittorrent.getInstance();
 		interestedQueue = new ArrayDeque <Integer> ();
