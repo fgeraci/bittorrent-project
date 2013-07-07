@@ -41,8 +41,9 @@ public class CommandParser {
 	 * Prints a list of available commands. It will expand as we advance.
 	 */
 	public static void printHelp() {
-		System.out.println("\nHELP - Available Commands (so far):");
+		System.out.println("\nhelp\t - Available Commands (so far):");
 		System.out.println("quit\t - terminates the client.");
+		System.out.println("serverstatus\t - server's bound status.");
 		System.out.println("--------------------------------\n");
 	}
 	

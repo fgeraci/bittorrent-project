@@ -74,7 +74,7 @@ public class Bittorrent {
 	/**
 	 * Randomly generated user ID.
 	 */
-	private int clientID;
+	private String clientID;
 	
 	/**
 	 * Properties file.
@@ -120,6 +120,7 @@ public class Bittorrent {
 		File file = new File((this.rscFileFolder+torrentFile));
 		try {
 			// get file info
+			this.clientID = Utilities.generateID();
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
 			this.initClientState();
@@ -185,7 +186,7 @@ public class Bittorrent {
 			URL tracker = new URL(
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
-				"&peer_id="+Utilities.generateID()+
+				"&peer_id="+this.clientID+
 				"&port="+port+
 				"&uploaded="+ this.uploaded+
 				"&downloaded="+ this.downloaded+
@@ -208,7 +209,15 @@ public class Bittorrent {
 			// close streams
 			fromServer.close();
 			
-			// connect to peer
+			// connect to peer - this is just trial code to instantiate and test the peer.
+			
+			Peer peer = new Peer(	Utilities.getIPFromString(this.peers[0]), // peer[0] selected
+									Utilities.getPortFromString(this.peers[0]), // peer[0] selected
+									this.info_hash.getBytes(),
+									this.clientID.getBytes(),
+									null, // to be completed
+									null, // to be completed
+									new boolean[this.colletion.length]);
 			
 			// close connection
 		} catch (Exception e) {

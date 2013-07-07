@@ -142,4 +142,32 @@ public class Utilities {
 			 System.exit(0);
 		 } catch (Exception e) { /* this should never happen */	 } 
 	 }
+	 
+	 /**
+	  * Splits the IPv4 and port from address.
+	  * @param String address
+	  * @return String IPv4 address
+	  */
+	 public static String getIPFromString(String address) {
+		 String ipAddress = null;
+		 int separator = address.indexOf(':');
+		 if(separator != -1) {
+			 ipAddress = address.substring(0, separator);
+		 }
+		 return ipAddress;
+	 }
+	 
+	 /**
+	  * Splits the port section of a String IPv4:port String.
+	  * @param address
+	  * @return
+	  */
+	 public static int getPortFromString(String address) {
+		 int port = -1;
+		 int separator = address.indexOf(':');
+		 if(separator != -1) {
+			 port = Integer.parseInt(address.substring(separator));
+		 }
+		 return port;
+	 }
 }
