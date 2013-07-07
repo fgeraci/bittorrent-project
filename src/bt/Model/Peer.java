@@ -57,9 +57,6 @@ public class Peer implements Runnable {
 	 */
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID)
 			throws UnknownHostException, IOException, Exception {
-=======
-
-	public Peer(final String address, final int port) throws UnknownHostException, IOException, Exception {
 		bittorrent = Bittorrent.getInstance();
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);

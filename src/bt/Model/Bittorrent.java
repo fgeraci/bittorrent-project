@@ -29,6 +29,11 @@ import bt.Utils.Utilities;
 public class Bittorrent {
 	
 	/**
+	 * Listening server for incoming connections.
+	 */
+	private Server server;
+	
+	/**
 	 * Listener server of the client
 	 */
 	ServerSocket ss;
@@ -158,7 +163,8 @@ public class Bittorrent {
 	 */
 	public String sendRequestToTracker() {
 		// initializes the server and returns its port
-		int port = this.initServer(6881, 6889);
+		this.server = Server.getInstance();
+		int port = this.server.getPort();
 		String response = null;
 		try {
 			
@@ -258,8 +264,8 @@ public class Bittorrent {
 	 * Terminates server on close.
 	 * @throws IOException
 	 */
-	public void stopServer() throws IOException {
-		this.ss.close();
+	public void stopServer() throws IOException, Exception {
+		this.server.terminateServer();
 	}
 
 }

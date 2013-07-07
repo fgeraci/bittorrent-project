@@ -1,5 +1,8 @@
 package bt.Utils;
 
+import bt.Model.Bittorrent;
+import bt.Model.Server;
+
 /**
  * It will statically handle commands and parse them while the client runs.
  * @author Ike, Robert and Fernando
@@ -22,6 +25,12 @@ public class CommandParser {
 		case "help":
 			CommandParser.printHelp();
 			break;
+		case "serverstatus":
+			if(Server.getInstance().getServerStatus()) {
+				System.out.println("Server bounded to client");
+			} else {
+				System.out.println("Server unbounded listening for incoming connections");
+			}
 		default:
 			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}
