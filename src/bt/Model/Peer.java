@@ -21,6 +21,7 @@ import java.util.Queue;
 
 public class Peer implements Runnable {
 	private byte[][] fileHeap;
+	
 	private PeerListener listener = null;
 	private boolean choked = true;
 	private Bittorrent bittorrent;

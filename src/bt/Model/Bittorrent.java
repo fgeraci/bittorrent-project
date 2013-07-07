@@ -29,6 +29,11 @@ import bt.Utils.Utilities;
 public class Bittorrent {
 	
 	/**
+	 * Listening server for incoming connections.
+	 */
+	private Server server;
+	
+	/**
 	 * Listener server of the client
 	 */
 	ServerSocket ss;
@@ -158,7 +163,9 @@ public class Bittorrent {
 	 */
 	public String sendRequestToTracker() {
 		// initializes the server and returns its port
-		int port = this.initServer(6881, 6889);
+		this.server = Server.getInstance();
+		int port = this.server.getPort();
+		
 		String response = null;
 		try {
 			
@@ -212,6 +219,8 @@ public class Bittorrent {
 		System.out.println("Info Hash URL Encoded: "+Utilities.encodeInfoHashToURL(this.info_hash));
 		System.out.println("File Name: "+this.torrentInfo.file_name);
 		System.out.println("File Length: "+this.torrentInfo.file_length);
+		System.out.println("Piece Size: "+this.torrentInfo.piece_length);
+		
 	}
 	
 	/**
@@ -258,8 +267,9 @@ public class Bittorrent {
 	 * Terminates server on close.
 	 * @throws IOException
 	 */
-	public void stopServer() throws IOException {
-		this.ss.close();
+	public void stopServer() throws IOException, Exception {
+		this.server.terminateServer();
 	}
+	 
 
 }
