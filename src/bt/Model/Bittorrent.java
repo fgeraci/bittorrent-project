@@ -10,6 +10,9 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -111,6 +114,22 @@ public class Bittorrent {
 	 */
 	private byte[][] colletion;
 	
+	//This is going to have to be filled out properly later.
+	/**
+	 * This array stores the correct SHA-1 hashes for each piece of the file this object was
+	 * instantiated to retrieve.
+	 */
+	private byte[][] verificationArray = null;
+	
+	//This is going to have to be filled out properly later.
+	/**
+	 * This array reads true if the piece at the index has been downloaded and verified, and false
+	 * otherwise.
+	 */
+	private boolean[] completedPieces = null;
+	
+	private List<Peer> peerList = null;
+	
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
@@ -138,13 +157,17 @@ public class Bittorrent {
 	 * @throws Exception
 	 */
 	private void initClientState() throws Exception {
+		int pieces = 6;		// This is a place holder, the real value needs to be pulled from the .torrent file.
+		int pieceSize = 400;// This is a place holder, the real value needs to be pulled from the .torrent file.		
 		this.properties = new Properties();
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 		this.event = this.properties.getProperty("event");
 		this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
 		this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
 		this.left = Integer.parseInt(this.properties.getProperty("left"));
-		
+		this.colletion = new byte[pieces][pieceSize];
+		this.verificationArray = new byte[pieces][20];
+		peerList = new ArrayList<Peer>();
 	}
 	
 	/**
@@ -208,18 +231,6 @@ public class Bittorrent {
 			}
 			// close streams
 			fromServer.close();
-			
-			// connect to peer - this is just trial code to instantiate and test the peer.
-			
-			Peer peer = new Peer(	Utilities.getIPFromString(this.peers[0]), // peer[0] selected
-									Utilities.getPortFromString(this.peers[0]), // peer[0] selected
-									this.info_hash.getBytes(),
-									this.clientID.getBytes(),
-									null, // to be completed
-									null, // to be completed
-									new boolean[this.colletion.length]);
-			
-			// close connection
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -242,6 +253,30 @@ public class Bittorrent {
 		System.out.println("File Length: "+this.torrentInfo.file_length);
 		System.out.println("Piece Size: "+this.torrentInfo.piece_length);
 		
+	}
+	
+	private void initPeers() {
+		// connect to peer - this is just trial code to instantiate and test the peer.
+		ArrayList<byte[]> torrentPeerList = new ArrayList<byte[]>();
+		int peerIndex = 0;
+		for (byte[] peerID : torrentPeerList) {
+			try {
+				peerList.add(new Peer(	Utilities.getIPFromString(this.peers[0]), // peer[0] selected
+										Utilities.getPortFromString(this.peers[0]), // peer[0] selected
+										this.info_hash.getBytes(),
+										this.clientID.getBytes(),
+										colletion, // to be completed
+										verificationArray, // to be completed
+										completedPieces));
+			} catch (UnknownHostException e) {
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Thread peerThread = new Thread(peerList.get(peerIndex));
+			peerThread.start();
+			peerIndex++;
+		}
 	}
 	
 	/**

@@ -29,6 +29,7 @@ public class Peer implements Runnable {
 	private InputStream in = null;
 	private OutputStream out = null;
 	private MessageDigest sha = null;
+	private boolean running = true;
 	/**
 	 * This field, hash, holds the 20 byte hash of the .Torrent file being used by the client which
 	 * instantiated this object.
@@ -82,10 +83,32 @@ public class Peer implements Runnable {
 		}
 	}
 	
+	/**
+	 * This method spins off a listener thread to receive file pieces from the peer this object
+	 * represents, calls for a handshake with that peer, then enters a loop in which it serves
+	 * requested file pieces to that peer.
+	 */
 	public void run() {
 		Thread listenerThread = new Thread(listener);
 		listenerThread.run();
 		handShake();
+		while(running) {	// This is the file sending loop. 
+			if (interestedQueue.isEmpty()) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					continue;
+				}
+			} else {
+				if (interested && !choked) {
+					int toSend = interestedQueue.poll();
+					if (completed[toSend]) {
+						send(toSend);
+					}
+					interestedQueue.offer(toSend);
+				}
+			}
+		}					// This is the end of the file sending loop.
 	}
 	
 	/**
@@ -172,6 +195,27 @@ public class Peer implements Runnable {
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
+	}
+	
+	private void send (int index) {
+		int offset = 0;
+		int repeat = fileHeap[index].length / 512;
+		for (offset = 0; offset < repeat; offset++) {
+			int begin = offset * 512;
+			byte[] payload = new byte[512];
+			for (int i = 0; i < 512; i++) {
+				payload[i] = fileHeap[index][begin + i];
+			}
+			boolean sent = false;
+			while (!sent) {	// Try to send this message until it succeeds.
+				try {
+					sendPiece (index, begin, 512, payload);
+					sent = true;
+				} catch (IOException e) {
+					continue;
+				}
+			}
+		}
 	}
 	
 	/**
@@ -292,27 +336,28 @@ public class Peer implements Runnable {
 		out.write(bitfield);
 		out.flush();
 	}
-	
-	// setInterested and setChoke are both placeholders for the single peer client.  When there are more than one
-	// peer, choke and interested will be set by those peers by TCP messages.
 	/**
-	 * Sets the interested bit flag on this peer's connection.
+	 * Sets the interested bit flag on this peer's connection.  When a peer sets not interested we
+	 * clear the interestedQueue.
 	 * @param value Value for interested flag.
 	 */
 	void setInterested (boolean value) {
 		interested = value;
+		if (!value) {
+			interestedQueue.clear();
+		}
 	}
 	
 	/**
-	 * Sets the choked bit flag on this peer's connection.
+	 * Sets the choked bit flag on this peer's connection.  We clear the interestedQueue when we
+	 * are choked.
 	 * @param value Value for the choked flag.
-	private void verifySHA(int index) {
-		// TODO Auto-generated method stub
-		
-	}
 	 */
 	void setChoke (boolean value) {
 		choked = value;
+		if (value) {
+			interestedQueue.clear();
+		}
 	}
 	
 	private void handShake() {
@@ -351,6 +396,7 @@ public class Peer implements Runnable {
 		listener = null;
 		choked = true;
 		interested = false;
+		running = false;
 		boolean closed = false;
 		// This loop attempts to close dataSocket once every 50 Milliseconds until it succeeds.
 		while (!closed) {
