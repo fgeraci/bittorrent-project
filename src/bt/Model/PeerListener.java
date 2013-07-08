@@ -6,6 +6,7 @@ import java.io.InputStream;
 class PeerListener implements Runnable{
 	private InputStream in = null;
 	private Peer parent = null;
+	private boolean running = true;
 	
 	PeerListener (Peer parent, InputStream inStream) {
 		in = inStream;
@@ -14,9 +15,11 @@ class PeerListener implements Runnable{
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		// Remember, this won't actually work because there is not guarantee that nextLine is a
+		// single incoming message.  The TCP buffer could contain more than one message, and if
+		// it does we need to handle all of them and not just the first.
 		byte[] nextLine = null;
-		while(true) {
+		while(running) {
 			try {
 				in.read(nextLine);
 			} catch (IOException e) {
@@ -37,6 +40,7 @@ class PeerListener implements Runnable{
 	 * remove references to itself which might prevent garbage collection.
 	 */
 	void dispose () {
+		running = false;
 		in = null;
 		parent = null;
 	}
