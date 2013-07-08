@@ -83,7 +83,14 @@ public class Peer implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		// added to start a new thread on the instantiation of a peer.
+		
+		Thread peerThread = new Thread(this);
+		peerThread.start();
 	}
+	
+	
 	
 	/**
 	 * This method spins off a listener thread to receive file pieces from the peer this object
@@ -383,7 +390,7 @@ public class Peer implements Runnable {
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("FATAL: Handshake unsuccessful.");
 		}
 		// See what the peer will see!
 		System.out.println("Handshake:  " + handShakeBB.toString());
