@@ -377,15 +377,22 @@ public class Peer implements Runnable {
 		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
 		String btProtocol = "BitTorrent protocol";
-
+		
 		byte[] b1 = new byte[1];
 		b1[0] = (byte) 19;
 		byte[] b2 = new byte[8];
 		for (int i = 0; i < 8; i++)
 			b2[i] = (byte) 0;		
 		
+		// we need to figure why the bufferoverflow here
 		handShakeBB.put(b1).put(btProtocol.getBytes()).put(b2).
 				put(this.hash).put(clientID);
+		byte[] message = new byte[68];
+		handShakeBB.get(message);
+		try {
+			this.out.write(message);
+			this.out.flush();
+		} catch (Exception e) { /* hope this never happens */ }
 		
 		// See what the peer will see!
 		System.out.println("Handshake:  " + handShakeBB.toString()+"\n");
