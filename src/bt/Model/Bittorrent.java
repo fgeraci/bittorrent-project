@@ -32,6 +32,11 @@ import bt.Utils.Utilities;
 public class Bittorrent {
 	
 	/**
+	 * There should be one entry for each successful connection mapped to peers[].
+	 */
+	boolean[] connections;
+	
+	/**
 	 * Listening server for incoming connections.
 	 */
 	private Server server;
@@ -40,6 +45,12 @@ public class Bittorrent {
 	 * Listener server of the client
 	 */
 	ServerSocket ss;
+	
+	/**
+	 * Name of the file
+	 */
+	private String fileName;
+	
 	
 	/**
 	 * Single Bittorrent instance.
@@ -166,8 +177,9 @@ public class Bittorrent {
 	 * @throws Exception
 	 */
 	private void initClientState() throws Exception {
-		int pieces = 6;		// This is a place holder, the real value needs to be pulled from the .torrent file.
-		int pieceSize = 400;// This is a place holder, the real value needs to be pulled from the .torrent file.		
+		int pieces = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
+		int pieceSize = this.torrentInfo.piece_length;
+		this.fileName = this.torrentInfo.file_name;
 		this.properties = new Properties();
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 		this.event = this.properties.getProperty("event");
@@ -235,28 +247,13 @@ public class Bittorrent {
 			System.out.println("Tracker Response: "+response);
 			this.peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(response.getBytes()));
 			System.out.println("Peers List:");
-			for(String s: this.peers) {
-				System.out.println(s);
-			}
+			this.printPeerList();
+			this.connections = new boolean[this.peers.length];
 			// close streams
 			fromServer.close();
-			
-			// connect to peer - this is just trial code to instantiate and test the peer.
-			
-			Peer peer = new Peer(	Utilities.getIPFromString(this.peers[0]), // peer[0] selected
-									Utilities.getPortFromString(this.peers[0]), // peer[0] selected
-									this.info_hash.getBytes(),
-									this.clientID.getBytes(),
-									null, // to be completed
-									null, // to be completed
-									new boolean[this.collection.length]);
-			
-			// close connection
-
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
-		System.out.println("-----------------------------------");
 		return response;
 	}
 	
@@ -360,6 +357,51 @@ public class Bittorrent {
 		int segments = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
 		int segmentLength = this.torrentInfo.file_length / segments;
 		this.collection = new byte[segments][segmentLength];
+	}
+	
+	/**
+	 * Print a list of available peers as per last refresh from tracker.
+	 */
+	public void printPeerList() {
+		int number = 1;
+		System.out.println("-----------------------------------");
+		for(String s: this.peers) {
+			System.out.println(number+". "+s);
+			++number;
+		}
+		System.out.println("-----------------------------------");
+	}
+	
+	/**
+	 * Connect to the selected peer. Rustic implementation, but its just a starter.
+	 * @param int peer number
+	 */
+	public void connectToPeer(int peer) throws Exception {
+		peer = peer - 1;
+		// create peer, attempt connection, feed arguments.
+		if(peer < 0 || peer >= this.peers.length) {
+			throw new IllegalArgumentException("Invalid peer number, out of range.");
+		} else if(this.connections[peer]) {
+			throw new Exception("Connection already stablished with peer: "+this.peers[peer]);
+		} else {
+			// get info
+			String ip = Utilities.getIPFromString(this.peers[peer]);
+			int port = Utilities.getPortFromString(this.peers[peer]);
+			
+			// attempt peer
+			Peer p = new Peer(	ip,
+								port,
+								this.info_hash.getBytes(),
+								this.clientID.getBytes(), 
+								this.collection,
+								this.verificationArray,
+								new boolean[this.collection.length]);
+			
+			// mar the connection as boolean connected in this.connectios
+			this.connections[peer] = true;
+			// add the peer to the peers list
+		}
+		
 	}
 
 }

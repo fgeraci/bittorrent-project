@@ -31,7 +31,7 @@ public class RUBTClient {
 		}
 		
 		// Program's loop
-		System.out.println("Connection Successfull, welcome.");
+		System.out.println("Connection Successfull, welcome. Input help for commands");
 		while(true) {
 			try {
 				System.out.print("%> ");

@@ -166,7 +166,7 @@ public class Utilities {
 		 int port = -1;
 		 int separator = address.indexOf(':');
 		 if(separator != -1) {
-			 port = Integer.parseInt(address.substring(separator));
+			 port = Integer.parseInt(address.substring(separator+1));
 		 }
 		 return port;
 	 }

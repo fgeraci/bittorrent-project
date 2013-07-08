@@ -1,5 +1,7 @@
 package bt.Utils;
 
+import java.util.Scanner;
+
 import bt.Model.Bittorrent;
 import bt.Model.Peer;
 import bt.Model.Server;
@@ -22,7 +24,7 @@ public class CommandParser {
 	 */
 	static Peer agent = null;
 	
-	public static void execute(String command) {
+	public static void execute(String command) throws Exception {
 		switch(command) {
 		case "run":
 			agent.run();
@@ -39,6 +41,22 @@ public class CommandParser {
 				System.out.println("Server unbounded listening for incoming connections");
 			}
 			break;
+		case "printpeers":
+			Bittorrent.getInstance().printPeerList();
+			break;
+		case "connect":
+			String read = null;
+			int peer = -1;
+			System.out.println("\nInput peer number: ");
+			Bittorrent.getInstance().printPeerList();
+			System.out.print("PEER NUMBER >> ");
+			Scanner sc = new Scanner(System.in);
+			try {
+				peer = Integer.parseInt(sc.nextLine());
+				Bittorrent.getInstance().connectToPeer(peer);
+				// call Bittorrent client method to connect to peer.
+			} catch (Exception e) { System.out.println(e.getMessage()); }
+			break;
 		default:
 			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}
@@ -48,9 +66,12 @@ public class CommandParser {
 	 * Prints a list of available commands. It will expand as we advance.
 	 */
 	public static void printHelp() {
-		System.out.println("\nhelp\t - Available Commands (so far):");
-		System.out.println("quit\t - terminates the client.");
-		System.out.println("serverstatus\t - server's bound status.");
+		System.out.println("\nHELP ---------------------------");
+		System.out.println("help - Available Commands (so far)");
+		System.out.println("connect - Select a peer and attempt connection.");
+		System.out.println("printpeers - Print list of available peers");
+		System.out.println("serverstatus - server's bound status.");
+		System.out.println("quit - terminates the client.");
 		System.out.println("--------------------------------\n");
 	}
 	
