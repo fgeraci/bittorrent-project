@@ -197,6 +197,7 @@ public class Bittorrent {
 		this.left = Integer.parseInt(this.properties.getProperty("left"));
 		this.collection = new byte[pieces][pieceSize];
 		this.verificationArray = new byte[pieces][20];
+		this.completedPieces = new boolean[this.collection.length];
 		peerList = new ArrayList<Peer>();
 	}
 	
@@ -404,7 +405,7 @@ public class Bittorrent {
 								this.clientID.getBytes(), 
 								this.collection,
 								this.verificationArray,
-								new boolean[this.collection.length]);
+								this.completedPieces);
 			
 			// mar the connection as boolean connected in this.connectios
 			this.connections[peer] = true;
