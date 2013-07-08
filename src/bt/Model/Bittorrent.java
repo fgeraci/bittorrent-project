@@ -163,6 +163,15 @@ public class Bittorrent {
 		}
 	}
 	
+	
+	/**
+	 * Updates the value in left bytes for the file.
+	 * @param int bytes
+	 */
+	public void updateLeft(int bytes) {
+		this.left += bytes;
+	}
+	
 	/**
 	 * public getter for info_hash byte array
 	 * @return Byte[] backing ByteBuffer

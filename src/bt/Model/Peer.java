@@ -371,9 +371,9 @@ public class Peer implements Runnable {
 	
 	private void handShake() {
 
-		//handshake code needs to go here.  Handshake is a byte[], not a string, please fix.
+		// handshake code needs to go here.  Handshake is a byte[], not a string, please fix.
 		// Handshake byte array 
-//		byte[] handShakeBB = new byte[68];
+		// byte[] handShakeBB = new byte[68];
 		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
 		String btProtocol = "BitTorrent protocol";
@@ -383,17 +383,12 @@ public class Peer implements Runnable {
 		byte[] b2 = new byte[8];
 		for (int i = 0; i < 8; i++)
 			b2[i] = (byte) 0;		
-
-		try {
-			handShakeBB.put(b1).put(btProtocol.getBytes()).put(b2).
+		
+		handShakeBB.put(b1).put(btProtocol.getBytes()).put(b2).
 				put(this.hash).put(clientID);
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			System.out.println("FATAL: Handshake unsuccessful.");
-		}
+		
 		// See what the peer will see!
-		System.out.println("Handshake:  " + handShakeBB.toString());
+		System.out.println("Handshake:  " + handShakeBB.toString()+"\n");
 		// Well, we make it to here, but println() cannot do much with a byte buffer
 		// 	Sorry, but we must pick up from here!
 	}
