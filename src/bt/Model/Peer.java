@@ -1,5 +1,6 @@
 package bt.Model;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+import bt.Model.Bittorrent;
 
 /**
  * Creates a connection with a peer to download a file.
@@ -30,7 +32,7 @@ public class Peer implements Runnable {
 	private OutputStream out = null;
 	private MessageDigest sha = null;
 	/**
-	 * This field, hash, holds the 20 byte hash of the .Torrent file being used by the client which
+	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
 	 * instantiated this object.
 	 */
 	private byte[] hash;
@@ -84,7 +86,7 @@ public class Peer implements Runnable {
 	
 	public void run() {
 		Thread listenerThread = new Thread(listener);
-		listenerThread.run();
+//		listenerThread.run();	// Blocked to test handShake
 		handShake();
 	}
 	
@@ -161,7 +163,7 @@ public class Peer implements Runnable {
 	/**
 	 * This method will notify this client that we have successfully completed the transfer of a piece of
 	 * the file from some peer.  The peer this object represents will therefore be able to remove this
-	 * piece from the queue of interested pieces it is maintaining for this client.
+	 * piece from the queue of interested pieces it is maintaining for this client. 
 	 * @param piece The piece of the file which has been completed.
 	 * @throws IOException 
 	 */
@@ -317,8 +319,12 @@ public class Peer implements Runnable {
 	
 	private void handShake() {
 
-		//handshake code needs to go here.  Handshake is a byt[], not a string, please fix.
-		String handShakeStr = null;
+		//handshake code needs to go here.  Handshake is a byte[], not a string, please fix.
+		// Handshake byte array 
+//		byte[] handShakeBB = new byte[68];
+		
+		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
+		String btProtocol = "BitTorrent protocol";
 
 		byte[] b1 = new byte[1];
 		b1[0] = (byte) 19;
@@ -327,16 +333,17 @@ public class Peer implements Runnable {
 			b2[i] = (byte) 0;		
 
 		try {
-			handShakeStr = b1 + "BitTorrent protocol" + b2
-					// why is this being enforced as a URL?
-				+ bt.Utils.Utilities.encodeInfoHashToURL(hash.toString())
-				+ clientID;
+			handShakeBB.put(b1).put(btProtocol.getBytes()).put(b2).
+				put(this.hash).put(clientID);
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// See what the peer will see!
-		System.out.println(handShakeStr);
+		System.out.println("Handshake:  " + handShakeBB.toString());
+		// Well, we make it to here, but println() cannot do much with a byte buffer
+		// 	Sorry, but we must pick up from here!
 	}
 	
 	/**

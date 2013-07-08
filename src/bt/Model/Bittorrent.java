@@ -109,7 +109,7 @@ public class Bittorrent {
 	/**
 	 * double array pieces collection
 	 */
-	private byte[][] colletion;
+	private byte[][] collection;
 	
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
@@ -132,6 +132,15 @@ public class Bittorrent {
 			System.err.println(e.getMessage());
 		}
 	}
+	
+	/**
+	 * public getter for info_hash byte array
+	 * @return Byte[] backing ByteBuffer
+	 */
+	public byte[] getTorrentInfoHash() {
+		return this.torrentInfo.info_hash.array();
+	}
+
 	
 	/**
 	 * Initializes the state of the client from the properties file.
@@ -217,7 +226,7 @@ public class Bittorrent {
 									this.clientID.getBytes(),
 									null, // to be completed
 									null, // to be completed
-									new boolean[this.colletion.length]);
+									new boolean[this.collection.length]);
 			
 			// close connection
 		} catch (Exception e) {
@@ -302,7 +311,7 @@ public class Bittorrent {
 	private void initPiecesColletion() {
 		int segments = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
 		int segmentLength = this.torrentInfo.file_length / segments;
-		this.colletion = new byte[segments][segmentLength];
+		this.collection = new byte[segments][segmentLength];
 	}
 
 }

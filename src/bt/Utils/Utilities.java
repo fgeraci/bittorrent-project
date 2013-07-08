@@ -170,4 +170,17 @@ public class Utilities {
 		 }
 		 return port;
 	 }
+	 
+	 /**
+	  * Concatenates two byte arrays
+	  * @param two byte arrays
+	  * @return single concatenated byte array
+	  */
+	 public byte[] byteConcat(byte[] a, byte[] b) {
+		   byte[] C= new byte[a.length + b.length];
+		   System.arraycopy(a, 0, C, 0, a.length);
+		   System.arraycopy(b, 0, C, a.length, b.length);
+		   return C;
+	 }
+	  
 }

@@ -1,6 +1,7 @@
 package bt.Utils;
 
 import bt.Model.Bittorrent;
+import bt.Model.Peer;
 import bt.Model.Server;
 
 /**
@@ -15,10 +16,16 @@ public class CommandParser {
 	 * Main entry point for parsing commands.
 	 * @param String command
 	 */
+	
+	/**
+	 * This dummy variable to access Peer class static methods
+	 */
+	static Peer agent = null;
+	
 	public static void execute(String command) {
 		switch(command) {
 		case "run":
-//			bt.Model.Peer.run();
+			agent.run();
 			break;
 		case "quit":
 			Utilities.callClose();
