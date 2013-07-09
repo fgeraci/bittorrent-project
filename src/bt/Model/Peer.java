@@ -63,7 +63,7 @@ public class Peer implements Runnable {
 	 * of the file.
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
-	 */
+	 */	
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID,
 			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
 			throws UnknownHostException, IOException {
@@ -90,8 +90,11 @@ public class Peer implements Runnable {
 		peerThread.start();
 	}
 	
-	
-	
+	/**
+	 * Default constructor used for testing from CommandParser interface
+	 */
+	public Peer() {};
+		
 	/**
 	 * This method spins off a listener thread to receive file pieces from the peer this object
 	 * represents, calls for a handshake with that peer, then enters a loop in which it serves
@@ -369,9 +372,9 @@ public class Peer implements Runnable {
 		}
 	}
 	
-	private void handShake() {
-
-		// handshake code needs to go here.  Handshake is a byte[], not a string, please fix.
+	public static void handShake() {
+		System.out.println("Welcome to handShake().");
+		// handshake code needs to go here.  
 		// Handshake byte array 
 		// byte[] handShakeBB = new byte[68];
 		
@@ -385,19 +388,28 @@ public class Peer implements Runnable {
 			b2[i] = (byte) 0;		
 		
 		// we need to figure why the bufferoverflow here
-		handShakeBB.put(b1).put(btProtocol.getBytes()).put(b2).
-				put(this.hash).put(clientID);
+		handShakeBB
+			.put(b1)
+			.put(btProtocol.getBytes())
+			.put(b2)
+//			.put(this.hash).
+//			.put(clientID)
+				;
 		byte[] message = new byte[68];
-		handShakeBB.get(message);
-		try {
-			this.out.write(message);
-			this.out.flush();
-		} catch (Exception e) { /* hope this never happens */ }
+		/**
+		 * EXCEPTION OCCURING IN FOLLOWING BLOCK.
+		 */
+//		handShakeBB.get(message);
+//		try {
+//			this.out.write(message);
+//			this.out.flush();
+//		} catch (Exception e) { 
+//			System.err.println("Error in handshake");
+//			/* hope this never happens */ 
+//		}
 		
 		// See what the peer will see!
-		System.out.println("Handshake:  " + handShakeBB.toString()+"\n");
-		// Well, we make it to here, but println() cannot do much with a byte buffer
-		// 	Sorry, but we must pick up from here!
+		System.out.println("Handshake status:  " + handShakeBB.toString()+"\n");
 	}
 	
 	/**

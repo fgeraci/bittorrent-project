@@ -22,12 +22,12 @@ public class CommandParser {
 	/**
 	 * This dummy variable to access Peer class static methods
 	 */
-	static Peer agent = null;
+	static Peer agent = new Peer();
 	
 	public static void execute(String command) throws Exception {
 		switch(command) {
 		case "run":
-			agent.run();
+			agent.handShake();
 			break;
 		case "quit":
 			Utilities.callClose();
