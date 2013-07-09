@@ -372,12 +372,8 @@ public class Peer implements Runnable {
 		}
 	}
 	
-	public static void handShake() {
-		System.out.println("Welcome to handShake().");
-		// handshake code needs to go here.  
-		// Handshake byte array 
-		// byte[] handShakeBB = new byte[68];
-		
+	public void handShake() {
+ 		byte[] handShakeBA = new byte[68];		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
 		String btProtocol = "BitTorrent protocol";
 		
@@ -387,26 +383,22 @@ public class Peer implements Runnable {
 		for (int i = 0; i < 8; i++)
 			b2[i] = (byte) 0;		
 		
-		// we need to figure why the bufferoverflow here
 		handShakeBB
 			.put(b1)
 			.put(btProtocol.getBytes())
 			.put(b2)
-//			.put(this.hash).
-//			.put(clientID)
-				;
-		byte[] message = new byte[68];
-		/**
-		 * EXCEPTION OCCURING IN FOLLOWING BLOCK.
-		 */
-//		handShakeBB.get(message);
-//		try {
-//			this.out.write(message);
-//			this.out.flush();
-//		} catch (Exception e) { 
-//			System.err.println("Error in handshake");
-//			/* hope this never happens */ 
-//		}
+/*			.put(this.hash) 	// THIS LINE IS GIVING OVERFLOW EXCEPTION	 */
+			.put(clientID)
+			;
+
+		handShakeBA = handShakeBB.array();
+		try {
+			this.out.write(handShakeBA);
+			this.out.flush();
+		} catch (Exception e) { 
+			System.err.println("Error in handshake");
+			/* hope this never happens */ 
+		}
 		
 		// See what the peer will see!
 		System.out.println("Handshake status:  " + handShakeBB.toString()+"\n");
