@@ -372,7 +372,7 @@ public class Peer implements Runnable {
 		}
 	}
 	
-	public void handShake() {
+	private void handShake() {
  		byte[] handShakeBA = new byte[68];		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
 		String btProtocol = "BitTorrent protocol";

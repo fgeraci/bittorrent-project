@@ -26,9 +26,6 @@ public class CommandParser {
 	
 	public static void execute(String command) throws Exception {
 		switch(command) {
-		case "run":
-			agent.handShake();
-			break;
 		case "quit":
 			Utilities.callClose();
 		case "help":
