@@ -397,11 +397,11 @@ public class Bittorrent {
 			// get info
 			String ip = Utilities.getIPFromString(this.peers[peer]);
 			int port = Utilities.getPortFromString(this.peers[peer]);
-			
+			System.out.println();
 			// attempt peer
 			Peer p = new Peer(	ip,
 								port,
-								this.info_hash.getBytes(),
+								Utilities.getHashBytes(this.torrentInfo.info_hash),
 								this.clientID.getBytes(), 
 								this.collection,
 								this.verificationArray,
@@ -410,8 +410,25 @@ public class Bittorrent {
 			// mar the connection as boolean connected in this.connectios
 			this.connections[peer] = true;
 			// add the peer to the peers list
+		}	
+	}
+	
+	/**
+	 * For the sake of Project 0, this will connect to the selected peer.
+	 * @param String ipAndPort
+	 */
+	public void connectToPeer(String peer)throws Exception {
+		int pos = 0;
+		boolean connected = false;
+		for(String s: this.peers) {
+			if(peer.equals(this.peers[pos])) {
+				connected = true;
+				this.connectToPeer(pos);
+			}
+			++pos;
 		}
-		
+		if(!connected)
+			throw new IllegalArgumentException("Peer does not exist.");
 	}
 
 }

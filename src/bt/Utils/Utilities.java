@@ -183,4 +183,15 @@ public class Utilities {
 		   return C;
 	 }
 	  
+	 /**
+	  * Returns a byte[] from the info_hash ByteBuffer for simplicity.
+	  * @param ByteBuffer bb
+	  * @return byte[] info_hash 20 bytes
+	  */
+	 public static byte[] getHashBytes(ByteBuffer bb) {
+		 bb.position(0);
+		 byte[] array = new byte[20];
+		 bb.get(array);
+		 return array;
+	 }
 }

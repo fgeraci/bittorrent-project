@@ -13,25 +13,9 @@ import bt.Utils.CommandParser;
 
 public class RUBTClient {
 	
-	/**
-	 * Client entry point.
-	 * @param String[] command-line arguments.
-	 * 	(e.g. somefile.torrent, picture.jpg)
-	 */
-	public static void main(String[] args) {
-		
+	private static void clientLoop() {
 		Scanner sc = new Scanner(System.in);
-		
-		if(args.length >= 2) {
-			Bittorrent bittorrent = Bittorrent.getInstance(args[0], args[1]);
-		} else {
-			System.err.println("ERROR: Insuficient arguments");
-			System.out.println("usage: RUBTClient <torrent filename> <output filename>");
-			System.exit(-1);
-		}
-		
-		// Program's loop
-		System.out.println("Connection Successfull, welcome. Input help for commands");
+		System.out.println("Input help for commands");
 		while(true) {
 			try {
 				System.out.print("%> ");
@@ -40,5 +24,31 @@ public class RUBTClient {
 				System.out.println(e.getMessage());
 			}
 		}
+	}
+	
+	/**
+	 * Client entry point.
+	 * @param String[] command-line arguments.
+	 * 	(e.g. somefile.torrent, picture.jpg)
+	 */
+	public static void main(String[] args) {
+		
+		Scanner sc = new Scanner(System.in);
+		Bittorrent bittorrent = null;
+		if(args.length >= 2) {
+			bittorrent = Bittorrent.getInstance(args[0], args[1]);
+		} else {
+			System.err.println("ERROR: Insuficient arguments");
+			System.out.println("usage: RUBTClient <torrent filename> <output filename>");
+			System.exit(-1);
+		}
+		
+		// Program's loop
+		System.out.println("Connection Successfull, welcome");
+		// client's loop OR connect directly to a client (for project 0)
+		//RUBTClient.clientLoop(); <- Client's loop
+		try {
+			bittorrent.connectToPeer("128.6.171.3:6916");
+		} catch (Exception e) { System.out.println(e.getMessage());	}
 	}
 }

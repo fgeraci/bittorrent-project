@@ -22,6 +22,7 @@ class PeerListener implements Runnable{
 		while(running) {
 			try {
 				in.read(nextLine);
+				System.out.println(nextLine);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -387,9 +387,8 @@ public class Peer implements Runnable {
 			.put(b1)
 			.put(btProtocol.getBytes())
 			.put(b2)
-/*			.put(this.hash) 	// THIS LINE IS GIVING OVERFLOW EXCEPTION	 */
-			.put(clientID)
-			;
+			.put(this.hash)
+			.put(clientID);
 
 		handShakeBA = handShakeBB.array();
 		try {
@@ -400,8 +399,6 @@ public class Peer implements Runnable {
 			/* hope this never happens */ 
 		}
 		
-		// See what the peer will see!
-		System.out.println("Handshake status:  " + handShakeBB.toString()+"\n");
 	}
 	
 	/**
