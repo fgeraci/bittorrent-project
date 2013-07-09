@@ -13,6 +13,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 import bt.Model.Bittorrent;
+import bt.Utils.Utilities;
 
 /**
  * Creates a connection with a peer to download a file.
@@ -21,6 +22,7 @@ import bt.Model.Bittorrent;
  */
 
 public class Peer implements Runnable {
+	
 	private byte[][] fileHeap = null;
 	private byte[][] verifyHash = null;
 	private boolean[] completed = null;
@@ -32,6 +34,11 @@ public class Peer implements Runnable {
 	private OutputStream out = null;
 	private MessageDigest sha = null;
 	private boolean running = true;
+	private byte[] handShakeResponse;
+	public boolean peerAccepted = false;
+	private String IP;
+	private int port;
+	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
 	 * instantiated this object.
@@ -67,6 +74,8 @@ public class Peer implements Runnable {
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID,
 			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
 			throws UnknownHostException, IOException {
+		this.IP = address;
+		this.port = port;
 		interestedQueue = new ArrayDeque <Integer> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
@@ -94,6 +103,16 @@ public class Peer implements Runnable {
 	 */
 	public Peer() {};
 		
+	/**
+	 * It sets the handshake response from the peer.
+	 * @param hsr
+	 */
+	public void setHandShakeResponse(byte[] hsr) {
+		if(this.handShakeResponse == null) {
+			this.handShakeResponse = hsr;
+		}
+	}
+	
 	/**
 	 * This method spins off a listener thread to receive file pieces from the peer this object
 	 * represents, calls for a handshake with that peer, then enters a loop in which it serves
@@ -463,6 +482,28 @@ public class Peer implements Runnable {
 			}
 			completed[index] = true;
 		}
+	}
+	
+	/**
+	 * It does a byte match of the info_hashes.
+	 * @param byte[] response
+	 * @return boolean True if match, false otherwise.
+	 */
+	public boolean validateInfoHash(byte[] response) {
+		if(!this.peerAccepted) {
+			// match inf_hashes
+			if(Utilities.matchBytes(
+					Utilities.getInfoHashFromHandShakeResponse(response), 
+					this.hash)) {
+				this.peerAccepted = !this.peerAccepted;
+				System.out.println("-!!! HANDSHAKE VALIDATED !!! w/ peer "+this.IP+":"+this.port+" -");
+				return this.peerAccepted;
+			} else {
+				System.out.println("ERROR: info_hash doesn't match, connection terminated.");
+			}
+			
+		}
+		return false;
 	}
 }
 

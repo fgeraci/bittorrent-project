@@ -139,7 +139,12 @@ public class Bittorrent {
 	 */
 	private boolean[] completedPieces = null;
 	
+	/**
+	 * Current list of peers.
+	 */
 	private List<Peer> peerList = null;
+	
+	
 	
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.

@@ -195,4 +195,35 @@ public class Utilities {
 		 bb.get(array);
 		 return array;
 	 }
+	 
+	 /**
+	  * It tests two arrays of bytes for equality.
+	  * @param byte[] a
+	  * @param byte[] b
+	  * @return boolean True if match, false otherwise.
+	  */
+	 public static boolean matchBytes(byte[] a, byte[] b) {
+		 if(a.length != b.length) return false;
+		 else {
+			 for(int i = 0; i < a.length; ++i) {
+				 if(a[i] != b[i]) return false;
+			 }
+			 return true;
+		 }
+	 }
+	 
+	 /**
+	  * Extracts the info hash from the handshake repsonse.
+	  * @param byte[] response
+	  * @return byte[] info_hash
+	  */
+	 public static byte[] getInfoHashFromHandShakeResponse(byte[] response) {
+		 byte[] info_hash = new byte[20];
+		 int offset = 28;
+		 for(int i = 0; i < 20; ++i) {
+			 info_hash[i] = response[offset];
+			 ++offset;
+		 }
+		 return info_hash;
+	 }
 }
