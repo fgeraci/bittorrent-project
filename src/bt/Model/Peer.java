@@ -85,7 +85,6 @@ public class Peer implements Runnable {
 		}
 		
 		// added to start a new thread on the instantiation of a peer.
-		
 		Thread peerThread = new Thread(this);
 		peerThread.start();
 	}
@@ -101,9 +100,9 @@ public class Peer implements Runnable {
 	 * requested file pieces to that peer.
 	 */
 	public void run() {
-		Thread listenerThread = new Thread(listener);
-//		listenerThread.run();	// Blocked to test handShake
 		handShake();
+		Thread listenerThread = new Thread(listener);
+		listenerThread.run();
 		while(running) {	// This is the file sending loop. 
 			if (interestedQueue.isEmpty()) {
 				try {

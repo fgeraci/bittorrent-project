@@ -415,17 +415,17 @@ public class Bittorrent {
 	
 	/**
 	 * For the sake of Project 0, this will connect to the selected peer.
+	 * Please do not pay attention to the i+1, that's to compensate an i - 1
+	 * on the called method.
 	 * @param String ipAndPort
 	 */
 	public void connectToPeer(String peer)throws Exception {
-		int pos = 0;
 		boolean connected = false;
-		for(String s: this.peers) {
-			if(peer.equals(this.peers[pos])) {
+		for(int i = 0; i < this.peers.length; ++i) {
+			if(peer.equals(this.peers[i])) {
 				connected = true;
-				this.connectToPeer(pos);
+				this.connectToPeer(i+1);
 			}
-			++pos;
 		}
 		if(!connected)
 			throw new IllegalArgumentException("Peer does not exist.");

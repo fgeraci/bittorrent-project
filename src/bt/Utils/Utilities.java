@@ -104,7 +104,8 @@ public class Utilities {
 			nextChar = (char)(65 + (int)(Math.random()*25));
 			generatedID.append(nextChar);
 		}
-		System.out.println("Random ID is: "+generatedID);
+		System.out.println("Random ID is (in bytes): "+generatedID.toString());
+		
 		return generatedID.toString();
 	}
 	
