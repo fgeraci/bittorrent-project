@@ -34,6 +34,7 @@ class PeerListener implements Runnable{
 					parent.showInterested();
 				}
 				
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -49,6 +50,8 @@ class PeerListener implements Runnable{
 			switch (nextLine[4]) {
 			case 0:
 				parent.setChoke(true);
+				break;
+			case 1: // remote-peer is unchocked
 				break;
 			default:
 				break;

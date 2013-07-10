@@ -418,10 +418,10 @@ public class Bittorrent {
 								this.collection,
 								this.verificationArray,
 								this.completedPieces);
-			this.peerList.add(p);
-			// mar the connection as boolean connected in this.connectios
-			this.connections[peer] = true;
 			// add the peer to the peers list
+			this.peerList.add(p);
+			// mark the connection as boolean connected in this.connectios
+			this.connections[peer] = true;
 		}	
 	}
 	
