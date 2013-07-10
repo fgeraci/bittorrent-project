@@ -30,28 +30,21 @@ class PeerListener implements Runnable{
 				in.read(nextLine);
 				if(!parent.peerAccepted) {
 					parent.validateInfoHash(nextLine);
-					parent.setChoke(false);
+					System.out.println(">>> HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
 					parent.showInterested();
 				}
-				
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				// break;
 			}
-			/*
-			ByteBuffer bb = ByteBuffer.allocate(nextLine.length);
-			bb.put(nextLine);
-			bb.rewind();
-			String message = Utilities.getStringFromByteBuffer(bb);
-			System.out.println(message);
-			*/
 			switch (nextLine[4]) {
 			case 0:
 				parent.setChoke(true);
 				break;
-			case 1: // remote-peer is unchocked
+			case 1: // remote-peer is unchocked, start requesting
+				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
 				break;
 			default:
 				break;

@@ -327,6 +327,10 @@ public class Peer implements Runnable {
 		interestedQueue.add(index);
 	}
 	
+	public String toString() {
+		return this.IP+":"+this.port;
+	}
+	
 	/**
 	 * This method is called by the PeerListener child of this object when a have is received from
 	 * the peer this object represents.
@@ -496,7 +500,6 @@ public class Peer implements Runnable {
 					Utilities.getInfoHashFromHandShakeResponse(response), 
 					this.hash)) {
 				this.peerAccepted = !this.peerAccepted;
-				System.out.println("-!!! HANDSHAKE VALIDATED !!! w/ peer "+this.IP+":"+this.port+" -");
 				return this.peerAccepted;
 			} else {
 				System.out.println("ERROR: info_hash doesn't match, connection terminated.");
