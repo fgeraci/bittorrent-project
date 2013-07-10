@@ -501,7 +501,6 @@ public class Peer implements Runnable {
 			} else {
 				System.out.println("ERROR: info_hash doesn't match, connection terminated.");
 			}
-			
 		}
 		return false;
 	}

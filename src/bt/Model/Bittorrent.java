@@ -1,12 +1,11 @@
 package bt.Model;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -155,6 +154,7 @@ public class Bittorrent {
 		File file = new File((this.rscFileFolder+torrentFile));
 		try {
 			// get file info
+			this.peerList = new ArrayList<Peer>();
 			this.clientID = Utilities.generateID();
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
@@ -203,7 +203,6 @@ public class Bittorrent {
 		this.collection = new byte[pieces][pieceSize];
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
-		peerList = new ArrayList<Peer>();
 	}
 	
 	/**
@@ -251,21 +250,27 @@ public class Bittorrent {
 				"&downloaded="+ this.downloaded+
 				"&left="+ this.left+
 				"&event="+ this.event);
+			
 			// open streams
-			BufferedReader fromServer = new BufferedReader(
-					new InputStreamReader(tracker.openStream()));
+			InputStream fromServer = tracker.openStream();
+			byte[] responseInBytes = new byte[512];
 			
 			// read all the response from the server
+			int b = -1;
+			int pos = 0;
+			while((b = fromServer.read()) != -1) {
+				responseInBytes[pos] = (byte)b;
+				++pos;
+			}
 			
-			response += fromServer.readLine();
-			response = response.substring(response.indexOf('8')-1);
-			System.out.println("Tracker Response: "+response);
-			this.peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(response.getBytes()));
+			this.peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(responseInBytes));
 			System.out.println("Peers List:");
 			this.printPeerList();
 			this.connections = new boolean[this.peers.length];
+			
 			// close streams
 			fromServer.close();
+			
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -289,8 +294,10 @@ public class Bittorrent {
 		
 	}
 	
+	/**
+	 * Connect to peer - this is just trial code to instantiate and test the peer.
+	 */
 	private void initPeers() {
-		// connect to peer - this is just trial code to instantiate and test the peer.
 		ArrayList<byte[]> torrentPeerList = new ArrayList<byte[]>();
 		int peerIndex = 0;
 		for (byte[] peerID : torrentPeerList) {
@@ -411,7 +418,7 @@ public class Bittorrent {
 								this.collection,
 								this.verificationArray,
 								this.completedPieces);
-			
+			this.peerList.add(p);
 			// mar the connection as boolean connected in this.connectios
 			this.connections[peer] = true;
 			// add the peer to the peers list
@@ -434,6 +441,15 @@ public class Bittorrent {
 		}
 		if(!connected)
 			throw new IllegalArgumentException("Peer does not exist.");
+	}
+	
+	/**
+	 * It will terminate all the connection with the peers.
+	 */
+	public void disposePeers() {
+		for(Peer p:this.peerList) {
+			p.dispose();
+		}
 	}
 
 }

@@ -25,20 +25,32 @@ class PeerListener implements Runnable{
 		
 		byte[] nextLine = new byte[73]; // if this is not initialized, we get a nullptrexception error.
 		
-		while(running) {
+		while(running) { 
 			try {
 				in.read(nextLine);
 				if(!parent.peerAccepted) {
 					parent.validateInfoHash(nextLine);
+					parent.setChoke(false);
+					parent.showInterested();
 				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				// break;
 			}
+			/*
+			ByteBuffer bb = ByteBuffer.allocate(nextLine.length);
+			bb.put(nextLine);
+			bb.rewind();
+			String message = Utilities.getStringFromByteBuffer(bb);
+			System.out.println(message);
+			*/
 			switch (nextLine[4]) {
 			case 0:
 				parent.setChoke(true);
+				break;
+			default:
 				break;
 			}
 		}
