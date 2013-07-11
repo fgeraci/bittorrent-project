@@ -1,15 +1,20 @@
 package bt.Model;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +115,7 @@ public class Bittorrent {
 	private int downloaded;
 	
 	/**
-	 * Bytes left to downloaded for current file.
+	 * Bytes left to download for current file.
 	 */
 	private int left;
 	
@@ -310,9 +315,10 @@ public class Bittorrent {
 										verificationArray, // to be completed
 										completedPieces));
 			} catch (UnknownHostException e) {
+				System.out.println("Host Unknown: " + peers[0]);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.err.println("Failed to contact: " + peers[0]);
 			}
 			Thread peerThread = new Thread(peerList.get(peerIndex));
 			peerThread.start();
@@ -452,4 +458,44 @@ public class Bittorrent {
 		}
 	}
 
+	/**
+	 * This method is a simple algorithm for sending requests for a file.
+	 */
+	public void simpleDownloadAlgorithm() {
+		// This is a temporary algorithm for Project 0.  It will be replaced with a more robust one
+		// when we are doing more than downloading a file from a known see.
+		Peer peer = peerList.get(0);
+		for (int i = 0; i < collection.length; ++i) {
+			boolean sent = false;
+			// Attempt to request the piece until it succeeds.
+			while (!sent) {
+				try {
+					peer.requestIndex(i, 0, 16384);
+					peer.requestIndex(i, 16384, 16384);
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
+	}
+	/**
+	 * This method is our algorithm for rending requests for the file we are downloading.
+	 */
+	public void downloadAlgorithm() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void saveFile () throws IOException {
+		FileOutputStream fileOut = new FileOutputStream(fileName);
+		byte[] fileArray = new byte[torrentInfo.file_length];
+		for (int outer = 0; outer < collection.length; ++outer) {
+			for (int inner = 0; inner < collection[outer].length; ++inner) {
+				fileArray[(outer * collection[0].length) + inner] = collection[outer][inner];
+			}
+		}
+		fileOut.write(fileArray);
+		fileOut.close();
+	}
 }
