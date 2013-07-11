@@ -55,7 +55,7 @@ public class Utilities {
 	
 	/**
 	 * Returns a String representation of a ByteBuffer.
-	 * @param ByteBuffer bb
+	 * @param bb ByteBuffer to be converted to a string
 	 * @return String message
 	 */
 	public static String getStringFromByteBuffer(ByteBuffer bb) {
@@ -75,7 +75,7 @@ public class Utilities {
 	
 	/**
 	 * It will encode the info_hash to a URL parameter recursively.
-	 * @param String info_hash
+	 * @param infoHash The sha hash of the torrent file.
 	 * @return String encoded info_hash URL
 	 */
 	
@@ -111,8 +111,8 @@ public class Utilities {
 	
 	/**
 	 * Returns a peer list from the ByteBuffer return.
-	 * @param Map map
-	 * @return
+	 * @param map A collection of peers.
+	 * @return decoded peer list
 	 */
 	 public static String[] decodeCompressedPeers(Map map) {
 	        ByteBuffer peers = (ByteBuffer)map.get(ByteBuffer.wrap("peers".getBytes()));
@@ -147,7 +147,7 @@ public class Utilities {
 	 
 	 /**
 	  * Splits the IPv4 and port from address.
-	  * @param String address
+	  * @param address The A string representation of the ip address
 	  * @return String IPv4 address
 	  */
 	 public static String getIPFromString(String address) {
@@ -162,7 +162,7 @@ public class Utilities {
 	 /**
 	  * Splits the port section of a String IPv4:port String.
 	  * @param address
-	  * @return
+	  * @return integer value of port string
 	  */
 	 public static int getPortFromString(String address) {
 		 int port = -1;
@@ -175,7 +175,8 @@ public class Utilities {
 	 
 	 /**
 	  * Concatenates two byte arrays
-	  * @param two byte arrays
+	  * @param a byte array to be prepended
+	  * @param b byte array to be appended
 	  * @return single concatenated byte array
 	  */
 	 public byte[] byteConcat(byte[] a, byte[] b) {
@@ -187,7 +188,7 @@ public class Utilities {
 	  
 	 /**
 	  * Returns a byte[] from the info_hash ByteBuffer for simplicity.
-	  * @param ByteBuffer bb
+	  * @param bb ByteBuffer containing the hash code
 	  * @return byte[] info_hash 20 bytes
 	  */
 	 public static byte[] getHashBytes(ByteBuffer bb) {
@@ -199,8 +200,8 @@ public class Utilities {
 	 
 	 /**
 	  * It tests two arrays of bytes for equality.
-	  * @param byte[] a
-	  * @param byte[] b
+	  * @param a byte array to be checked for equality
+	  * @param b byte array to be checked for equality
 	  * @return boolean True if match, false otherwise.
 	  */
 	 public static boolean matchBytes(byte[] a, byte[] b) {
@@ -215,8 +216,8 @@ public class Utilities {
 	 
 	 /**
 	  * Extracts the info hash from the handshake repsonse.
-	  * @param byte[] response
-	  * @return byte[] info_hash
+	  * @param response the response sent by the peer to our handshake
+	  * @return info_hash
 	  */
 	 public static byte[] getInfoHashFromHandShakeResponse(byte[] response) {
 		 byte[] info_hash = new byte[20];
@@ -231,7 +232,7 @@ public class Utilities {
 	 /**
 	  * Returns the index of the next piece to be requested.
 	  * @param completed
-	  * @return
+	  * @return index of a piece which is needed.
 	  */
 	 public static int getNeededPiece(boolean[] completed) {
 

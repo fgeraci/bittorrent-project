@@ -11,7 +11,7 @@ public class BencodingException extends Exception {
 	
 	/**
 	 * Constructs a new BencodignException.
-	 * @param String error
+	 * @param error the message of the error being thrown
 	 */
 	public BencodingException(String error) {
 		super(error);

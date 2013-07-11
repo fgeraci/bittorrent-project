@@ -51,9 +51,8 @@ public class Server implements Runnable {
 	
 	/**
 	* Returns the first available port given the range or -1 if non if available.
-	* @param int left bound
-	* @param int right bound
-	* @return int port
+	* @param from left bound
+	* @param to right bound
 	*/
 	private void initServer(int from, int to) {
 		int port = from;
