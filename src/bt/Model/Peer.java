@@ -390,6 +390,9 @@ public class Peer implements Runnable {
 		}
 	}
 	
+	/**
+	 * Performs the handshake to open connection with peer.
+	 */
 	private void handShake() {
  		byte[] handShakeBA = new byte[68];		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
@@ -415,8 +418,7 @@ public class Peer implements Runnable {
 		} catch (Exception e) { 
 			System.err.println("Error in handshake");
 			/* hope this never happens */ 
-		}
-		
+		}		
 	}
 	
 	/**
