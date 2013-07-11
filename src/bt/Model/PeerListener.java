@@ -43,7 +43,7 @@ class PeerListener implements Runnable{
 			case 0:
 				parent.setChoke(true);
 				break;
-			case 1: // remote-peer is unchocked, start requesting
+			case 1: // remote-peer is unchoked, start requesting
 				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
 				break;
 			default:
