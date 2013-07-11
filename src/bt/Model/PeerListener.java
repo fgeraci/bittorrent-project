@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import bt.Utils.Utilities;
-
 class PeerListener implements Runnable{
 	private InputStream in = null;
 	private Peer parent = null;

@@ -49,6 +49,8 @@ public class RUBTClient {
 		//RUBTClient.clientLoop(); <- Client's loop
 		try {
 			bittorrent.connectToPeer("128.6.171.3:6916");
+			bittorrent.simpleDownloadAlgorithm();
 		} catch (Exception e) { System.out.println(e.getMessage());	}
+		bittorrent.disposePeers();
 	}
 }
