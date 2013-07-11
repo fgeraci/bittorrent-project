@@ -25,12 +25,15 @@ class PeerListener implements Runnable{
 		
 		byte[] nextLine = new byte[73]; // if this is not initialized, we get a nullptrexception error.
 		
-		while(running) {
+		while(running) { 
 			try {
 				in.read(nextLine);
 				if(!parent.peerAccepted) {
 					parent.validateInfoHash(nextLine);
+					System.out.println(">>> HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
+					parent.showInterested();
 				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -39,6 +42,11 @@ class PeerListener implements Runnable{
 			switch (nextLine[4]) {
 			case 0:
 				parent.setChoke(true);
+				break;
+			case 1: // remote-peer is unchocked, start requesting
+				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
+				break;
+			default:
 				break;
 			}
 		}

@@ -139,6 +139,7 @@ public class Utilities {
 		 // do stuff
 		 try {
 			 Bittorrent.getInstance().stopServer();
+			 Bittorrent.getInstance().disposePeers();
 			 System.out.println("\n -- Client Terminated -- ");
 			 System.exit(0);
 		 } catch (Exception e) { /* this should never happen */	 } 
@@ -225,5 +226,18 @@ public class Utilities {
 			 ++offset;
 		 }
 		 return info_hash;
+	 }
+	 
+	 /**
+	  * Returns the index of the next piece to be requested.
+	  * @param completed
+	  * @return
+	  */
+	 public static int getNeededPiece(boolean[] completed) {
+
+		 for(int i = 0; i < completed.length; ++i) {
+			 if(!completed[i]) return i;
+		 }
+		 return -1; // no more pieces are needed.
 	 }
 }
