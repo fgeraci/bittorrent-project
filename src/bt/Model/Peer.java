@@ -271,7 +271,7 @@ public class Peer implements Runnable {
 	 * @param payloadSize The number of bytes in the payload.
 	 * @param payload A byte array of the incoming data.
 	 */
-	void getPiece (int index, int begin, int payloadSize, byte[] payload) {
+	void getPiece (int index, int begin, byte[] payload) {
 		if (completed[index]) {
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every
@@ -290,7 +290,7 @@ public class Peer implements Runnable {
 			}
 		} else {
 		// This loops over the bytes in payload and writes them into the file heap.
-			for (int offset = 0; offset < payloadSize; ++offset) {
+			for (int offset = 0; offset < payload.length; ++offset) {
 			fileHeap[index][begin + offset] = payload[offset];
 			}
 			verifySHA(index);
