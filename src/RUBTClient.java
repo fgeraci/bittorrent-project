@@ -50,6 +50,7 @@ public class RUBTClient {
 		try {
 			bittorrent.connectToPeer("128.6.171.3:6916");
 			bittorrent.simpleDownloadAlgorithm();
+			bittorrent.saveFile();
 		} catch (Exception e) { System.out.println(e.getMessage());	}
 		bittorrent.disposePeers();
 	}
