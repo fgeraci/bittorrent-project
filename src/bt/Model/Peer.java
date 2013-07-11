@@ -12,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import bt.Model.Bittorrent;
 import bt.Utils.Utilities;
 
 /**
@@ -26,6 +25,7 @@ public class Peer implements Runnable {
 	private byte[][] fileHeap = null;
 	private byte[][] verifyHash = null;
 	private boolean[] completed = null;
+	private boolean[] bitField = null;
 	private PeerListener listener = null;
 	private boolean choked = true;
 	private boolean interested = false;
@@ -53,7 +53,7 @@ public class Peer implements Runnable {
 	 * When there is space on the outgoing TCP queue, and the connection is not choked, the oldest value in
 	 * this queue will be sent to the peer.
 	 */
-	private Queue <Integer> interestedQueue;
+	private Queue <Request> interestedQueue;
 	
 	/**
 	 * This is a constructor for a Peer taking the address and port as parameters.  The address and port of a
@@ -76,7 +76,7 @@ public class Peer implements Runnable {
 			throws UnknownHostException, IOException {
 		this.IP = address;
 		this.port = port;
-		interestedQueue = new ArrayDeque <Integer> ();
+		interestedQueue = new ArrayDeque <Request> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
 		listener = new PeerListener(this, in);
@@ -131,8 +131,8 @@ public class Peer implements Runnable {
 				}
 			} else {
 				if (interested && !choked) {
-					int toSend = interestedQueue.poll();
-					if (completed[toSend]) {
+					Request toSend = interestedQueue.poll();
+					if (completed[toSend.getIndex()]) {
 						send(toSend);
 					}
 					interestedQueue.offer(toSend);
@@ -227,23 +227,18 @@ public class Peer implements Runnable {
 		out.flush();
 	}
 	
-	private void send (int index) {
-		int offset = 0;
-		int repeat = fileHeap[index].length / 512;
-		for (offset = 0; offset < repeat; offset++) {
-			int begin = offset * 512;
-			byte[] payload = new byte[512];
-			for (int i = 0; i < 512; i++) {
-				payload[i] = fileHeap[index][begin + i];
-			}
-			boolean sent = false;
-			while (!sent) {	// Try to send this message until it succeeds.
-				try {
-					sendPiece (index, begin, 512, payload);
-					sent = true;
-				} catch (IOException e) {
-					continue;
-				}
+	private void send (Request request) {
+		byte[] payload = new byte[request.getLength()];
+		for (int i = 0; i < request.getLength(); i++) {
+			payload[i] = fileHeap[request.getIndex()][request.getBegin() + i];
+		}
+		boolean sent = false;
+		while (!sent) {	// Try to send this message until it succeeds.
+			try {
+				sendPiece (request.getIndex(), request.getBegin(), request.getLength(), payload);
+				sent = true;
+			} catch (IOException e) {
+				continue;
 			}
 		}
 	}
@@ -323,8 +318,8 @@ public class Peer implements Runnable {
 	 * the peer this object represents.
 	 * @param index The index of the piece that the peer has requested.
 	 */
-	void requestReceived (int index) {
-		interestedQueue.add(index);
+	void requestReceived (int index, int begin, int length) {
+		interestedQueue.add(new Request(index, begin, length));
 	}
 	
 	public String toString() {
@@ -337,6 +332,7 @@ public class Peer implements Runnable {
 	 * @param index The index of the piece that the peer has acknowledged complete..
 	 */
 	void haveReceived (int index) {
+		bitField[index] = true;
 		interestedQueue.remove(index);
 	}
 	
@@ -357,6 +353,16 @@ public class Peer implements Runnable {
 		out.flush();
 	}
 	
+	void receiveBitfield(byte[] bitfield) {
+		for (int i = 0; i < bitField.length; ++i) {
+			if (bitfield[i] == 1) {
+				bitField[i] = true;
+			} else {
+				bitField[i] = false;
+			}
+		}
+	}
+	
 	/**
 	 * This method can be used to send a bitfield to the peer this object represents.  This should only
 	 * be done as the first message to this peer.  A bitfield is a byte[] with each index that the downloader,
@@ -366,7 +372,15 @@ public class Peer implements Runnable {
 	 * @param bitfield a byte[] bitfield to form the message
 	 * @throws IOException if the system fails to send the TCP packet properly, this exception will be thrown.
 	 */
-	void sendBitfield(byte[] bitfield) throws IOException {
+	void sendBitfield() throws IOException {
+		byte[] bitfield = new byte[(int) Math.ceil((float)(completed.length) / 8.0f)];
+		for (int i = 0; i < completed.length; ++i) {
+			if (completed[i]) {
+				bitfield[i] = 1;
+			} else {
+				bitfield[i] =0;
+			}
+		}
 		out.write(bitfield);
 		out.flush();
 	}
