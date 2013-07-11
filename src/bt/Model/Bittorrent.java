@@ -176,7 +176,7 @@ public class Bittorrent {
 	
 	/**
 	 * Updates the value in left bytes for the file.
-	 * @param int bytes
+	 * @param bytes bytes
 	 */
 	public void updateLeft(int bytes) {
 		this.left += bytes;
@@ -328,8 +328,8 @@ public class Bittorrent {
 	
 	/**
 	* Returns the first available port given the range or -1 if non if available.
-	* @param int left bound
-	* @param int right bound
+	* @param from left bound
+	* @param to right bound
 	* @return int port
 	*/
 	private int initServer(int from, int to) {
@@ -364,7 +364,7 @@ public class Bittorrent {
 	
 	/**
 	 * Return the current peer id.
-	 * @return
+	 * @return the peer id of this object.
 	 */
 	public String getPeerId() {
 		return this.clientID+"";
@@ -402,7 +402,7 @@ public class Bittorrent {
 	
 	/**
 	 * Connect to the selected peer. Rustic implementation, but its just a starter.
-	 * @param int peer number
+	 * @param peer peer number
 	 */
 	public void connectToPeer(int peer) throws Exception {
 		peer = peer - 1;
@@ -435,7 +435,7 @@ public class Bittorrent {
 	 * For the sake of Project 0, this will connect to the selected peer.
 	 * Please do not pay attention to the i+1, that's to compensate an i - 1
 	 * on the called method.
-	 * @param String ipAndPort
+	 * @param peer ipAndPort
 	 */
 	public void connectToPeer(String peer)throws Exception {
 		boolean connected = false;

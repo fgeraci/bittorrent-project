@@ -268,7 +268,6 @@ public class Peer implements Runnable {
 	 * add this data to the fileHeap and attempt to verify that the piece is complete.
 	 * @param index The index of this piece of the file.
 	 * @param begin The base zero offset from the beginning of this piece where the payload begins.
-	 * @param payloadSize The number of bytes in the payload.
 	 * @param payload A byte array of the incoming data.
 	 */
 	void getPiece (int index, int begin, byte[] payload) {
@@ -369,7 +368,6 @@ public class Peer implements Runnable {
 	 * this client, has sent set to one and the rest set to zero. Downloaders which don't have anything yet
 	 * may skip the 'bitfield' message. The first byte of the bitfield corresponds to indices 0 - 7 from high
 	 * bit to low bit, respectively. The next one 8-15, etc. Spare bits at the end are set to zero.
-	 * @param bitfield a byte[] bitfield to form the message
 	 * @throws IOException if the system fails to send the TCP packet properly, this exception will be thrown.
 	 */
 	void sendBitfield() throws IOException {
@@ -504,7 +502,7 @@ public class Peer implements Runnable {
 	
 	/**
 	 * It does a byte match of the info_hashes.
-	 * @param byte[] response
+	 * @param response Response to our handshake from peer.
 	 * @return boolean True if match, false otherwise.
 	 */
 	public boolean validateInfoHash(byte[] response) {
