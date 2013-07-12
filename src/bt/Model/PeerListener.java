@@ -10,16 +10,16 @@ class PeerListener implements Runnable{
 	private boolean running = true;
 	
 	PeerListener (Peer parent, InputStream inStream) {
-		in = inStream;
+		this.in = inStream;
 		this.parent = parent;
 	}
 
 	@Override
 	public void run() {
 		
-		// Remember, this won't actually work because there is not guarantee that nextLine is a
+		// Remember, this won't actually work because there is no guarantee that nextLine is a
 		// single incoming message.  The TCP buffer could contain more than one message, and if
-		// it does we need to handle all of them and not just the first.
+		// it does, we need to handle all of them and not just the first.
 		
 		byte[] tcpArray = new byte[73]; // if this is not initialized, we get a nullptrexception error.
 		
@@ -88,12 +88,13 @@ class PeerListener implements Runnable{
 					}
 				}
 			} catch (IOException e) {
-<<<<<<< HEAD
+
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				// break;
 			}
 			switch (nextLine[4]) {
+//			switch (currentLine[4]) {
 			case 0:
 				parent.setChoke(true);
 				break;
@@ -102,9 +103,8 @@ class PeerListener implements Runnable{
 				break;
 			default:
 				break;
-=======
-				System.err.println(e.getMessage());
->>>>>>> e35a4bccbc5c2d6b3accfdfa10d6394b113bdac9
+
+//				System.err.println(e.getMessage());
 			}
 		}
 	}

@@ -509,7 +509,7 @@ public class Peer implements Runnable {
 	 */
 	public boolean validateInfoHash(byte[] response) {
 		if(!this.peerAccepted) {
-			// match inf_hashes
+			// match info_hashes
 			if(Utilities.matchBytes(
 					Utilities.getInfoHashFromHandShakeResponse(response), 
 					this.hash)) {
