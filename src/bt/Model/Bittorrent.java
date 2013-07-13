@@ -144,6 +144,11 @@ public class Bittorrent {
 	private boolean[] completedPieces = null;
 	
 	/**
+	 * Number of pieces in this torrent
+	 */
+	private int pieces;
+	
+	/**
 	 * Current list of peers.
 	 */
 	private List<Peer> peerList = null;
@@ -189,14 +194,31 @@ public class Bittorrent {
 	public byte[] getTorrentInfoHash() {
 		return this.torrentInfo.info_hash.array();
 	}
-
+	
+	/**
+	 * Function to populate byte[][] verificationArray
+	 */
+	private void loadVerificationArray() {
+		for (int i = 0; i < this.pieces; i++) {
+			for (int j = 0; j < 20; j++) {
+				verificationArray[i][j] = this.torrentInfo.piece_hashes[(20*i)+j].get();
+			}
+		}
+	}
+	
+	/**
+	 * Function to return byte [][] verificationArray
+	 */
+	public byte[][] getVerificationArray() {
+		return this.verificationArray;
+	}
 	
 	/**
 	 * Initializes the state of the client from the properties file.
 	 * @throws Exception
 	 */
 	private void initClientState() throws Exception {
-		int pieces = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
+		this.pieces = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
 		int pieceSize = this.torrentInfo.piece_length;
 		this.fileName = this.torrentInfo.file_name;
 		this.properties = new Properties();
@@ -208,6 +230,8 @@ public class Bittorrent {
 		this.collection = new byte[pieces][pieceSize];
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
+		
+		loadVerificationArray();
 	}
 	
 	/**
@@ -312,7 +336,7 @@ public class Bittorrent {
 										this.info_hash.getBytes(),
 										this.clientID.getBytes(),
 										collection, // to be completed
-										verificationArray, // to be completed
+										this.verificationArray, // to be completed
 										completedPieces));
 			} catch (UnknownHostException e) {
 				System.out.println("Host Unknown: " + peers[0]);

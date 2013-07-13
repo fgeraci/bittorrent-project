@@ -41,42 +41,42 @@ class PeerListener implements Runnable{
 						byte[] currentLine = new byte[length];
 						tcpInput.get(currentLine, offset + 4, length);
 						switch (currentLine[0]) {
-						case 0:
+						case 0:	// choke
 							parent.setChoke(true);
 							break;
 						case 1: // remote-peer is unchoked, start requesting
 							parent.setChoke(false);
 							System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
 							break;
-						case 2:
+						case 2:	// interested
 							parent.setInterested(true);
 							break;
-						case 3:
+						case 3:	// not interested
 							parent.setInterested(false);
 							break;
-						case 4:
+						case 4:	// have
 							lineWrapper = ByteBuffer.wrap(currentLine);
 							parent.haveReceived(lineWrapper.getInt(1));
 							break;
-						case 5:
+						case 5:	// bitfield
 							lineWrapper = ByteBuffer.wrap(currentLine);
 							byte[] bitfield = new byte[length - 1];
 							lineWrapper.get(bitfield, 1, length - 1);
 							parent.receiveBitfield(bitfield);
 							break;
-						case 6:
+						case 6:	// request
 							lineWrapper = ByteBuffer.wrap(currentLine);
 							parent.requestReceived(lineWrapper.getInt(1),
 									lineWrapper.getInt(5),
 									lineWrapper.getInt(9));
 							break;
-						case 7:
+						case 7:	// piece
 							lineWrapper = ByteBuffer.wrap(currentLine);
 							byte[] payload = new byte[length - 9];
 							lineWrapper.get(payload, 9, length - 9);
 							parent.getPiece(lineWrapper.getInt(1), lineWrapper.getInt(5), payload);
 							break;
-						case 8:
+						case 8:	// cancel
 							lineWrapper = ByteBuffer.wrap(currentLine);
 							parent.cancelIndex(lineWrapper.getInt(1),
 									lineWrapper.getInt(5),
@@ -93,7 +93,8 @@ class PeerListener implements Runnable{
 				e.printStackTrace();
 				// break;
 			}
-			switch (nextLine[4]) {
+/*	THIS BLOCK LOOKS REDUNDANT!!
+  			switch (nextLine[4]) {
 //			switch (currentLine[4]) {
 			case 0:
 				parent.setChoke(true);
@@ -105,7 +106,7 @@ class PeerListener implements Runnable{
 				break;
 
 //				System.err.println(e.getMessage());
-			}
+			}	*/
 		}
 	}
 	

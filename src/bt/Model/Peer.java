@@ -44,10 +44,12 @@ public class Peer implements Runnable {
 	 * instantiated this object.
 	 */
 	private byte[] hash;
+	
 	/**
 	 * This field, clientID, holds the 20 byte peer id of the client which instantiated this object.
 	 */
 	private byte[] clientID;
+	
 	/**
 	 * interestedQueue is a maintained list of the piece requests a particular peer has made to this client.
 	 * When there is space on the outgoing TCP queue, and the connection is not choked, the oldest value in
@@ -71,6 +73,7 @@ public class Peer implements Runnable {
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
 	 */	
+	
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID,
 			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
 			throws UnknownHostException, IOException {
@@ -365,7 +368,7 @@ public class Peer implements Runnable {
 	/**
 	 * This method can be used to send a bitfield to the peer this object represents.  This should only
 	 * be done as the first message to this peer.  A bitfield is a byte[] with each index that the downloader,
-	 * this client, has sent set to one and the rest set to zero. Downloaders which don't have anything yet
+	 * this client, has received set to one and the rest set to zero. Downloaders which don't have anything yet
 	 * may skip the 'bitfield' message. The first byte of the bitfield corresponds to indices 0 - 7 from high
 	 * bit to low bit, respectively. The next one 8-15, etc. Spare bits at the end are set to zero.
 	 * @throws IOException if the system fails to send the TCP packet properly, this exception will be thrown.

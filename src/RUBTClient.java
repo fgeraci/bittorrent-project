@@ -46,12 +46,12 @@ public class RUBTClient {
 		// Program's loop
 		System.out.println("Connection Successfull, welcome");
 		// client's loop OR connect directly to a client (for project 0)
-		//RUBTClient.clientLoop(); <- Client's loop
-		try {
-			bittorrent.connectToPeer("128.6.171.3:6916");
-			bittorrent.simpleDownloadAlgorithm();
-			bittorrent.saveFile();
-		} catch (Exception e) { System.out.println(e.getMessage());	}
-		bittorrent.disposePeers();
+		RUBTClient.clientLoop(); /* <- Client's loop */
+//		try {
+//			bittorrent.connectToPeer("128.6.171.3:6916");
+//			bittorrent.simpleDownloadAlgorithm();
+//			bittorrent.saveFile();
+//		} catch (Exception e) { System.out.println(e.getMessage());	}
+//		bittorrent.disposePeers();
 	}
 }
