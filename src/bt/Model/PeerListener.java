@@ -26,118 +26,101 @@ class PeerListener implements Runnable{
 
 	@Override
 	public void run() {
-		
-		// Remember, this won't actually work because there is no guarantee that nextLine is a
-		// single incoming message.  The TCP buffer could contain more than one message, and if
-		// it does, we need to handle all of them and not just the first.
-		
-		
-		while(running) { 
-			try {
-				System.out.println(">>> Listening from Peer : "+this.parent+"...");
-				// by placing the array here, the buffer get cleared every run.
-				byte[] tcpArray = new byte[16963];
-				in.read(tcpArray);
-				System.out.println("<<< Data received, processing...");
-				if(!parent.peerAccepted) {
-					parent.validateInfoHash(tcpArray);
-					System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
-					parent.showInterested();
-					parent.sendBitfield();
-					parent.unChoke();
-					Thread.sleep(2000); // give it sometime to get digested.
-				} else {
-					int offset = 0;
-					ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
-					ByteBuffer lineWrapper = null;
-					int length = 0;
-					mainLoop: while (offset < tcpInput.capacity()) {
-						// Create a big enough buffer to read the correct TCP message.
-						if (offset < tcpInput.capacity() - 3) {
-							length = tcpInput.getInt(offset); // returns the length of the peer message
-						} else {
-							length = 0;
-						}
-						// obviates a -8 byte given as first byte response from the peer.
-						if(length < 0 ) { // SUPER WORK AROUND, but its working.
-							offset++;
-							length = tcpInput.getInt(offset);
-						} else if (length == 0) {
-							parent.updateTimout();
-							++offset;
-							continue mainLoop;
-						}
-						tcpInput.position(offset+4); // sets the iterator in the data index after reading length.
-						offset = offset + 4; // 4 bytes were read
-						byte[] currentLine = new byte[length]; // create a byte array of the correct length
-						for(int i = 0; i < currentLine.length ; i++) {
-						//	currentLine[i] = tcpInput.get(offset);
-							try {
-								currentLine[i] = tcpInput.get();
-							} catch (Exception e) { break; } // ByteBuffer depleted, stop getting bytes.
-							++offset;
-						}
-						
-						//tcpInput.get(currentLine, offset+3, length);
-						switch (currentLine[0]) {
-						case 0:	// choke
-							parent.setChoke(true);
-							break;
-						case 1: // remote-peer is unchoked, start requesting
-							parent.setChoke(false);
-							System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
-							Bittorrent.getInstance().simpleDownloadAlgorithm();
-							break; // message was received and processed.
-						case 2:	// interested
-							parent.setInterested(true);
-							break;
-						case 3:	// not interested
-							parent.setInterested(false);
-							break;
-						case 4:	// have
-							lineWrapper = ByteBuffer.wrap(currentLine);
-							parent.haveReceived(lineWrapper.getInt(1));
-							break;
-						case 5:	// bitfield
-							lineWrapper = ByteBuffer.wrap(currentLine);
-							byte[] bitfield = new byte[length - 1];
-							lineWrapper.get(bitfield, 1, length - 1);
-							parent.receiveBitfield(bitfield);
-							break;
-						case 6:	// request
-							lineWrapper = ByteBuffer.wrap(currentLine);
-							parent.requestReceived(lineWrapper.getInt(1),
-									lineWrapper.getInt(5),
-									lineWrapper.getInt(9));
-							break;
-						case 7:	// piece
-							System.out.println("-- Piece received, analyzing...");
-							lineWrapper = ByteBuffer.wrap(currentLine);
-							byte[] payload = new byte[length - 9];
-							lineWrapper.position(9);
-							for(int i = 0; i < payload.length; ++i) {
-								payload[i] = lineWrapper.get();
-							}
-							lineWrapper.rewind();
-							// lineWrapper.get(payload, 9, length - 9); // this mothertrucker is giving problems.
-							parent.getPiece(lineWrapper.getInt(1), lineWrapper.getInt(5), payload);
-							break;
-						case 8:	// cancel
-							lineWrapper = ByteBuffer.wrap(currentLine);
-							parent.cancelIndex(lineWrapper.getInt(1),
-									lineWrapper.getInt(5),
-									lineWrapper.getInt(9));
-						default:
-							System.err.println("Invalid message was received: " + currentLine);
-							break;
-						}
-					}
+		while(running) {
+			if(!parent.peerAccepted) {
+				receiveHandshake();
+			} else {
+				try {
+					readLine();
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Utilities.callClose();
+			}
+		}
+	}
+	
+	void receiveHandshake() {		
+		byte[] tcpArray = new byte[68];
+		try {
+			in.read(tcpArray);
+			System.out.println("<<< Data received, processing...");
+			System.out.println(">>> Listening from Peer : "+this.parent+"...");
+			parent.validateInfoHash(tcpArray);
+			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
+			parent.showInterested();
+			parent.sendBitfield();
+			parent.unChoke();
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// This just means we are off slightly on our timing.
+			} 
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+		
+	private void readLine() throws Exception {
+		byte[] lengthArray = new byte [4];
+		in.read(lengthArray, 0, 4);
+		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
+		byte[] tcpArray = new byte[lengthBuffer.getInt()];
+		in.read(tcpArray, 0, lengthBuffer.getInt());
+		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
+		int length = tcpInput.getInt(0);
+		if (length == 0) {
+			parent.updateTimout();  // This is a keep alive
+			} else {
+			tcpInput.position(5); // sets the iterator in the data index after reading length. and
+			// message id.
+			switch (tcpArray[4]) {
+			case 0:	// choke
+				parent.setChoke(true);
+				break;
+			case 1: // remote-peer is unchoked, start requesting
+				parent.setChoke(false);
+				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
+				Bittorrent.getInstance().simpleDownloadAlgorithm();
+				break; // message was received and processed.
+			case 2:	// interested
+				parent.setInterested(true);
+				break;
+			case 3:	// not interested
+				parent.setInterested(false);
+				break;
+			case 4:	// have
+				parent.haveReceived(tcpInput.getInt());
+				break;
+			case 5:	// bitfield
+				byte[] bitfield = new byte[length - 1];
+				tcpInput.get(bitfield, 5, length - 1);
+				parent.receiveBitfield(bitfield);
+				break;
+			case 6:	// request
+				parent.requestReceived(tcpInput.getInt(),
+						tcpInput.getInt(),
+						tcpInput.getInt());
+				break;
+			case 7:	// piece
+				System.out.println("-- Piece received, analyzing...");
+				byte[] payload = new byte[length - 9];
+				tcpInput.position(13);
+				for(int i = 0; i < payload.length; ++i) {
+					payload[i] = tcpInput.get();
+				}
+				tcpInput.rewind();
+				// lineWrapper.get(payload, 9, length - 9); // this mothertrucker is giving problems.
+				parent.getPiece(tcpInput.getInt(5), tcpInput.getInt(9), payload);
+				break;
+			case 8:	// cancel
+				parent.cancelIndex(tcpInput.getInt(5),
+						tcpInput.getInt(9),
+						tcpInput.getInt(13));
+			default:
+				System.err.println("Invalid message was received: " + tcpInput);
+				break;
 			}
 		}
 	}
