@@ -34,14 +34,14 @@ class PeerListener implements Runnable{
 		
 		while(running) { 
 			try {
-				System.out.println(">>> Listening from Peer : "+this.parent);
+				System.out.println(">>> Listening from Peer : "+this.parent+"...");
 				// by placing the array here, the buffer get cleared every run.
 				byte[] tcpArray = new byte[16394];
 				in.read(tcpArray);
 				System.out.println("<<< Data received, processing...");
 				if(!parent.peerAccepted) {
 					parent.validateInfoHash(tcpArray);
-					System.out.println(">>> HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
+					System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
 					parent.showInterested();
 					parent.sendBitfield();
 					parent.unChoke();
@@ -102,10 +102,15 @@ class PeerListener implements Runnable{
 									lineWrapper.getInt(9));
 							break;
 						case 7:	// piece
-							System.out.println("<<< Piece received, analyzing...");
+							System.out.println("-- Piece received, analyzing...");
 							lineWrapper = ByteBuffer.wrap(currentLine);
 							byte[] payload = new byte[length - 9];
-							lineWrapper.get(payload, 9, length - 9); // this mothertrucker is giving problems.
+							lineWrapper.position(9);
+							for(int i = 0; i < payload.length; ++i) {
+								payload[i] = lineWrapper.get();
+							}
+							lineWrapper.rewind();
+							// lineWrapper.get(payload, 9, length - 9); // this mothertrucker is giving problems.
 							parent.getPiece(lineWrapper.getInt(1), lineWrapper.getInt(5), payload);
 							break;
 						case 8:	// cancel
