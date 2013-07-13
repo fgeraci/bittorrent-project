@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.BitSet;
+import java.util.Date;
 import java.util.Queue;
 
 import bt.Utils.Utilities;
@@ -39,6 +40,7 @@ public class Peer implements Runnable {
 	public boolean peerAccepted = false;
 	private String IP;
 	private int port;
+	private Date timeout;
 	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
@@ -147,6 +149,14 @@ public class Peer implements Runnable {
 				}
 			}
 		}					// This is the end of the file sending loop.
+	}
+	
+	/**
+	 * When called, this method replaces timeout with a new Date object, which by default is set to
+	 * the current date and time.
+	 */
+	void updateTimout () {
+		timeout = new Date();
 	}
 	
 	/**

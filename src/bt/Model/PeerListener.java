@@ -57,9 +57,12 @@ class PeerListener implements Runnable{
 						if(length < 0 ) { // SUPER WORK AROUND, but its working.
 							offset++;
 							length = tcpInput.getInt(offset);
+						} else if (length == 0) {
+							parent.updateTimout();
+							break mainLoop;
 						}
 						tcpInput.position(offset+4); // sets the iterator in the data index after reading length.
-						//offset = offset + 4; // 4 bytes were read
+						offset = offset + 4; // 4 bytes were read
 						byte[] currentLine = new byte[length]; // create a byte array of the correct length
 						for(int i = 0; i < currentLine.length ; i++) {
 							//currentLine[i] = tcpInput.get(offset);
