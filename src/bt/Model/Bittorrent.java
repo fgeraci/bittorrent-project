@@ -231,7 +231,7 @@ public class Bittorrent {
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
 		
-		loadVerificationArray();
+		// loadVerificationArray();
 	}
 	
 	/**

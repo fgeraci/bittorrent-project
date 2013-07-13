@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
+import java.util.BitSet;
 import java.util.Queue;
 
 import bt.Utils.Utilities;
@@ -124,7 +125,7 @@ public class Peer implements Runnable {
 	public void run() {
 		handShake();
 		Thread listenerThread = new Thread(listener);
-		listenerThread.run();
+		listenerThread.start(); // changed, it was run(), which wont start a new thread.
 		while(running) {	// This is the file sending loop. 
 			if (interestedQueue.isEmpty()) {
 				try {
@@ -374,15 +375,19 @@ public class Peer implements Runnable {
 	 * @throws IOException if the system fails to send the TCP packet properly, this exception will be thrown.
 	 */
 	void sendBitfield() throws IOException {
-		byte[] bitfield = new byte[(int) Math.ceil((float)(completed.length) / 8.0f)];
+		BitSet bs = new BitSet();
+		//byte[] bitfield = new byte[(int) Math.ceil((float)(completed.length) / 8.0f)];
 		for (int i = 0; i < completed.length; ++i) {
 			if (completed[i]) {
-				bitfield[i] = 1;
+				bs.set(i, true);
+				//bitfield[i] = 1;
 			} else {
-				bitfield[i] =0;
+				bs.set(i, false);
+				//bitfield[i] =0;
 			}
 		}
-		out.write(bitfield);
+		out.write(bs.toByteArray());
+		// out.write(bitfield);
 		out.flush();
 	}
 	/**
@@ -429,8 +434,9 @@ public class Peer implements Runnable {
 			.put(b2)
 			.put(this.hash)
 			.put(clientID);
-
-		handShakeBA = handShakeBB.array();
+		// added rewind and change the array initialization.
+		handShakeBB.rewind();
+		handShakeBB.get(handShakeBA);
 		try {
 			this.out.write(handShakeBA);
 			this.out.flush();
