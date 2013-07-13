@@ -68,9 +68,7 @@ class PeerListener implements Runnable{
 							} catch (Exception e) { break; } // ByteBuffer depleted, stop getting bytes.
 							++offset;
 						}
-						if(currentLine[0] == 7) { 
-							int a = 5; 
-						}
+						
 						//tcpInput.get(currentLine, offset+3, length);
 						switch (currentLine[0]) {
 						case 0:	// choke
