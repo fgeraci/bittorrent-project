@@ -201,7 +201,7 @@ public class Bittorrent {
 	private void loadVerificationArray() {
 		for (int i = 0; i < this.pieces; i++) {
 			for (int j = 0; j < 20; j++) {
-				verificationArray[i][j] = this.torrentInfo.piece_hashes[(20*i)+j].get();
+				verificationArray[i][j] = this.torrentInfo.piece_hashes[i].get();
 			}
 		}
 	}
@@ -230,8 +230,7 @@ public class Bittorrent {
 		this.collection = new byte[pieces][pieceSize];
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
-		
-		// loadVerificationArray();
+		this.loadVerificationArray();
 	}
 	
 	/**
