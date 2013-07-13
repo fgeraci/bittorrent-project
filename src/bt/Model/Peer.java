@@ -126,6 +126,10 @@ public class Peer implements Runnable {
 		handShake();
 		Thread listenerThread = new Thread(listener);
 		listenerThread.start(); // changed, it was run(), which wont start a new thread.
+		// This will block until the handshake was done and we can start downloading.
+		try {
+			listenerThread.join();
+		} catch (Exception e) {}
 		while(running) {	// This is the file sending loop. 
 			if (interestedQueue.isEmpty()) {
 				try {

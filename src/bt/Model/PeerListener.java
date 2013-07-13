@@ -6,6 +6,13 @@ import java.nio.ByteBuffer;
 
 import bt.Utils.Utilities;
 
+/**
+ * 
+ * The main listener thread for each peer this client is connected to.
+ * @author Ike, Robert and Fernando
+ *
+ */
+
 class PeerListener implements Runnable{
 	
 	private InputStream in = null;
@@ -27,6 +34,7 @@ class PeerListener implements Runnable{
 		
 		while(running) { 
 			try {
+				System.out.println(">>> Listening from Peer : "+this.parent);
 				// by placing the array here, the buffer get cleared every run.
 				byte[] tcpArray = new byte[74];
 				in.read(tcpArray);
@@ -41,7 +49,7 @@ class PeerListener implements Runnable{
 					int offset = 0;
 					ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 					ByteBuffer lineWrapper = null;
-					while (offset < tcpArray.length) {
+					mainLoop: while (offset < tcpArray.length) {
 						// Create a big enough buffer to read the correct TCP message.
 						int length = tcpInput.getInt(offset); // returns the length of the peer message
 						// obviates a -8 byte given as first byte response from the peer.
@@ -63,7 +71,7 @@ class PeerListener implements Runnable{
 						case 1: // remote-peer is unchoked, start requesting
 							parent.setChoke(false);
 							System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
-							break;
+							break mainLoop; // message was received and processed.
 						case 2:	// interested
 							parent.setInterested(true);
 							break;
