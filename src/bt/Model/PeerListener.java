@@ -36,8 +36,9 @@ class PeerListener implements Runnable{
 			try {
 				System.out.println(">>> Listening from Peer : "+this.parent);
 				// by placing the array here, the buffer get cleared every run.
-				byte[] tcpArray = new byte[74];
+				byte[] tcpArray = new byte[16394];
 				in.read(tcpArray);
+				System.out.println("<<< Data received, processing...");
 				if(!parent.peerAccepted) {
 					parent.validateInfoHash(tcpArray);
 					System.out.println(">>> HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
@@ -57,11 +58,18 @@ class PeerListener implements Runnable{
 							offset++;
 							length = tcpInput.getInt(offset);
 						}
-						offset = offset + 4; // 4 bytes were read
+						tcpInput.position(offset+4); // sets the iterator in the data index after reading length.
+						//offset = offset + 4; // 4 bytes were read
 						byte[] currentLine = new byte[length]; // create a byte array of the correct length
-						for(int i = 0; i < currentLine.length; i++) {
-							currentLine[i] = tcpInput.get(offset);
+						for(int i = 0; i < currentLine.length ; i++) {
+							//currentLine[i] = tcpInput.get(offset);
+							try {
+								currentLine[i] = tcpInput.get();
+							} catch (Exception e) { break; } // ByteBuffer depleted, stop getting bytes.
 							++offset;
+						}
+						if(currentLine[0] == 7) { 
+							int a = 5; 
 						}
 						//tcpInput.get(currentLine, offset+3, length);
 						switch (currentLine[0]) {
@@ -96,9 +104,10 @@ class PeerListener implements Runnable{
 									lineWrapper.getInt(9));
 							break;
 						case 7:	// piece
+							System.out.println("<<< Piece received, analyzing...");
 							lineWrapper = ByteBuffer.wrap(currentLine);
 							byte[] payload = new byte[length - 9];
-							lineWrapper.get(payload, 9, length - 9);
+							lineWrapper.get(payload, 9, length - 9); // this mothertrucker is giving problems.
 							parent.getPiece(lineWrapper.getInt(1), lineWrapper.getInt(5), payload);
 							break;
 						case 8:	// cancel
@@ -118,20 +127,6 @@ class PeerListener implements Runnable{
 				e.printStackTrace();
 				Utilities.callClose();
 			}
-/*	THIS BLOCK LOOKS REDUNDANT!!
-  			switch (nextLine[4]) {
-//			switch (currentLine[4]) {
-			case 0:
-				parent.setChoke(true);
-				break;
-			case 1: // remote-peer is unchoked, start requesting
-				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
-				break;
-			default:
-				break;
-
-//				System.err.println(e.getMessage());
-			}	*/
 		}
 	}
 	
