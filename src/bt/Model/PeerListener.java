@@ -73,7 +73,7 @@ class PeerListener implements Runnable{
 		if (length == 0) {
 			parent.updateTimout();  // This is a keep alive
 			} else {
-			switch (tcpArray[4]) {
+			switch (tcpArray[0]) {
 			case 0:	// choke
 				parent.setChoke(true);
 				break;
@@ -93,7 +93,7 @@ class PeerListener implements Runnable{
 				break;
 			case 5:	// bitfield
 				byte[] bitfield = new byte[length - 1];
-				tcpInput.get(bitfield, 5, length - 1);
+				tcpInput.get(bitfield, 0, length - 1);
 				parent.receiveBitfield(bitfield);
 				break;
 			case 6:	// request
@@ -104,13 +104,13 @@ class PeerListener implements Runnable{
 			case 7:	// piece
 				System.out.println("-- Piece received, analyzing...");
 				byte[] payload = new byte[length - 9];
-				tcpInput.position(13);
+				tcpInput.position(1);
+				int index = tcpInput.getInt();
+				int begin = tcpInput.getInt();
 				for(int i = 0; i < payload.length; ++i) {
 					payload[i] = tcpInput.get();
 				}
-				tcpInput.rewind();
-				// lineWrapper.get(payload, 9, length - 9); // this mothertrucker is giving problems.
-				parent.getPiece(tcpInput.getInt(5), tcpInput.getInt(9), payload);
+				parent.getPiece(index, begin, payload);
 				break;
 			case 8:	// cancel
 				parent.cancelIndex(tcpInput.getInt(5),
