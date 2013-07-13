@@ -49,6 +49,8 @@ public class RUBTClient {
 		//RUBTClient.clientLoop(); /* <- Client's loop */
 		try {
 			bittorrent.connectToPeer("128.6.171.3:6916");
+			// THIS GUYS SHOULD BE EITHER EXECUTED AFTER A SLEEP OR PUT SOMEPLACE ELSE.
+			// this thread executes too fast.
 			//bittorrent.simpleDownloadAlgorithm();
 			//bittorrent.saveFile();
 		} catch (Exception e) { 

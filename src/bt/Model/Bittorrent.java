@@ -496,6 +496,7 @@ public class Bittorrent {
 				try {
 					peer.requestIndex(i, 0, 16384);
 					peer.requestIndex(i, 16384, 16384);
+					System.out.println("-- Piece: "+i+" requested");
 					sent = true;
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
