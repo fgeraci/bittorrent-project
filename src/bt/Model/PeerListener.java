@@ -66,15 +66,13 @@ class PeerListener implements Runnable{
 		byte[] lengthArray = new byte [4];
 		in.read(lengthArray, 0, 4);
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
-		byte[] tcpArray = new byte[lengthBuffer.getInt()];
-		in.read(tcpArray, 0, lengthBuffer.getInt());
+		int length = lengthBuffer.getInt();
+		byte[] tcpArray = new byte[length];
+		in.read(tcpArray, 0, length);
 		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
-		int length = tcpInput.getInt(0);
 		if (length == 0) {
 			parent.updateTimout();  // This is a keep alive
 			} else {
-			tcpInput.position(5); // sets the iterator in the data index after reading length. and
-			// message id.
 			switch (tcpArray[4]) {
 			case 0:	// choke
 				parent.setChoke(true);
