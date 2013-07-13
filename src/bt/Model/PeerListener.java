@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import bt.Utils.Utilities;
+
 class PeerListener implements Runnable{
+	
 	private InputStream in = null;
 	private Peer parent = null;
 	private boolean running = true;
@@ -21,10 +24,11 @@ class PeerListener implements Runnable{
 		// single incoming message.  The TCP buffer could contain more than one message, and if
 		// it does, we need to handle all of them and not just the first.
 		
-		byte[] tcpArray = new byte[73]; // if this is not initialized, we get a nullptrexception error.
 		
 		while(running) { 
 			try {
+				// by placing the array here, the buffer get cleared every run.
+				byte[] tcpArray = new byte[74];
 				in.read(tcpArray);
 				if(!parent.peerAccepted) {
 					parent.validateInfoHash(tcpArray);
@@ -32,14 +36,26 @@ class PeerListener implements Runnable{
 					parent.showInterested();
 					parent.sendBitfield();
 					parent.unChoke();
+					Thread.sleep(2000); // give it sometime to get digested.
 				} else {
 					int offset = 0;
 					ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 					ByteBuffer lineWrapper = null;
 					while (offset < tcpArray.length) {
-						int length = tcpInput.getInt(offset);
-						byte[] currentLine = new byte[length];
-						tcpInput.get(currentLine, offset + 4, length);
+						// Create a big enough buffer to read the correct TCP message.
+						int length = tcpInput.getInt(offset); // returns the length of the peer message
+						// obviates a -8 byte given as first byte response from the peer.
+						if(length < 0 ) { // SUPER WORK AROUND, but its working.
+							offset++;
+							length = tcpInput.getInt(offset);
+						}
+						offset = offset + 4; // 4 bytes were read
+						byte[] currentLine = new byte[length]; // create a byte array of the correct length
+						for(int i = 0; i < currentLine.length; i++) {
+							currentLine[i] = tcpInput.get(offset);
+							++offset;
+						}
+						//tcpInput.get(currentLine, offset+3, length);
 						switch (currentLine[0]) {
 						case 0:	// choke
 							parent.setChoke(true);
@@ -87,11 +103,11 @@ class PeerListener implements Runnable{
 						}
 					}
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				// break;
+				Utilities.callClose();
 			}
 /*	THIS BLOCK LOOKS REDUNDANT!!
   			switch (nextLine[4]) {
@@ -119,4 +135,5 @@ class PeerListener implements Runnable{
 		in = null;
 		parent = null;
 	}
+	
 }

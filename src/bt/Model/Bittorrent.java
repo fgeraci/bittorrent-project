@@ -326,7 +326,7 @@ public class Bittorrent {
 	/**
 	 * Connect to peer - this is just trial code to instantiate and test the peer.
 	 */
-	private void initPeers() {
+	private void initPeers() throws Exception {
 		ArrayList<byte[]> torrentPeerList = new ArrayList<byte[]>();
 		int peerIndex = 0;
 		for (byte[] peerID : torrentPeerList) {

@@ -77,7 +77,7 @@ public class Peer implements Runnable {
 	
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID,
 			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
-			throws UnknownHostException, IOException {
+			throws UnknownHostException, IOException, Exception {
 		this.IP = address;
 		this.port = port;
 		interestedQueue = new ArrayDeque <Request> ();
