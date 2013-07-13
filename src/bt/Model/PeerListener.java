@@ -36,7 +36,7 @@ class PeerListener implements Runnable{
 			try {
 				System.out.println(">>> Listening from Peer : "+this.parent+"...");
 				// by placing the array here, the buffer get cleared every run.
-				byte[] tcpArray = new byte[16394];
+				byte[] tcpArray = new byte[16963];
 				in.read(tcpArray);
 				System.out.println("<<< Data received, processing...");
 				if(!parent.peerAccepted) {
@@ -50,22 +50,28 @@ class PeerListener implements Runnable{
 					int offset = 0;
 					ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 					ByteBuffer lineWrapper = null;
-					mainLoop: while (offset < tcpArray.length) {
+					int length = 0;
+					mainLoop: while (offset < tcpInput.capacity()) {
 						// Create a big enough buffer to read the correct TCP message.
-						int length = tcpInput.getInt(offset); // returns the length of the peer message
+						if (offset < tcpInput.capacity() - 3) {
+							length = tcpInput.getInt(offset); // returns the length of the peer message
+						} else {
+							length = 0;
+						}
 						// obviates a -8 byte given as first byte response from the peer.
 						if(length < 0 ) { // SUPER WORK AROUND, but its working.
 							offset++;
 							length = tcpInput.getInt(offset);
 						} else if (length == 0) {
 							parent.updateTimout();
-							break mainLoop;
+							++offset;
+							continue mainLoop;
 						}
 						tcpInput.position(offset+4); // sets the iterator in the data index after reading length.
 						offset = offset + 4; // 4 bytes were read
 						byte[] currentLine = new byte[length]; // create a byte array of the correct length
 						for(int i = 0; i < currentLine.length ; i++) {
-							//currentLine[i] = tcpInput.get(offset);
+						//	currentLine[i] = tcpInput.get(offset);
 							try {
 								currentLine[i] = tcpInput.get();
 							} catch (Exception e) { break; } // ByteBuffer depleted, stop getting bytes.
@@ -81,7 +87,7 @@ class PeerListener implements Runnable{
 							parent.setChoke(false);
 							System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
 							Bittorrent.getInstance().simpleDownloadAlgorithm();
-							break mainLoop; // message was received and processed.
+							break; // message was received and processed.
 						case 2:	// interested
 							parent.setInterested(true);
 							break;
