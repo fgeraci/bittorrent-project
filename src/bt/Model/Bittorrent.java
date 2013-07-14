@@ -31,6 +31,11 @@ import bt.Utils.Utilities;
 public class Bittorrent {
 	
 	/**
+	 * Size of each piece
+	 */
+	public int pieceLength;
+	
+	/**
 	 * There should be one entry for each successful connection mapped to peers[].
 	 */
 	boolean[] connections;
@@ -108,6 +113,11 @@ public class Bittorrent {
 	 * Bytes downloaded so far.
 	 */
 	private int downloaded;
+	
+	/**
+	 * Keep track of downloaded bytes by piece.
+	 */
+	private int[] downloadedByPiece;
 	
 	/**
 	 * Bytes left to download for current file.
@@ -222,11 +232,17 @@ public class Bittorrent {
 		this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
 		this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
 		this.left = Integer.parseInt(this.properties.getProperty("left"));
+		this.downloadedByPiece = new int[this.pieces];
+		this.pieceLength = this.torrentInfo.piece_length;
 		// there are more than one call to create collection.
 		this.collection = new byte[pieces][pieceSize];
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
+	}
+	
+	public int getBytesDownloadedByIndex(int index) {
+		return this.downloadedByPiece[index];
 	}
 	
 	/**
@@ -318,32 +334,10 @@ public class Bittorrent {
 		
 	}
 	
-	/**
-	 * Connect to peer - this is just trial code to instantiate and test the peer.
-	 *
-	private void initPeers() throws Exception {
-		ArrayList<byte[]> torrentPeerList = new ArrayList<byte[]>();
-		int peerIndex = 0;
-		for (byte[] peerID : torrentPeerList) {
-			try {
-				peerList.add(new Peer(	Utilities.getIPFromString(this.peers[0]), // peer[0] selected
-										Utilities.getPortFromString(this.peers[0]), // peer[0] selected
-										this.info_hash.getBytes(),
-										this.clientID.getBytes(),
-										collection, // to be completed
-										this.verificationArray, // to be completed
-										completedPieces));
-			} catch (UnknownHostException e) {
-				System.out.println("Host Unknown: " + peers[0]);
-			} catch (IOException e) {
-				System.err.println("Failed to contact: " + peers[0]);
-			}
-			Thread peerThread = new Thread(peerList.get(peerIndex));
-			peerThread.start();
-			peerIndex++;
-		}
+	
+	public void addBytesToPiece(int index, int bytes) {
+		this.downloadedByPiece[index] += bytes;
 	}
-	*/
 	
 	/**
 	* Returns the first available port given the range or -1 if non if available.

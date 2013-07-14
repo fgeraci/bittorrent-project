@@ -58,7 +58,7 @@ class PeerListener implements Runnable{
 			parent.sendBitfield();
 			parent.unChoke();
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// This just means we are off slightly on our timing.
 			} 
@@ -123,8 +123,10 @@ class PeerListener implements Runnable{
 				for(int i = 0; i < payload.length; ++i) {
 					payload[i] = tcpInput.get();
 				}
-				System.out.println("parent.getPiece(" + index +", " + begin +", " + payload + ");");
-				parent.getPiece(index, begin, payload);
+				System.out.println("Index: "+index+" - Begin: "+begin);
+				try {
+					parent.getPiece(index, begin, payload);
+				} catch (Exception e) {e.printStackTrace();}
 				break;
 			case 8:	// cancel
 				parent.cancelIndex(tcpInput.getInt(5),

@@ -40,6 +40,7 @@ public class Peer implements Runnable {
 	private String IP;
 	private int port;
 	private Date timeout;
+	MessageDigest sha;
 	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
@@ -92,6 +93,7 @@ public class Peer implements Runnable {
 		verifyHash = verifyReference;
 		completed = completedReference;
 		bitField = new boolean[fileHeap.length];
+		// sha = MessageDigest.getInstance("SHA-1");
 		for (int i = 0; i < bitField.length; ++i) {
 			bitField[i] = false;
 		}
@@ -284,7 +286,7 @@ public class Peer implements Runnable {
 	 * @param begin The base zero offset from the beginning of this piece where the payload begins.
 	 * @param payload A byte array of the incoming data.
 	 */
-	void getPiece (int index, int begin, byte[] payload) {
+	void getPiece (int index, int begin, byte[] payload) throws Exception {
 		if (completed[index]) {
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every
@@ -303,9 +305,13 @@ public class Peer implements Runnable {
 			}
 		} else {
 		// This loops over the bytes in payload and writes them into the file heap.
-			for (int offset = 0; offset < payload.length; ++offset) {
-			fileHeap[index][begin + offset] = payload[offset];
+			int offset;
+			for (offset = 0; offset < payload.length; ++offset) {
+				fileHeap[index][begin + offset] = payload[offset];
 			}
+			try {
+				Bittorrent.getInstance().addBytesToPiece(index, offset);
+			} catch (Exception e) {e.printStackTrace();}
 			verifySHA(index);
 		}
 	}
@@ -496,31 +502,39 @@ public class Peer implements Runnable {
  * sent a have message.
  * @param index The piece of the file being verified
  */
-	private void verifySHA(int index) {
+	private void verifySHA(int index) throws Exception {
 		try {
+			Bittorrent bt = Bittorrent.getInstance();
 			MessageDigest sha = MessageDigest.getInstance("SHA-1");
-			byte[] test = sha.digest(fileHeap[index]);
-			if (sameArray(verifyHash[index], test)) {
-				System.out.println("We have completed piece: " + index);
-				boolean sent = false;
-				// This is a bit complicated looking, but this block attempts to send a have message every
-				// 50 Milliseconds until it succeeds.
-				while (!sent) {
-					try {
-						showFinished(index);
-						sent = true;
-					} catch (IOException e) {
+			// if the piece is completed
+			if(bt.getBytesDownloadedByIndex(index) >= bt.pieceLength) {
+				byte[] toDigest = new byte[bt.pieceLength];
+				for(int i = 0; i < bt.pieceLength; ++i) {
+					toDigest[i] = fileHeap[index][i];
+				}
+				byte[] test = sha.digest(toDigest);
+				if (sameArray(verifyHash[index], test)) {
+					System.out.println("We have completed piece: " + index);
+					boolean sent = false;
+					// This is a bit complicated looking, but this block attempts to send a have message every
+					// 50 Milliseconds until it succeeds.
+					while (!sent) {
 						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e1) {
-							continue;
+							showFinished(index);
+							sent = true;
+						} catch (IOException e) {
+							try {
+								Thread.sleep(50);
+							} catch (InterruptedException e1) {
+								continue;
+							}
 						}
 					}
+					completed[index] = true;
+				} else {
+					System.out.println("Index # " + index + " failed was not verified.");
 				}
-				completed[index] = true;
-			} else {
-				System.out.println("Index # " + index + " failed was not verified.");
-			}
+			} 
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
