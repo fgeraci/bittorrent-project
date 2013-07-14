@@ -176,7 +176,6 @@ public class Bittorrent {
 			this.initClientState();
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
-			this.initPiecesColletion();
 			this.sendRequestToTracker();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -224,7 +223,7 @@ public class Bittorrent {
 	 */
 	private void initClientState() throws Exception {
 		this.pieces = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
-		int pieceSize = this.torrentInfo.piece_length;
+		this.pieceLength = this.torrentInfo.piece_length;
 		this.fileName = this.torrentInfo.file_name;
 		this.properties = new Properties();
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
@@ -233,9 +232,9 @@ public class Bittorrent {
 		this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
 		this.left = Integer.parseInt(this.properties.getProperty("left"));
 		this.downloadedByPiece = new int[this.pieces];
-		this.pieceLength = this.torrentInfo.piece_length;
+		
 		// there are more than one call to create collection.
-		this.collection = new byte[pieces][pieceSize];
+		this.collection = new byte[pieces][this.pieceLength];
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
@@ -389,15 +388,6 @@ public class Bittorrent {
 	 */
 	public void stopServer() throws IOException, Exception {
 		this.server.terminateServer();
-	}
-	 
-	/**
-	 * Initiates the bytes collections. 
-	 */
-	private void initPiecesColletion() {
-		int segments = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
-		int segmentLength = this.torrentInfo.file_length / segments;
-		this.collection = new byte[segments][segmentLength];
 	}
 	
 	/**

@@ -235,9 +235,10 @@ public class Peer implements Runnable {
 	 * @throws IOException 
 	 */
 	void showFinished (int piece) throws IOException {
-		byte[] message = null;
+		byte[] message = new byte[9];
 		ByteBuffer messageBuffer = ByteBuffer.allocate(9);
 		messageBuffer.putInt(5).put((byte)4).putInt(piece);
+		messageBuffer.rewind();
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
