@@ -508,6 +508,7 @@ public class Peer implements Runnable {
 	private void verifySHA(int index) {
 		byte[] test = sha.digest(fileHeap[index]);
 		if (verifyHash[index] == test) {
+			System.out.println("We have completed piece: " + index);
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every
 			// 50 Milliseconds until it succeeds.
@@ -538,7 +539,7 @@ public class Peer implements Runnable {
 			if(Utilities.matchBytes(
 					Utilities.getInfoHashFromHandShakeResponse(response), 
 					this.hash)) {
-				this.peerAccepted = !this.peerAccepted;
+				this.peerAccepted = true;
 				return this.peerAccepted;
 			} else {
 				System.out.println("ERROR: info_hash doesn't match, connection terminated.");
