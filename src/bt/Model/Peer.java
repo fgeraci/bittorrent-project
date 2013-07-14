@@ -34,7 +34,6 @@ public class Peer implements Runnable {
 	private Socket dataSocket = null;
 	private InputStream in = null;
 	private OutputStream out = null;
-	private MessageDigest sha = null;
 	private boolean running = true;
 	private byte[] handShakeResponse;
 	public boolean peerAccepted = false;
@@ -95,11 +94,6 @@ public class Peer implements Runnable {
 		bitField = new boolean[fileHeap.length];
 		for (int i = 0; i < bitField.length; ++i) {
 			bitField[i] = false;
-		}
-		try {
-			sha = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
 		}
 		// added to start a new thread on the instantiation of a peer.
 		Thread peerThread = new Thread(this);
@@ -375,8 +369,7 @@ public class Peer implements Runnable {
 	}
 	
 	void receiveBitfield(byte[] bitfield) {
-		BitSet bs = new BitSet(bitField.length);
-		bs.valueOf(bitfield);
+		BitSet bs = BitSet.valueOf(bitfield);
 		for (int i = 0; i < bitField.length; ++i) {
 				this.bitField[i] = bs.get(i);
 		}
@@ -491,7 +484,6 @@ public class Peer implements Runnable {
 		in = null;
 		out = null;
 		dataSocket = null;
-		sha = null;
 		hash = null;
 		clientID = null;
 		interestedQueue.clear();
@@ -505,27 +497,32 @@ public class Peer implements Runnable {
  * @param index The piece of the file being verified
  */
 	private void verifySHA(int index) {
-		byte[] test = sha.digest(fileHeap[index]);
-		if (sameArray(verifyHash[index], test)) {
-			System.out.println("We have completed piece: " + index);
-			boolean sent = false;
-			// This is a bit complicated looking, but this block attempts to send a have message every
-			// 50 Milliseconds until it succeeds.
-			while (!sent) {
-				try {
-					showFinished(index);
-					sent = true;
-				} catch (IOException e) {
+		try {
+			MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			byte[] test = sha.digest(fileHeap[index]);
+			if (sameArray(verifyHash[index], test)) {
+				System.out.println("We have completed piece: " + index);
+				boolean sent = false;
+				// This is a bit complicated looking, but this block attempts to send a have message every
+				// 50 Milliseconds until it succeeds.
+				while (!sent) {
 					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						continue;
+						showFinished(index);
+						sent = true;
+					} catch (IOException e) {
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e1) {
+							continue;
+						}
 					}
 				}
+				completed[index] = true;
+			} else {
+				System.out.println("Index # " + index + " failed was not verified.");
 			}
-			completed[index] = true;
-		} else {
-			System.out.println("Index # " + index + " failed was not verified.");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
 		}
 	}
 	
