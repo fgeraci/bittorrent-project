@@ -311,11 +311,11 @@ public class Peer implements Runnable {
 			}
 			try {
 				Bittorrent.getInstance().addBytesToPiece(index, offset);
-			} catch (Exception e) {System.out.println(e.getStackTrace());}
+			} catch (Exception e) {System.out.println(e.getMessage());}
 			try {
 				verifySHA(index);
 			} catch (Exception e) {
-				System.err.println(e.getStackTrace());
+				System.err.println(e.getMessage());
 			}
 		}
 	}
@@ -541,7 +541,7 @@ public class Peer implements Runnable {
 				}
 			} 
 		} catch (NoSuchAlgorithmException e) {
-			System.err.println(e.getStackTrace());
+			System.err.println(e.getMessage());
 		}
 	}
 	
