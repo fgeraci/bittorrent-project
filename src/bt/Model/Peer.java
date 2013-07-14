@@ -379,9 +379,9 @@ public class Peer implements Runnable {
 	void receiveBitfield(byte[] bitfield) {
 		for (int i = 0; i < bitField.length; ++i) {
 			if (bitfield[i] == 1) {
-				bitField[i] = true;
+				this.bitField[i] = true;
 			} else {
-				bitField[i] = false;
+				this.bitField[i] = false;
 			}
 		}
 	}
