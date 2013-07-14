@@ -99,10 +99,8 @@ public class Peer implements Runnable {
 		try {
 			sha = MessageDigest.getInstance("SHA-1");
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		// added to start a new thread on the instantiation of a peer.
 		Thread peerThread = new Thread(this);
 		peerThread.start();
@@ -377,12 +375,10 @@ public class Peer implements Runnable {
 	}
 	
 	void receiveBitfield(byte[] bitfield) {
+		BitSet bs = new BitSet(bitField.length);
+		bs.valueOf(bitfield);
 		for (int i = 0; i < bitField.length; ++i) {
-			if (bitfield[i] == 1) {
-				this.bitField[i] = true;
-			} else {
-				this.bitField[i] = false;
-			}
+				this.bitField[i] = bs.get(i);
 		}
 	}
 	
