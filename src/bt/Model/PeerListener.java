@@ -113,6 +113,7 @@ class PeerListener implements Runnable{
 				for(int i = 0; i < payload.length; ++i) {
 					payload[i] = tcpInput.get();
 				}
+				System.out.println("parent.getPiece(" + index +", " + begin +", " + payload + ");");
 				parent.getPiece(index, begin, payload);
 				break;
 			case 8:	// cancel
