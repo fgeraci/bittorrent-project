@@ -1,20 +1,15 @@
 package bt.Model;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -227,6 +222,7 @@ public class Bittorrent {
 		this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
 		this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
 		this.left = Integer.parseInt(this.properties.getProperty("left"));
+		// there are more than one call to create collection.
 		this.collection = new byte[pieces][pieceSize];
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
@@ -324,7 +320,7 @@ public class Bittorrent {
 	
 	/**
 	 * Connect to peer - this is just trial code to instantiate and test the peer.
-	 */
+	 *
 	private void initPeers() throws Exception {
 		ArrayList<byte[]> torrentPeerList = new ArrayList<byte[]>();
 		int peerIndex = 0;
@@ -347,6 +343,7 @@ public class Bittorrent {
 			peerIndex++;
 		}
 	}
+	*/
 	
 	/**
 	* Returns the first available port given the range or -1 if non if available.
