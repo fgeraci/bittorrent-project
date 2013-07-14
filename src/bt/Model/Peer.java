@@ -526,7 +526,6 @@ public class Peer implements Runnable {
 					boolean sent = false;
 					// This is a bit complicated looking, but this block attempts to send a have message every
 					// 50 Milliseconds until it succeeds.
-					/*
 					while (!sent) {
 						try {
 							showFinished(index);
@@ -538,7 +537,7 @@ public class Peer implements Runnable {
 								continue;
 							}
 						}
-					}*/
+					}
 					completed[index] = true;
 					if(bt.isFileCompleted()) {
 						System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
