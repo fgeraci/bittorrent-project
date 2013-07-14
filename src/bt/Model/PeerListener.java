@@ -32,6 +32,9 @@ class PeerListener implements Runnable{
 			} else {
 				try {
 					readLine();
+					try {
+						Thread.sleep(2000);
+					} catch (Exception e) {}
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				} catch (Exception e) {
