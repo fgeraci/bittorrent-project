@@ -340,7 +340,6 @@ public class Bittorrent {
 			} catch (UnknownHostException e) {
 				System.out.println("Host Unknown: " + peers[0]);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				System.err.println("Failed to contact: " + peers[0]);
 			}
 			Thread peerThread = new Thread(peerList.get(peerIndex));

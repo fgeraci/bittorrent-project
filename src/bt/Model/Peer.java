@@ -566,4 +566,3 @@ public class Peer implements Runnable {
 		return false;
 	}
 }
-

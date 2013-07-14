@@ -92,7 +92,6 @@ class PeerListener implements Runnable{
 				try {
 					Bittorrent.getInstance().simpleDownloadAlgorithm();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					System.err.println("Failed to get an instance of BitTorrent.");
 				}
 				break; // message was received and processed.
