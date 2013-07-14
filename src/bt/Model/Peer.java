@@ -240,6 +240,7 @@ public class Peer implements Runnable {
 		messageBuffer.putInt(5).put((byte)4).putInt(piece);
 		messageBuffer.rewind();
 		messageBuffer.get(message);
+		out.flush();
 		out.write(message);
 		out.flush();
 	}
@@ -525,6 +526,7 @@ public class Peer implements Runnable {
 					boolean sent = false;
 					// This is a bit complicated looking, but this block attempts to send a have message every
 					// 50 Milliseconds until it succeeds.
+					/*
 					while (!sent) {
 						try {
 							showFinished(index);
@@ -536,11 +538,12 @@ public class Peer implements Runnable {
 								continue;
 							}
 						}
-					}
+					}*/
 					completed[index] = true;
 					if(bt.isFileCompleted()) {
-						System.out.println("-- FILE SUCCESSFULLY DOWNLOADED --");
-						bt.saveFile();
+						System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+						bt.notifyFullyDownload(); // notifies tracker
+						bt.saveFile(); // create the downloaded file
 						Utilities.callClose();
 					}
 				} else {
