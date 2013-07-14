@@ -287,7 +287,7 @@ public class Peer implements Runnable {
 	 * @param begin The base zero offset from the beginning of this piece where the payload begins.
 	 * @param payload A byte array of the incoming data.
 	 */
-	void getPiece (int index, int begin, byte[] payload) throws Exception {
+	void getPiece (int index, int begin, byte[] payload) {
 		if (completed[index]) {
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every
@@ -312,8 +312,12 @@ public class Peer implements Runnable {
 			}
 			try {
 				Bittorrent.getInstance().addBytesToPiece(index, offset);
-			} catch (Exception e) {e.printStackTrace();}
-			verifySHA(index);
+			} catch (Exception e) {System.out.println(e.getStackTrace());}
+			try {
+				verifySHA(index);
+			} catch (Exception e) {
+				System.err.println(e.getStackTrace());
+			}
 		}
 	}
 
@@ -502,6 +506,7 @@ public class Peer implements Runnable {
  * file is complete and valid, It will be marked complete in the completed array, and a The peer will be
  * sent a have message.
  * @param index The piece of the file being verified
+ * @throws Exception This exception is thrown if there is no existing instance of the BitTorrent class.
  */
 	private void verifySHA(int index) throws Exception {
 		try {
@@ -537,7 +542,7 @@ public class Peer implements Runnable {
 				}
 			} 
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			System.err.println(e.getStackTrace());
 		}
 	}
 	
