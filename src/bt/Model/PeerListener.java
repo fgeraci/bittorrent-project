@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import bt.Utils.Utilities;
-
 /**
  * 
  * The main listener thread for each peer this client is connected to.
@@ -44,6 +42,10 @@ class PeerListener implements Runnable{
 		}
 	}
 	
+	/**
+	 * This method is called when a message has been received and we have not completed handshaking
+	 * successfully.
+	 */
 	void receiveHandshake() {		
 		byte[] tcpArray = new byte[68];
 		try {
@@ -64,8 +66,12 @@ class PeerListener implements Runnable{
 			System.err.println(e.getMessage());
 		}
 	}
-		
-	private void readLine() throws Exception {
+	
+	/**
+	 * This method handles any incoming message once hanshaking has been completed successfully.
+	 * @throws IOException IOException is thrown when we cannot read from the TCP buffer.
+	 */
+	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
 		in.read(lengthArray, 0, 4);
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
@@ -83,7 +89,12 @@ class PeerListener implements Runnable{
 			case 1: // remote-peer is unchoked, start requesting
 				parent.setChoke(false);
 				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
-				Bittorrent.getInstance().simpleDownloadAlgorithm();
+				try {
+					Bittorrent.getInstance().simpleDownloadAlgorithm();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					System.err.println("Failed to get an instance of BitTorrent.");
+				}
 				break; // message was received and processed.
 			case 2:	// interested
 				parent.setInterested(true);

@@ -92,6 +92,10 @@ public class Peer implements Runnable {
 		fileHeap = heapReference;
 		verifyHash = verifyReference;
 		completed = completedReference;
+		bitField = new boolean[fileHeap.length];
+		for (int i = 0; i < bitField.length; ++i) {
+			bitField[i] = false;
+		}
 		try {
 			sha = MessageDigest.getInstance("SHA-1");
 		} catch (NoSuchAlgorithmException e) {
@@ -403,7 +407,6 @@ public class Peer implements Runnable {
 			}
 		}
 		out.write(bs.toByteArray());
-		// out.write(bitfield);
 		out.flush();
 	}
 	/**
@@ -507,7 +510,7 @@ public class Peer implements Runnable {
  */
 	private void verifySHA(int index) {
 		byte[] test = sha.digest(fileHeap[index]);
-		if (verifyHash[index] == test) {
+		if (sameArray(verifyHash[index], test)) {
 			System.out.println("We have completed piece: " + index);
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every
@@ -525,7 +528,29 @@ public class Peer implements Runnable {
 				}
 			}
 			completed[index] = true;
+		} else {
+			System.out.println("Index # " + index + " failed was not verified.");
 		}
+	}
+	
+	/**
+	 * Checks if two byte arrays contain the same values at all positions.
+	 * @param first An operand to be tested.
+	 * @param second An operand to be tested.
+	 * @return returns true if first and second are equal in length and every byte they contain is
+	 * of equal value, and false otherwise.
+	 */
+	private boolean sameArray (byte[] first, byte[] second) {
+		if (first.length != second.length){
+			return false;
+		} else {
+			for (int i = 0; i < first.length; ++i) {
+				if (first[i] != second[i]) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	/**
