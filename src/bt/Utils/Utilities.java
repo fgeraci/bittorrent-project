@@ -136,9 +136,8 @@ public class Utilities {
 	  * Terminates the client.
 	  */
 	 public static void callClose() {
-		 // do stuff
 		 try {
-//			 Bittorrent.getInstance().stopServer();	/* THIS CALL IS HANGING */
+			 Bittorrent.getInstance().stopServer();
 			 Bittorrent.getInstance().disposePeers();
 			 System.out.println("\n -- Client Terminated -- ");
 			 System.exit(0);

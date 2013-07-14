@@ -483,6 +483,7 @@ public class Peer implements Runnable {
 		while (!closed) {
 			try {
 				dataSocket.close();
+				closed = true;
 			} catch (IOException e) {
 				try {
 					Thread.sleep(50);
@@ -537,6 +538,11 @@ public class Peer implements Runnable {
 						}
 					}
 					completed[index] = true;
+					if(bt.isFileCompleted()) {
+						System.out.println("-- FILE SUCCESSFULLY DOWNLOADED --");
+						bt.saveFile();
+						Utilities.callClose();
+					}
 				} else {
 					System.out.println("Index # " + index + " failed was not verified.");
 				}

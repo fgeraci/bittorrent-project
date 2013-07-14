@@ -491,7 +491,12 @@ public class Bittorrent {
 		
 	}
 
+	/**
+	 * Closes and saves the file after the client successfully downloaded it.
+	 * @throws IOException
+	 */
 	public void saveFile () throws IOException {
+		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
 		for (int outer = 0; outer < collection.length; ++outer) {
@@ -499,7 +504,18 @@ public class Bittorrent {
 				fileArray[(outer * collection[0].length) + inner] = collection[outer][inner];
 			}
 		}
+		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
 		fileOut.close();
+	}
+	
+	/**
+	 * It will check if the file is completed for then closing it and save it.
+	 */
+	boolean isFileCompleted() {
+		for(int i = 0; i < this.completedPieces.length; ++i) {
+			if(!this.completedPieces[i]) return false;;
+		}
+		return true;
 	}
 }
