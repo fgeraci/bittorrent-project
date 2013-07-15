@@ -2,7 +2,7 @@ package bt.Model;
 
 /**
  * This class serves as an immutable storage object for an incoming request.
- * @author Ike, Fernando, and Robert
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 class Request {

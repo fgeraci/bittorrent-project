@@ -18,7 +18,7 @@ import bt.Utils.Utilities;
 
 /**
  * Creates a connection with a peer to download a file.
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 
@@ -240,6 +240,7 @@ public class Peer implements Runnable {
 		messageBuffer.putInt(5).put((byte)4).putInt(piece);
 		messageBuffer.rewind();
 		messageBuffer.get(message);
+		out.flush();
 		out.write(message);
 		out.flush();
 	}
@@ -337,6 +338,7 @@ public class Peer implements Runnable {
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
+		System.out.println("-- Piece: "+index+" From: "+begin+" Bytes:  "+length+" requested");
 	}
 	
 	/**
@@ -511,42 +513,52 @@ public class Peer implements Runnable {
  */
 	private void verifySHA(int index) throws Exception {
 		try {
-			Bittorrent bt = Bittorrent.getInstance();
-			MessageDigest sha = MessageDigest.getInstance("SHA-1");
-			// if the piece is completed
-			if(bt.getBytesDownloadedByIndex(index) >= bt.pieceLength) {
-				byte[] toDigest = new byte[bt.pieceLength];
-				for(int i = 0; i < bt.pieceLength; ++i) {
+		Bittorrent bt = Bittorrent.getInstance();
+		MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			
+			byte[] toDigest = null;
+			
+			if (index < fileHeap.length - 1) {
+				toDigest = new byte[bt.pieceLength];
+				for(int i = 0; i < toDigest.length; ++i) {
 					toDigest[i] = fileHeap[index][i];
 				}
-				byte[] test = sha.digest(toDigest);
-				if (sameArray(verifyHash[index], test)) {
-					System.out.println("We have completed piece: " + index);
-					boolean sent = false;
-					// This is a bit complicated looking, but this block attempts to send a have message every
-					// 50 Milliseconds until it succeeds.
-					while (!sent) {
+			} else {
+				toDigest = new byte[bt.getFileLength() - ((fileHeap.length-1)*bt.pieceLength)];
+				for(int i = 0; i < toDigest.length; ++i) {
+					toDigest[i] = fileHeap[index][i];
+				}
+			}
+			
+			
+			byte[] test = sha.digest(toDigest);
+			if (sameArray(verifyHash[index], test)) {
+				System.out.println("We have completed piece: " + index);
+				boolean sent = false;
+				// This is a bit complicated looking, but this block attempts to send a have message every
+				// 50 Milliseconds until it succeeds.
+				while (!sent) {
+					try {
+						showFinished(index);
+						sent = true;
+					} catch (IOException e) {
 						try {
-							showFinished(index);
-							sent = true;
-						} catch (IOException e) {
-							try {
-								Thread.sleep(50);
-							} catch (InterruptedException e1) {
-								continue;
-							}
+							Thread.sleep(50);
+						} catch (InterruptedException e1) {
+							continue;
 						}
 					}
-					completed[index] = true;
-					if(bt.isFileCompleted()) {
-						System.out.println("-- FILE SUCCESSFULLY DOWNLOADED --");
-						bt.saveFile();
-						Utilities.callClose();
-					}
-				} else {
-					System.out.println("Index # " + index + " failed was not verified.");
 				}
-			} 
+				completed[index] = true;
+				if(bt.isFileCompleted()) {
+					System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+					bt.notifyFullyDownload(); // notifies tracker
+					bt.saveFile(); // create the downloaded file
+					Utilities.callClose();
+				}
+			} else {
+				System.out.println("Index # " + index + " failed was not verified.");
+			}
 		} catch (NoSuchAlgorithmException e) {
 			System.err.println(e.getMessage());
 		}

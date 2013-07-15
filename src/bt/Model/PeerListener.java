@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 /**
  * 
  * The main listener thread for each peer this client is connected to.
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 
@@ -32,7 +32,9 @@ class PeerListener implements Runnable{
 					readLine();
 					try {
 						Thread.sleep(2000);
-					} catch (InterruptedException e) {}
+					} catch (InterruptedException e) {
+						continue;
+						}
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				} catch (Exception e) {

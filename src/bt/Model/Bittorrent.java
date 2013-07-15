@@ -24,7 +24,7 @@ import bt.Utils.Utilities;
  * Tracker data fields in its constructor for then establishing a connection
  * with it.
  * 
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 
@@ -222,7 +222,8 @@ public class Bittorrent {
 	 * @throws Exception
 	 */
 	private void initClientState() throws Exception {
-		this.pieces = (int)(Math.ceil(this.torrentInfo.file_length / this.torrentInfo.piece_length));
+		double blocks = ((double)(this.torrentInfo.file_length)) / this.torrentInfo.piece_length;
+		this.pieces = (int)(Math.ceil(blocks));
 		this.pieceLength = this.torrentInfo.piece_length;
 		this.fileName = this.torrentInfo.file_name;
 		this.properties = new Properties();
@@ -240,6 +241,11 @@ public class Bittorrent {
 		this.loadVerificationArray();
 	}
 	
+	/**
+	 * Returns the sum of bytes downloaded per block.
+	 * @param int index
+	 * @return int Bytes Sum
+	 */
 	public int getBytesDownloadedByIndex(int index) {
 		return this.downloadedByPiece[index];
 	}
@@ -333,9 +339,21 @@ public class Bittorrent {
 		
 	}
 	
-	
+	/**
+	 * Sum bytes to specific block for record keeping.
+	 * @param int index
+	 * @param int bytes
+	 */
 	public void addBytesToPiece(int index, int bytes) {
 		this.downloadedByPiece[index] += bytes;
+	}
+	
+	/**
+	 * Total file length.
+	 * @return int length
+	 */
+	int getFileLength() {
+		return this.torrentInfo.file_length;
 	}
 	
 	/**
@@ -468,14 +486,34 @@ public class Bittorrent {
 		// This is a temporary algorithm for Project 0.  It will be replaced with a more robust one
 		// when we are doing more than downloading a file from a known see.
 		Peer peer = peerList.get(0);
-		for (int i = 0; i < collection.length; ++i) {
+		for (int i = 0; i < collection.length - 1; ++i) {
 			boolean sent = false;
 			// Attempt to request the piece until it succeeds.
 			while (!sent) {
 				try {
 					peer.requestIndex(i, 0, 16384);
 					peer.requestIndex(i, 16384, 16384);
-					System.out.println("-- Piece: "+i+" requested");
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+			sent = false;
+			
+		}
+		boolean sent = false;
+		while (!sent) {
+			if (torrentInfo.file_length > (4.5 * torrentInfo.piece_length)){
+				try {
+					peer.requestIndex(collection.length -1, 0, 16384);
+					peer.requestIndex(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length));
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			} else {
+				try {
+					peer.requestIndex(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length));
 					sent = true;
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
@@ -499,10 +537,8 @@ public class Bittorrent {
 		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
-		for (int outer = 0; outer < collection.length; ++outer) {
-			for (int inner = 0; inner < collection[outer].length; ++inner) {
-				fileArray[(outer * collection[0].length) + inner] = collection[outer][inner];
-			}
+		for(int i = 0; i < this.getFileLength(); ++i ) {
+			fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
 		}
 		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
@@ -517,5 +553,49 @@ public class Bittorrent {
 			if(!this.completedPieces[i]) return false;;
 		}
 		return true;
+	}
+	
+	/**
+	 * Notifies the tracker the file was successfully downloaded.
+	 */
+	void notifyFullyDownload() {
+		
+		int port = this.server.getPort();
+		
+		this.event = "completed";
+		String response = null;
+		try {	
+			// create the tracker URL for the GET request
+			URL tracker = new URL(
+				this.torrentInfo.announce_url+
+				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
+				"&peer_id="+this.clientID+
+				"&port="+port+
+				"&uploaded="+ this.uploaded+
+				"&downloaded="+ this.torrentInfo.file_length+
+				"&left="+ 0+
+				"&event="+ this.event);
+			
+			// open streams
+			InputStream fromServer = tracker.openStream();
+			byte[] responseInBytes = new byte[512];
+			
+			// read all the response from the server
+			int b = -1;
+			int pos = 0;
+			
+			while((b = fromServer.read()) != -1) {
+				responseInBytes[pos] = (byte)b;
+				++pos;
+			}
+			
+			// System.out.println(responseInBytes);
+			
+			// close streams
+			fromServer.close();
+			
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
 	}
 }
