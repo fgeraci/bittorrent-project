@@ -1,0 +1,56 @@
+CS 352 - Summer 2013 - Bittorrent Project 0 - Write Up
+======================================================
+
+Authors:
+-------
+	Isaac Yochelson
+	Robert Schomburg
+	Fernando Geraci
+
+Introduction:
+------------
+
+The purpose of this document is to explain the general implementation flow of the program. All the implemetation details were documented in javadocs and are available under this folder as index.html.
+
+
+Implementation:
+--------------
+
+The program was originally engineered the way it looks know, a multipackage, multithreaded OOP design.
+
+The general flow of the program is the following:
+
+	START
+		> RUBTClient - main method. - MAIN THREAD
+			> Bittorrent
+				> Connect to Peer - PEER THREAD (one per peer)
+					> Creates a Listener thread - LISTENER THREAD (one per peer independant to peer thread)
+				* sends and validates HANDSHAKE
+				* send Bitfield
+				* recevies Bitfield
+				* Waits for getting unchoked from Peer
+				* Send pieces request
+				* Start receiving pieces
+					> Analyze each receive piece
+					> Once piece is complete, verify SHA-1
+				* Mark that Piece is complete
+					> Notify Peers
+				* All Pieces were downloaded
+					> Notify Tracker
+					> Write File
+					> Gracefully close all connections
+				* Terminate Client
+	TERMINATE
+
+For each peer connection, there will be a 3 level multithreaded process. The main thread will the actual Bittorrent client, then, for each peer connection there will be a new thread and for then, each peer will have their own listener thread to read
+input into the bittorrent client.
+
+The program was though in a MVC design, having a Utils package for public static utility methods, Model package for backbone implementations and an Exceptions package for custom built exceptions.
+
+Execution Notes:
+---------------
+
+1. The program could be imported and ran from the Eclipse IDE.
+2. The program could be uncompressed and run via terminar from the bin/ in the program's root folder.
+	%> java RUBTClient cs352.png.torrent cs352.png
+

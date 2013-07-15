@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  *
  */
 
-class PeerListener implements Runnable{
+class PeerListener implements Runnable {
 	
 	private InputStream in = null;
 	private Peer parent = null;
@@ -31,7 +31,7 @@ class PeerListener implements Runnable{
 				try {
 					readLine();
 					try {
-						Thread.sleep(2000);
+						Thread.sleep(400);
 					} catch (InterruptedException e) {
 						continue;
 						}
