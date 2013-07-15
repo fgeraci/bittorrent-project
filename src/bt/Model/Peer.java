@@ -513,20 +513,24 @@ public class Peer implements Runnable {
  */
 	private void verifySHA(int index) throws Exception {
 		try {
-			Bittorrent bt = Bittorrent.getInstance();
-			MessageDigest sha = MessageDigest.getInstance("SHA-1");
+		Bittorrent bt = Bittorrent.getInstance();
+		MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			
 			byte[] toDigest = null;
+			
 			if (index < fileHeap.length - 1) {
 				toDigest = new byte[bt.pieceLength];
 				for(int i = 0; i < toDigest.length; ++i) {
 					toDigest[i] = fileHeap[index][i];
 				}
 			} else {
-				toDigest = new byte[bt.getFileLength()];
+				toDigest = new byte[bt.getFileLength() - ((fileHeap.length-1)*bt.pieceLength)];
 				for(int i = 0; i < toDigest.length; ++i) {
 					toDigest[i] = fileHeap[index][i];
 				}
 			}
+			
+			
 			byte[] test = sha.digest(toDigest);
 			if (sameArray(verifyHash[index], test)) {
 				System.out.println("We have completed piece: " + index);
@@ -551,9 +555,9 @@ public class Peer implements Runnable {
 					bt.notifyFullyDownload(); // notifies tracker
 					bt.saveFile(); // create the downloaded file
 					Utilities.callClose();
-				} else {
-					System.out.println("Index # " + index + " failed was not verified.");
 				}
+			} else {
+				System.out.println("Index # " + index + " failed was not verified.");
 			}
 		} catch (NoSuchAlgorithmException e) {
 			System.err.println(e.getMessage());

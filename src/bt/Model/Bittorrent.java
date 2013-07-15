@@ -34,10 +34,6 @@ public class Bittorrent {
 	 * Size of each piece
 	 */
 	public int pieceLength;
-	/**
-	 * Size of the file
-	 */
-	private int fileLength;
 	
 	/**
 	 * There should be one entry for each successful connection mapped to peers[].
@@ -229,7 +225,6 @@ public class Bittorrent {
 		double blocks = ((double)(this.torrentInfo.file_length)) / this.torrentInfo.piece_length;
 		this.pieces = (int)(Math.ceil(blocks));
 		this.pieceLength = this.torrentInfo.piece_length;
-		this.fileLength = this.torrentInfo.file_length;
 		this.fileName = this.torrentInfo.file_name;
 		this.properties = new Properties();
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
@@ -342,6 +337,10 @@ public class Bittorrent {
 	
 	public void addBytesToPiece(int index, int bytes) {
 		this.downloadedByPiece[index] += bytes;
+	}
+	
+	int getFileLength() {
+		return this.torrentInfo.file_length;
 	}
 	
 	/**
@@ -525,10 +524,8 @@ public class Bittorrent {
 		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
-		for (int outer = 0; outer < collection.length; ++outer) {
-			for (int inner = 0; inner < collection[outer].length; ++inner) {
-				fileArray[(outer * collection[0].length) + inner] = collection[outer][inner];
-			}
+		for(int i = 0; i < this.getFileLength(); ++i ) {
+			fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
 		}
 		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
@@ -579,7 +576,7 @@ public class Bittorrent {
 				++pos;
 			}
 			
-			System.out.println(responseInBytes);
+			// System.out.println(responseInBytes);
 			
 			// close streams
 			fromServer.close();
@@ -587,10 +584,5 @@ public class Bittorrent {
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
-	}
-
-
-	int getFileLength() {
-		return this.fileLength;
 	}
 }
