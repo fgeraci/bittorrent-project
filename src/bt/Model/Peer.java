@@ -512,43 +512,40 @@ public class Peer implements Runnable {
  */
 	private void verifySHA(int index) throws Exception {
 		try {
-			Bittorrent bt = Bittorrent.getInstance();
-			MessageDigest sha = MessageDigest.getInstance("SHA-1");
-			// if the piece is completed
-			if(bt.getBytesDownloadedByIndex(index) >= bt.pieceLength) {
-				byte[] toDigest = new byte[bt.pieceLength];
-				for(int i = 0; i < bt.pieceLength; ++i) {
-					toDigest[i] = fileHeap[index][i];
-				}
-				byte[] test = sha.digest(toDigest);
-				if (sameArray(verifyHash[index], test)) {
-					System.out.println("We have completed piece: " + index);
-					boolean sent = false;
-					// This is a bit complicated looking, but this block attempts to send a have message every
-					// 50 Milliseconds until it succeeds.
-					while (!sent) {
+		Bittorrent bt = Bittorrent.getInstance();
+		MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			byte[] toDigest = new byte[bt.pieceLength];
+			for(int i = 0; i < bt.pieceLength; ++i) {
+				toDigest[i] = fileHeap[index][i];
+			}
+			byte[] test = sha.digest(toDigest);
+			if (sameArray(verifyHash[index], test)) {
+				System.out.println("We have completed piece: " + index);
+				boolean sent = false;
+				// This is a bit complicated looking, but this block attempts to send a have message every
+				// 50 Milliseconds until it succeeds.
+				while (!sent) {
+					try {
+						showFinished(index);
+						sent = true;
+					} catch (IOException e) {
 						try {
-							showFinished(index);
-							sent = true;
-						} catch (IOException e) {
-							try {
-								Thread.sleep(50);
-							} catch (InterruptedException e1) {
-								continue;
-							}
+							Thread.sleep(50);
+						} catch (InterruptedException e1) {
+							continue;
 						}
 					}
-					completed[index] = true;
-					if(bt.isFileCompleted()) {
-						System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
-						bt.notifyFullyDownload(); // notifies tracker
-						bt.saveFile(); // create the downloaded file
-						Utilities.callClose();
-					}
-				} else {
-					System.out.println("Index # " + index + " failed was not verified.");
 				}
-			} 
+				completed[index] = true;
+				if(bt.isFileCompleted()) {
+					System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+					bt.notifyFullyDownload(); // notifies tracker
+					bt.saveFile(); // create the downloaded file
+					Utilities.callClose();
+				}
+			} else {
+				System.out.println("Index # " + index + " failed was not verified.");
+			}
 		} catch (NoSuchAlgorithmException e) {
 			System.err.println(e.getMessage());
 		}

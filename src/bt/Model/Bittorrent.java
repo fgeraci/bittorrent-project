@@ -469,7 +469,7 @@ public class Bittorrent {
 		// This is a temporary algorithm for Project 0.  It will be replaced with a more robust one
 		// when we are doing more than downloading a file from a known see.
 		Peer peer = peerList.get(0);
-		for (int i = 0; i < collection.length; ++i) {
+		for (int i = 0; i < collection.length - 1; ++i) {
 			boolean sent = false;
 			// Attempt to request the piece until it succeeds.
 			while (!sent) {
@@ -480,6 +480,27 @@ public class Bittorrent {
 					sent = true;
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
+				}
+			}
+			sent = false;
+			while (!sent) {
+				if (torrentInfo.file_length > (4.5 * torrentInfo.piece_length)){
+					try {
+						peer.requestIndex(collection.length -1, 0, 16384);
+						peer.requestIndex(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length));
+						System.out.println("-- Piece: "+i+" requested");
+						sent = true;
+					} catch (IOException e) {
+						System.err.println(e.getMessage());
+					}
+				} else {
+					try {
+						peer.requestIndex(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length));
+						System.out.println("-- Piece: "+i+" requested");
+						sent = true;
+					} catch (IOException e) {
+						System.err.println(e.getMessage());
+					}
 				}
 			}
 		}
