@@ -442,13 +442,12 @@ public class Peer implements Runnable {
  		byte[] handShakeBA = new byte[68];		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
 		String btProtocol = "BitTorrent protocol";
-		
 		byte[] b1 = new byte[1];
 		b1[0] = (byte) 19;
 		byte[] b2 = new byte[8];
-		for (int i = 0; i < 8; i++)
-			b2[i] = (byte) 0;		
-		
+		for (int i = 0; i < 8; i++) {
+			b2[i] = (byte) 0;
+		}
 		handShakeBB
 			.put(b1)
 			.put(btProtocol.getBytes())
