@@ -338,6 +338,7 @@ public class Peer implements Runnable {
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
+		System.out.println("-- Piece: "+index+" From: "+begin+" Bytes:  "+length+" requested");
 	}
 	
 	/**
