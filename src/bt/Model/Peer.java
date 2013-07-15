@@ -18,7 +18,7 @@ import bt.Utils.Utilities;
 
 /**
  * Creates a connection with a peer to download a file.
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 

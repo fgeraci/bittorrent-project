@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 /**
  * 
  * The main listener thread for each peer this client is connected to.
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 

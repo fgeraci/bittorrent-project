@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 /**
  * This class will initiate a new thread as the server side of the
  * Bittorrent client.
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 

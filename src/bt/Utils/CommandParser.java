@@ -8,7 +8,7 @@ import bt.Model.Server;
 
 /**
  * It will statically handle commands and parse them while the client runs.
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 

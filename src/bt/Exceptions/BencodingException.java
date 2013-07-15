@@ -3,7 +3,7 @@ package bt.Exceptions;
 /**
  * Custom exception for Bencoding.
  * 
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 

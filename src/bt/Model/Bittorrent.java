@@ -24,7 +24,7 @@ import bt.Utils.Utilities;
  * Tracker data fields in its constructor for then establishing a connection
  * with it.
  * 
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 
@@ -241,6 +241,11 @@ public class Bittorrent {
 		this.loadVerificationArray();
 	}
 	
+	/**
+	 * Returns the sum of bytes downloaded per block.
+	 * @param int index
+	 * @return int Bytes Sum
+	 */
 	public int getBytesDownloadedByIndex(int index) {
 		return this.downloadedByPiece[index];
 	}
@@ -334,11 +339,19 @@ public class Bittorrent {
 		
 	}
 	
-	
+	/**
+	 * Sum bytes to specific block for record keeping.
+	 * @param int index
+	 * @param int bytes
+	 */
 	public void addBytesToPiece(int index, int bytes) {
 		this.downloadedByPiece[index] += bytes;
 	}
 	
+	/**
+	 * Total file length.
+	 * @return int length
+	 */
 	int getFileLength() {
 		return this.torrentInfo.file_length;
 	}

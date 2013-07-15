@@ -7,7 +7,7 @@ import bt.Utils.CommandParser;
  * This is the main entry point for the client. It will just simply
  * initialize the Bittorrent client.
  * 
- * @author Ike, Robert and Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 
