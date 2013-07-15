@@ -10,7 +10,14 @@ Authors:
 Introduction:
 ------------
 
-The purpose of this document is to explain the general implementation flow of the program. All the implemetation details were documented in javadocs and are available under this folder as index.html.
+The purpose of this document is to explain the general implementation flow of the program. All the
+implemetation details were documented in javadocs and are available under this folder as index.html.
+
+This bittorrent client implementation heavily leverages the native strengths of java in the fields
+of portablility and multi-threading.  The portability comes from Java's system of partial compilation
+to intermediary byte code, which can be contained in secure jar files for each package, and then
+interpreted by any JVM properly implementing version 7 of Java.  The multi-threading is being used
+to provide scalability in our project.  Because
 
 
 Implementation:
@@ -35,22 +42,38 @@ The general flow of the program is the following:
 					> Once piece is complete, verify SHA-1
 				* Mark that Piece is complete
 					> Notify Peers
-				* All Pieces were downloaded
+				* Once all pieces have been downloaded and verified
 					> Notify Tracker
 					> Write File
 					> Gracefully close all connections
 				* Terminate Client
 	TERMINATE
 
-For each peer connection, there will be a 3 level multithreaded process. The main thread will the actual Bittorrent client, then, for each peer connection there will be a new thread and for then, each peer will have their own listener thread to read
-input into the bittorrent client.
+For each peer connection, there will be a 3 level multithreaded process. The main thread will the
+actual Bittorrent client, then, for each peer connection there will be two threads for each peer, a
+sending thread which will act as a server, handling incoming file requests, and a listener thread
+which will handle incoming communications from the particular peer.  These threads of execution reside
+in the run methods of the Peer and PeerListener classes respectively.  The current limit on the number
+of concurrent peer connections is artificial, in that we are specifically testing each peer in the peer
+list to see if its IP address matches 128.6.171.3:6916 prior to opening a connection to it.  Once that
+constraint is removed, the next level of restriction will be that we are selecting TCP ports from an
+interval allowing only 10 simultaneous connections.  Both of these constraints can be relaxed in the
+future.
 
-The program was though in a MVC design, having a Utils package for public static utility methods, Model package for backbone implementations and an Exceptions package for custom built exceptions.
+The program was though in a MVC design, having a Utils package for public static utility methods,
+Model package for backbone implementations and an Exceptions package for custom built exceptions.
+The model consists of object representations of peers, as well as necessary state and file information
+we maintain in the classes of the bt.Model package.  The view consists of the text we output through
+the system standard output channel.  At the moment, the controller is limited to command line arguments,
+but there will be a command-line interface controller implemented in the future.
 
 Execution Notes:
 ---------------
 
 1. The program could be imported and ran from the Eclipse IDE.
-2. The program could be uncompressed and run via terminar from the bin/ in the program's root folder.
+2. The program could be uncompressed and run via terminal from the bin/ in the program's root folder.
+The command line Usage is:
+	%> java RUBTClient <input.torrent> <output filename>
+example:
 	%> java RUBTClient cs352.png.torrent cs352.png
 

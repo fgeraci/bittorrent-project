@@ -243,7 +243,7 @@ public class Bittorrent {
 	
 	/**
 	 * Returns the sum of bytes downloaded per block.
-	 * @param int index
+	 * @param index Integer index of file piece
 	 * @return int Bytes Sum
 	 */
 	public int getBytesDownloadedByIndex(int index) {
@@ -295,11 +295,9 @@ public class Bittorrent {
 				"&downloaded="+ this.downloaded+
 				"&left="+ this.left+
 				"&event="+ this.event);
-			
 			// open streams
 			InputStream fromServer = tracker.openStream();
 			byte[] responseInBytes = new byte[512];
-			
 			// read all the response from the server
 			int b = -1;
 			int pos = 0;
@@ -307,15 +305,12 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			
 			this.peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(responseInBytes));
 			System.out.println("Peers List:");
 			this.printPeerList();
 			this.connections = new boolean[this.peers.length];
-			
 			// close streams
 			fromServer.close();
-			
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -336,13 +331,12 @@ public class Bittorrent {
 		System.out.println("File Name: "+this.torrentInfo.file_name);
 		System.out.println("File Length: "+this.torrentInfo.file_length);
 		System.out.println("Piece Size: "+this.torrentInfo.piece_length);
-		
 	}
 	
 	/**
 	 * Sum bytes to specific block for record keeping.
-	 * @param int index
-	 * @param int bytes
+	 * @param index integer index of file piece
+	 * @param bytes integer count of bytes downloaded.
 	 */
 	public void addBytesToPiece(int index, int bytes) {
 		this.downloadedByPiece[index] += bytes;
@@ -559,9 +553,7 @@ public class Bittorrent {
 	 * Notifies the tracker the file was successfully downloaded.
 	 */
 	void notifyFullyDownload() {
-		
 		int port = this.server.getPort();
-		
 		this.event = "completed";
 		String response = null;
 		try {	
@@ -575,25 +567,19 @@ public class Bittorrent {
 				"&downloaded="+ this.torrentInfo.file_length+
 				"&left="+ 0+
 				"&event="+ this.event);
-			
 			// open streams
 			InputStream fromServer = tracker.openStream();
 			byte[] responseInBytes = new byte[512];
-			
 			// read all the response from the server
 			int b = -1;
 			int pos = 0;
-			
 			while((b = fromServer.read()) != -1) {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			
 			// System.out.println(responseInBytes);
-			
 			// close streams
 			fromServer.close();
-			
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}

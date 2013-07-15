@@ -12,7 +12,9 @@ import bt.Utils.CommandParser;
  */
 
 public class RUBTClient {
-	
+	/**
+	 * This method will be the main input loop for the text based controller.
+	 */
 	private static void clientLoop() {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Input help for commands");
@@ -28,7 +30,7 @@ public class RUBTClient {
 	
 	/**
 	 * Client entry point.
-	 * @param String[] command-line arguments.
+	 * @param args command-line arguments.
 	 * 	(e.g. somefile.torrent, picture.jpg)
 	 */
 	public static void main(String[] args) {
