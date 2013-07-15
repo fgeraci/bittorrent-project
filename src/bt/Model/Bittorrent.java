@@ -34,6 +34,10 @@ public class Bittorrent {
 	 * Size of each piece
 	 */
 	public int pieceLength;
+	/**
+	 * Size of the file
+	 */
+	private int fileLength;
 	
 	/**
 	 * There should be one entry for each successful connection mapped to peers[].
@@ -225,6 +229,7 @@ public class Bittorrent {
 		double blocks = ((double)(this.torrentInfo.file_length)) / this.torrentInfo.piece_length;
 		this.pieces = (int)(Math.ceil(blocks));
 		this.pieceLength = this.torrentInfo.piece_length;
+		this.fileLength = this.torrentInfo.file_length;
 		this.fileName = this.torrentInfo.file_name;
 		this.properties = new Properties();
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
@@ -583,5 +588,10 @@ public class Bittorrent {
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
+	}
+
+
+	int getFileLength() {
+		return this.fileLength;
 	}
 }
