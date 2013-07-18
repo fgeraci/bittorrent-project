@@ -11,18 +11,28 @@ import java.nio.ByteBuffer;
  *
  */
 
-class PeerListener implements Runnable{
+class PeerListener implements Runnable {
 	
 	private InputStream in = null;
 	private Peer parent = null;
 	private boolean running = true;
 	
+	/**
+	 * This is the constructor for the PeerListener class.  There is no constructor without these
+	 * parameters because a Listener must have a reference to its parent to call methods therein,
+	 * and a PeerListener with no InputStream would have no meaning.  The InputStream cannot be
+	 * changed after the PeerListener has been constructed.
+	 * @param parent
+	 * @param inStream
+	 */
 	PeerListener (Peer parent, InputStream inStream) {
 		this.in = inStream;
 		this.parent = parent;
 	}
 
-	@Override
+	/**
+	 * This is the thread loop for a PeerListener, which receives all messages from a particular peer.
+	 */
 	public void run() {
 		while(running) {
 			if(!parent.peerAccepted) {
@@ -31,7 +41,7 @@ class PeerListener implements Runnable{
 				try {
 					readLine();
 					try {
-						Thread.sleep(2000);
+						Thread.sleep(400);
 					} catch (InterruptedException e) {
 						continue;
 						}
@@ -90,12 +100,14 @@ class PeerListener implements Runnable{
 				break;
 			case 1: // remote-peer is unchoked, start requesting
 				parent.setChoke(false);
-				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
+				System.out.println(">>> Peer "+parent+" just unchoked me");
+				/*
 				try {
 					Bittorrent.getInstance().simpleDownloadAlgorithm();
 				} catch (Exception e) {
 					System.err.println("Failed to get an instance of BitTorrent.");
 				}
+				*/
 				break; // message was received and processed.
 			case 2:	// interested
 				parent.setInterested(true);

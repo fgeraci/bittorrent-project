@@ -128,9 +128,7 @@ public class Peer implements Runnable {
 		Thread listenerThread = new Thread(listener);
 		listenerThread.start(); // changed, it was run(), which wont start a new thread.
 		// This will block until the handshake was done and we can start downloading.
-		try {
-			listenerThread.join();
-		} catch (Exception e) {}
+		
 		while(running) {	// This is the file sending loop. 
 			if (interestedQueue.isEmpty()) {
 				try {
@@ -352,8 +350,20 @@ public class Peer implements Runnable {
 		interestedQueue.add(new Request(index, begin, length));
 	}
 	
+	/**
+	 * String methods overridden.
+	 * @return String IP:PORT
+	 */
 	public String toString() {
 		return this.IP+":"+this.port;
+	}
+	
+	/**
+	 * Getter for chocked status.
+	 * @return boolean True if unchocked, false otherwise.
+	 */
+	public boolean isChocked() {
+		return this.choked;
 	}
 	
 	/**
@@ -444,13 +454,12 @@ public class Peer implements Runnable {
  		byte[] handShakeBA = new byte[68];		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
 		String btProtocol = "BitTorrent protocol";
-		
 		byte[] b1 = new byte[1];
 		b1[0] = (byte) 19;
 		byte[] b2 = new byte[8];
-		for (int i = 0; i < 8; i++)
-			b2[i] = (byte) 0;		
-		
+		for (int i = 0; i < 8; i++) {
+			b2[i] = (byte) 0;
+		}
 		handShakeBB
 			.put(b1)
 			.put(btProtocol.getBytes())

@@ -12,7 +12,9 @@ import bt.Utils.CommandParser;
  */
 
 public class RUBTClient {
-	
+	/**
+	 * This method will be the main input loop for the text based controller.
+	 */
 	private static void clientLoop() {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Input help for commands");
@@ -28,7 +30,7 @@ public class RUBTClient {
 	
 	/**
 	 * Client entry point.
-	 * @param String[] command-line arguments.
+	 * @param args command-line arguments.
 	 * 	(e.g. somefile.torrent, picture.jpg)
 	 */
 	public static void main(String[] args) {
@@ -48,11 +50,23 @@ public class RUBTClient {
 		// client's loop OR connect directly to a client (for project 0)
 		//RUBTClient.clientLoop(); /* <- Client's loop */
 		try {
+			// 1. connect to peers - need to remove this once working
 			bittorrent.connectToPeer("128.6.171.3:6916");
-			// THIS GUYS SHOULD BE EITHER EXECUTED AFTER A SLEEP OR PUT SOMEPLACE ELSE.
-			// this thread executes too fast.
-			//bittorrent.simpleDownloadAlgorithm();
-			//bittorrent.saveFile();
+			bittorrent.connectToPeer("128.6.171.4:6929");
+			
+			// 2. wait for executing algorithm
+			while(bittorrent.peersUnchocked()) {
+				System.out.println("-- Waiting for all peers to unchocke.");
+				try {
+					Thread.sleep(1500);
+				} catch(Exception e) {
+					e.getMessage();
+				}
+			}
+			System.out.println("-- All peers are unchocked, start DownloadingAlgorithm --");
+			
+			// 3. start bitfields queue
+			
 		} catch (Exception e) { 
 			bittorrent.disposePeers();
 			System.out.println(e.getMessage());	}
