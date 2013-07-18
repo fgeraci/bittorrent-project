@@ -100,12 +100,14 @@ class PeerListener implements Runnable {
 				break;
 			case 1: // remote-peer is unchoked, start requesting
 				parent.setChoke(false);
-				System.out.println(">>> Peer "+parent+" just unchoked me, start requesting pieces");
+				System.out.println(">>> Peer "+parent+" just unchoked me");
+				/*
 				try {
 					Bittorrent.getInstance().simpleDownloadAlgorithm();
 				} catch (Exception e) {
 					System.err.println("Failed to get an instance of BitTorrent.");
 				}
+				*/
 				break; // message was received and processed.
 			case 2:	// interested
 				parent.setInterested(true);

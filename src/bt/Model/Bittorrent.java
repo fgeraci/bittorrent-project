@@ -262,6 +262,24 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Queues bitfields for selecting pieces per peers.
+	 */
+	public void queueBitFields() {
+		
+	}
+	
+	/**
+	 * Checks if all the peer connections have been unchocked.
+	 * @return boolean True if peers unchocked, false otherwise.
+	 */
+	public boolean peersUnchocked() {
+		for(Peer p : this.peerList) {
+			if(p.isChocked()) return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the singleton instance of the client.
 	 * @return Bittorrent instance
 	 * @throws Exception

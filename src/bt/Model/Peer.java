@@ -127,9 +127,7 @@ public class Peer implements Runnable {
 		Thread listenerThread = new Thread(listener);
 		listenerThread.start(); // changed, it was run(), which wont start a new thread.
 		// This will block until the handshake was done and we can start downloading.
-		try {
-			listenerThread.join();
-		} catch (Exception e) {}
+		
 		while(running) {	// This is the file sending loop. 
 			if (interestedQueue.isEmpty()) {
 				try {
@@ -350,8 +348,20 @@ public class Peer implements Runnable {
 		interestedQueue.add(new Request(index, begin, length));
 	}
 	
+	/**
+	 * String methods overridden.
+	 * @return String IP:PORT
+	 */
 	public String toString() {
 		return this.IP+":"+this.port;
+	}
+	
+	/**
+	 * Getter for chocked status.
+	 * @return boolean True if unchocked, false otherwise.
+	 */
+	public boolean isChocked() {
+		return this.choked;
 	}
 	
 	/**
