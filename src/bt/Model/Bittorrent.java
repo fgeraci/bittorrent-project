@@ -277,12 +277,12 @@ public class Bittorrent {
 	}
 	
 	/**
-	 * Checks if all the peer connections have been unchocked.
-	 * @return boolean True if peers unchocked, false otherwise.
+	 * Checks if all the peer connections have been unchoked.
+	 * @return boolean True if peers unchoked, false otherwise.
 	 */
-	public boolean peersUnchocked() {
+	public boolean peersUnchoked() {
 		for(Peer p : this.peerList) {
-			if(p.isChocked()) return true;
+			if(p.isChoked()) return true;
 		}
 		return false;
 	}

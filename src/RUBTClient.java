@@ -61,8 +61,8 @@ public class RUBTClient {
 			bittorrent.connectToPeer("128.6.171.4:6929");
 			bittorrent.connectToPeer("128.6.171.5:6986");
 			
-			// 2. wait for getting unchocked.
-			while(bittorrent.peersUnchocked()) {
+			// 2. wait for getting unchoked.
+			while(bittorrent.peersUnchoked()) {
 				System.out.println("-- Waiting for all peers to unchocke.");
 				try {
 					Thread.sleep(1500);
@@ -70,7 +70,7 @@ public class RUBTClient {
 					e.getMessage();
 				}
 			}
-			System.out.println("-- All peers are unchocked, start DownloadingAlgorithm --");
+			System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 			
 			// 3. start bitfields queue
 			bittorrent.downloadAlgorithm();

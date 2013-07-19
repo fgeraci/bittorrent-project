@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/bt/Exceptions/NotifyPromptException.java</name>
+			<type>1</type>
+			<location>L:/Documents and Settings/Robert Scott/My Documents/GitHub/cs352-bittorrent-project/src/bt/Exceptions/NotifyPromptException.java</location>
+		</link>
+	</linkedResources>
 </projectDescription>
