@@ -11,10 +11,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import bt.Exceptions.NotifyPromptException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
@@ -29,6 +31,11 @@ import bt.Utils.Utilities;
  */
 
 public class Bittorrent {
+	
+	/**
+	 * For each piece, which peer has a true.
+	 */
+	private boolean[][] bitfieldsPieces;
 	
 	/**
 	 * Size of each piece
@@ -177,6 +184,7 @@ public class Bittorrent {
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
+			
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -265,7 +273,7 @@ public class Bittorrent {
 	 * Queues bitfields for selecting pieces per peers.
 	 */
 	public void queueBitFields() {
-		
+		// do something
 	}
 	
 	/**
@@ -536,8 +544,11 @@ public class Bittorrent {
 	/**
 	 * This method is our algorithm for rending requests for the file we are downloading.
 	 */
-	public void downloadAlgorithm() {
-		// TODO Auto-generated method stub
+	public void downloadAlgorithm() throws NotifyPromptException {
+		this.bitfieldsPieces = new boolean[this.pieces][this.peerList.size()];
+		// Implement algorithm here.
+		// this.queueBitFields();
+		// throw new NotifyPromptException("Download Algorithm done.");
 		
 	}
 
@@ -602,4 +613,5 @@ public class Bittorrent {
 			System.err.println(e.getMessage());
 		}
 	}
+
 }

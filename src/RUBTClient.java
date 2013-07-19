@@ -1,7 +1,9 @@
 import java.util.Scanner;
 
+import bt.Exceptions.NotifyPromptException;
 import bt.Model.Bittorrent;
 import bt.Utils.CommandParser;
+import bt.Utils.Utilities;
 
 /**
  * This is the main entry point for the client. It will just simply
@@ -17,11 +19,13 @@ public class RUBTClient {
 	 */
 	private static void clientLoop() {
 		Scanner sc = new Scanner(System.in);
-		System.out.println("Input help for commands");
 		while(true) {
 			try {
 				System.out.print("%> ");
 				CommandParser.execute(sc.nextLine());
+			} catch(NotifyPromptException ne) {
+				System.out.println(ne.getMessage());
+				System.out.print("%> ");
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
@@ -37,6 +41,7 @@ public class RUBTClient {
 		
 		Scanner sc = new Scanner(System.in);
 		Bittorrent bittorrent = null;
+		
 		if(args.length >= 2) {
 			bittorrent = Bittorrent.getInstance(args[0], args[1]);
 		} else {
@@ -47,14 +52,16 @@ public class RUBTClient {
 		
 		// Program's loop
 		System.out.println("Connection Successfull, welcome");
+		System.out.println("Input help for commands");
 		// client's loop OR connect directly to a client (for project 0)
 		//RUBTClient.clientLoop(); /* <- Client's loop */
 		try {
 			// 1. connect to peers - need to remove this once working
 			bittorrent.connectToPeer("128.6.171.3:6916");
 			bittorrent.connectToPeer("128.6.171.4:6929");
+			bittorrent.connectToPeer("128.6.171.5:6986");
 			
-			// 2. wait for executing algorithm
+			// 2. wait for getting unchocked.
 			while(bittorrent.peersUnchocked()) {
 				System.out.println("-- Waiting for all peers to unchocke.");
 				try {
@@ -66,9 +73,17 @@ public class RUBTClient {
 			System.out.println("-- All peers are unchocked, start DownloadingAlgorithm --");
 			
 			// 3. start bitfields queue
+			bittorrent.downloadAlgorithm();
+			RUBTClient.clientLoop();
 			
-		} catch (Exception e) { 
-			bittorrent.disposePeers();
+		} catch (NotifyPromptException ne) { // to be triggered just for notification purposes.
+			
+			System.out.println(ne.getMessage());
+			RUBTClient.clientLoop();
+			
+		} catch (Exception e) { // FATAL ERROR 
+			
+			Utilities.callClose();
 			System.out.println(e.getMessage());	}
 		
 	}

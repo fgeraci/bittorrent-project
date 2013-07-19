@@ -119,8 +119,8 @@ class PeerListener implements Runnable {
 				parent.haveReceived(tcpInput.getInt());
 				break;
 			case 5:	// bitfield
-				byte[] bitfield = new byte[length - 1];
-				tcpInput.get(bitfield, 0, length - 1);
+				byte[] bitfield = new byte[length];
+				tcpInput.get(bitfield, 0, length);
 				parent.receiveBitfield(bitfield);
 				break;
 			case 6:	// request

@@ -392,10 +392,35 @@ public class Peer implements Runnable {
 	}
 	
 	void receiveBitfield(byte[] bitfield) {
-		BitSet bs = BitSet.valueOf(bitfield);
-		for (int i = 0; i < bitField.length; ++i) {
-				this.bitField[i] = bs.get(i);
+		byte[] pieces = new byte[bitfield.length-1]; // substract the length of the bitfield's bytes.
+		for(int i = 0; i < pieces.length; ++i) {
+			pieces[i] = bitfield[i+1]; 
 		}
+		BitSet bs = BitSet.valueOf(pieces);
+		// Apparently we need to deal with some endianess problem... need to discuss this with you guys.
+		// FOR EACH BYTE
+		//	FOR EIGHT BITS
+		int index = 0;
+		mainLoop : for (int i = 0; i < pieces.length; ++i) {
+			int bit = 7;
+			int base = (bit*i);
+			for(bit = bit + base; bit >= base; --bit) {
+				if(index < this.bitField.length) {
+					this.bitField[index] = bs.get(bit);
+					index++;
+				} else break mainLoop;
+				
+			}
+		}	
+		
+	}
+	
+	/**
+	 * BitField boolean getter.
+	 * @return boolean[] bitfield.
+	 */
+	public boolean[] getBitField() {
+		return this.bitField;
 	}
 	
 	/**
