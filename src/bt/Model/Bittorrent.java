@@ -178,6 +178,9 @@ public class Bittorrent {
 			// get file info
 			this.peerList = new ArrayList<Peer>();
 			this.clientID = Utilities.generateID();
+			// make sure clientID is not illegal
+			while (this.clientID.substring(0,4).equals("RUBT"))
+				this.clientID = Utilities.generateID();
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
 			this.initClientState();
@@ -270,7 +273,7 @@ public class Bittorrent {
 	}
 	
 	/**
-	 * Queues bitfields for selecting pieces per peers.
+	 * Queues bitfields for selecting pieces from peers.
 	 */
 	public void queueBitFields() {
 		// do something
@@ -278,7 +281,7 @@ public class Bittorrent {
 	
 	/**
 	 * Checks if all the peer connections have been unchoked.
-	 * @return boolean True if peers unchoked, false otherwise.
+	 * @return boolean True if any peers are choked, false otherwise.
 	 */
 	public boolean peersUnchoked() {
 		for(Peer p : this.peerList) {

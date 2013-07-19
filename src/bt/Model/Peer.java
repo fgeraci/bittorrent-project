@@ -360,7 +360,7 @@ public class Peer implements Runnable {
 	
 	/**
 	 * Getter for choked status.
-	 * @return boolean True if unchoked, false otherwise.
+	 * @return boolean True if choked, false otherwise.
 	 */
 	public boolean isChoked() {
 		return this.choked;
@@ -466,7 +466,7 @@ public class Peer implements Runnable {
 	 * @param value Value for the choked flag.
 	 */
 	void setChoke (boolean value) {
-		choked = value;
+		this.choked = value;
 		if (value) {
 			interestedQueue.clear();
 		}

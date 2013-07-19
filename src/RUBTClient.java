@@ -63,7 +63,7 @@ public class RUBTClient {
 			
 			// 2. wait for getting unchoked.
 			while(bittorrent.peersUnchoked()) {
-				System.out.println("-- Waiting for all peers to unchocke.");
+				System.out.println("-- Waiting for all peers to unchoke.");
 				try {
 					Thread.sleep(1500);
 				} catch(Exception e) {
