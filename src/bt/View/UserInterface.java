@@ -28,8 +28,8 @@ public class UserInterface {
 			bittorrent.connectToPeer("128.6.171.4:6929");
 			bittorrent.connectToPeer("128.6.171.5:6986");
 			
-			// 2. wait for getting unchocked.
-			while(bittorrent.peersUnchocked()) {
+			// 2. wait for getting unchoked.
+			while(bittorrent.peersUnchoked()) {
 				System.out.println("-- Waiting for all peers to unchoke.");
 				try {
 					Thread.sleep(1500);
