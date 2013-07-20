@@ -80,7 +80,7 @@ class PeerListener implements Runnable {
 	}
 	
 	/**
-	 * This method handles any incoming message once hanshaking has been completed successfully.
+	 * This method handles any incoming message once handshaking has been completed successfully.
 	 * @throws IOException IOException is thrown when we cannot read from the TCP buffer.
 	 */
 	private void readLine() throws IOException {
