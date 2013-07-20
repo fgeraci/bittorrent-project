@@ -33,6 +33,11 @@ import bt.Utils.Utilities;
 public class Bittorrent {
 	
 	/**
+	 * Will communicate with the tracker every N seconds.
+	 */
+	TrackerRefresher tr;
+	
+	/**
 	 * For each piece, which peer has a true.
 	 */
 	private boolean[][] bitfieldsPieces;
@@ -188,7 +193,7 @@ public class Bittorrent {
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
-			
+			this.tr = new TrackerRefresher(this.torrentInfo, this.peers, this.peerList);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -299,6 +304,45 @@ public class Bittorrent {
 	public static Bittorrent getInstance() throws Exception {
 		if(Bittorrent.instance == null) throw new Exception("Client was never initialized");
 		return Bittorrent.instance;
+	}
+	
+	/**
+	 * Returns uploaded bytes.
+	 * @return int bytes uploaded
+	 */
+	public int getUploaded() {
+		return this.uploaded;
+	}
+	
+	/**
+	 * Returns downloaded bytes.
+	 * @return int bytes downloaded
+	 */
+	public int getDownloaded() {
+		return this.downloaded;
+	}
+	
+	/**
+	 * Returns left bytes.
+	 * @return int bytes left
+	 */
+	public int getLeft() {
+		return this.left;
+	}
+	
+	/**string info hash.
+	 * @return String info hash
+	 */
+	public String getInfoHashString() {
+		return this.info_hash;
+	}
+	
+	/**
+	 * Returns event.
+	 * @return String event
+	 */
+	public String getEvent() {
+		return this.event;
 	}
 	
 	/**
@@ -616,6 +660,10 @@ public class Bittorrent {
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
+	}
+	
+	private void refreshPeersList() {
+		
 	}
 
 }

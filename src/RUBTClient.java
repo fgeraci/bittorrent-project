@@ -4,6 +4,7 @@ import bt.Exceptions.NotifyPromptException;
 import bt.Model.Bittorrent;
 import bt.Utils.CommandParser;
 import bt.Utils.Utilities;
+import bt.View.UserInterface;
 
 /**
  * This is the main entry point for the client. It will just simply
@@ -33,6 +34,15 @@ public class RUBTClient {
 	}
 	
 	/**
+	 * Received a notification.
+	 * @param String message
+	 */
+	public static void receiveEvent(String message) {
+		System.out.println(message);
+		RUBTClient.clientLoop();
+	}
+	
+	/**
 	 * Client entry point.
 	 * @param args command-line arguments.
 	 * 	(e.g. somefile.torrent, picture.jpg)
@@ -41,20 +51,23 @@ public class RUBTClient {
 		
 		Scanner sc = new Scanner(System.in);
 		Bittorrent bittorrent = null;
+		UserInterface ui = null;
 		
 		if(args.length >= 2) {
 			bittorrent = Bittorrent.getInstance(args[0], args[1]);
+			ui = UserInterface.getInstance(bittorrent);
+			UserInterface.receiveEvent(" --> Client successfully initiated. <-- ");
 		} else {
 			System.err.println("ERROR: Insuficient arguments");
 			System.out.println("usage: RUBTClient <torrent filename> <output filename>");
 			System.exit(-1);
 		}
 		
-		// Program's loop
+		/** Program's loop
 		System.out.println("Connection Successfull, welcome");
 		System.out.println("Input help for commands");
 		// client's loop OR connect directly to a client (for project 0)
-		//RUBTClient.clientLoop(); /* <- Client's loop */
+		//RUBTClient.clientLoop(); /* <- Client's loop 
 		try {
 			// 1. connect to peers - need to remove this once working
 			bittorrent.connectToPeer("128.6.171.3:6916");
@@ -85,6 +98,7 @@ public class RUBTClient {
 			
 			Utilities.callClose();
 			System.out.println(e.getMessage());	}
+			*/
 		
 	}
 }
