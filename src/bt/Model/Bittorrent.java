@@ -205,7 +205,7 @@ public class Bittorrent {
 	 * @param bytes bytes
 	 */
 	public void updateLeft(int bytes) {
-		this.left += bytes;
+		this.left += bytes; // shouldn't this be subtracting?
 	}
 	
 	/**
@@ -413,12 +413,14 @@ public class Bittorrent {
 	 * @param bytes integer count of bytes downloaded.
 	 */
 	public void addBytesToPiece(int index, int bytes) {
-		this.downloadedByPiece[index] += bytes;
+		synchronized(downloadedByPiece) {
+			this.downloadedByPiece[index] += bytes;
+		}
 	}
 	
 	/**
 	 * Total file length.
-	 * @return int length
+	 * @return length The length of the file.
 	 */
 	int getFileLength() {
 		return this.torrentInfo.file_length;
@@ -428,7 +430,7 @@ public class Bittorrent {
 	* Returns the first available port given the range or -1 if non if available.
 	* @param from left bound
 	* @param to right bound
-	* @return int port
+	* @return port The port of the server just initialized.
 	*/
 	private int initServer(int from, int to) {
 		int port = from;
@@ -482,9 +484,11 @@ public class Bittorrent {
 	public void printPeerList() {
 		int number = 1;
 		System.out.println("-----------------------------------");
-		for(String s: this.peers) {
-			System.out.println(number+". "+s);
-			++number;
+		synchronized (this.peers) {
+			for(String s: this.peers) {
+				System.out.println(number+". "+s);
+				++number;
+			}
 		}
 		System.out.println("-----------------------------------");
 	}
@@ -514,9 +518,13 @@ public class Bittorrent {
 								this.verificationArray,
 								this.completedPieces);
 			// add the peer to the peers list
-			this.peerList.add(p);
-			// mark the connection as boolean connected in this.connectios
-			this.connections[peer] = true;
+			synchronized(peerList) {
+				synchronized(connections) {
+					this.peerList.add(p);
+					// mark the connection as boolean connected in this.connectios
+					this.connections[peer] = true;
+				}
+			}
 		}	
 	}
 	
@@ -528,10 +536,12 @@ public class Bittorrent {
 	 */
 	public void connectToPeer(String peer)throws Exception {
 		boolean connected = false;
-		for(int i = 0; i < this.peers.length; ++i) {
-			if(peer.equals(this.peers[i])) {
-				connected = true;
-				this.connectToPeer(i+1);
+		synchronized(peers) {
+			for(int i = 0; i < this.peers.length; ++i) {
+				if(peer.equals(this.peers[i])) {
+					connected = true;
+					this.connectToPeer(i+1);
+				}
 			}
 		}
 		if(!connected)
@@ -542,8 +552,10 @@ public class Bittorrent {
 	 * It will terminate all the connection with the peers.
 	 */
 	public void disposePeers() {
-		for(Peer p:this.peerList) {
-			p.dispose();
+		synchronized(peerList) {
+			for(Peer p:this.peerList) {
+				p.dispose();
+			}
 		}
 	}
 
@@ -553,7 +565,10 @@ public class Bittorrent {
 	public void simpleDownloadAlgorithm() {
 		// This is a temporary algorithm for Project 0.  It will be replaced with a more robust one
 		// when we are doing more than downloading a file from a known see.
-		Peer peer = peerList.get(0);
+		Peer peer = null;
+		synchronized(peerList) {
+			peer = peerList.get(0);
+		}
 		for (int i = 0; i < collection.length - 1; ++i) {
 			boolean sent = false;
 			// Attempt to request the piece until it succeeds.
@@ -608,8 +623,10 @@ public class Bittorrent {
 		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
-		for(int i = 0; i < this.getFileLength(); ++i ) {
-			fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
+		synchronized(collection) {
+			for(int i = 0; i < this.getFileLength(); ++i ) {
+				fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
+			}
 		}
 		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
@@ -620,8 +637,10 @@ public class Bittorrent {
 	 * It will check if the file is completed for then closing it and save it.
 	 */
 	boolean isFileCompleted() {
-		for(int i = 0; i < this.completedPieces.length; ++i) {
-			if(!this.completedPieces[i]) return false;;
+		synchronized(completedPieces) {
+			for(int i = 0; i < this.completedPieces.length; ++i) {
+				if(!this.completedPieces[i]) return false;;
+			}
 		}
 		return true;
 	}
