@@ -359,10 +359,10 @@ public class Peer implements Runnable {
 	}
 	
 	/**
-	 * Getter for choked status.
+	 * Getter for chocked status.
 	 * @return boolean True if choked, false otherwise.
 	 */
-	public boolean isChoked() {
+	public boolean isChocked() {
 		return this.choked;
 	}
 	
