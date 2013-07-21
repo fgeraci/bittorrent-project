@@ -332,21 +332,19 @@ public class Peer implements Runnable {
 
 	/**
 	 * This method sends a request message to the peer this object represents.
-	 * @param index piece of the file to be requested.
-	 * @param begin byte offset
-	 * @param length byte offset
+	 * @param request The index, offset, and length of the request encapsulated in a Request object.
 	 * @throws IOException will be thrown if the system is unable to dispatch the message.
 	 */
-	void requestIndex(int index, int begin, int length) throws IOException {
+	void requestIndex(Request request) throws IOException {
 		byte[] message = new byte[17];
 		ByteBuffer messageBuffer = ByteBuffer.allocate(17);
-		messageBuffer.putInt(13).put((byte) 6).putInt(index).putInt(begin).putInt(length);
+		messageBuffer.putInt(13).put((byte) 6).putInt(request.getIndex()).putInt(request.getBegin()).putInt(request.getLength());
 		// necessary to reset iterator.
 		messageBuffer.rewind();
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
-		System.out.println("-- Piece: "+index+" From: "+begin+" Bytes:  "+length+" requested");
+		System.out.println("-- Piece: "+request.getIndex()+" From: "+request.getBegin()+" Bytes:  "+request.getLength()+" requested from " + this);
 	}
 	
 	/**

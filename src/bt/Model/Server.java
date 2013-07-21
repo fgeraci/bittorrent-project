@@ -50,7 +50,7 @@ public class Server implements Runnable {
 	}
 	
 	/**
-	* Returns the first available port given the range or -1 if non if available.
+	* Returns the first available port given the range or -1 if none are available.
 	* @param from left bound
 	* @param to right bound
 	*/
@@ -78,7 +78,7 @@ public class Server implements Runnable {
 	
 	/**
 	 * Returns the server active port.
-	 * return int port
+	 * return port number of this server
 	 */
 	public int getPort() {
 		return this.port;
