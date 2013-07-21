@@ -68,10 +68,19 @@ class WeightedRequest extends Request implements Comparable<WeightedRequest> {
 	void update(int newWeight) {
 		this.weight = newWeight;
 	}
+	
+	/**
+	 * This method returns the request this object is encapsulating.
+	 * @return The Request this object is encapsulating.
+	 */
+	Request getRequest() {
+		return (Request)super.clone();
+	}
 
+	/**
+	 * This is the natural ordering of WeightedRequest objects.
+	 */
 	public int compareTo(WeightedRequest o) {
 		return this.weight - o.getWeight();
 	}
-	
-	
 }
