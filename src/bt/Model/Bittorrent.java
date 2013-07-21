@@ -15,6 +15,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import bt.Exceptions.NotifyPromptException;
 import bt.Utils.Bencoder2;
@@ -169,14 +170,16 @@ public class Bittorrent {
 	 * Current list of peers.
 	 */
 	private List<Peer> peerList = null;
-	
-	
+
+	/**
+	 * Priority queue of requests to be made
+	 */
+	private PriorityBlockingQueue<WeightedRequest> weightedRequestQueue = null;
 	
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
-	private Bittorrent(String torrentFile, String saveFile)
-	{	
+	private Bittorrent(String torrentFile, String saveFile)	{	
 		// open the file
 		File file = new File((this.rscFileFolder+torrentFile));
 		try {
@@ -256,6 +259,7 @@ public class Bittorrent {
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
+		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
 	}
 	
 	/**
