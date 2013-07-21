@@ -15,6 +15,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import bt.Exceptions.NotifyPromptException;
 import bt.Utils.Bencoder2;
@@ -31,6 +32,11 @@ import bt.Utils.Utilities;
  */
 
 public class Bittorrent {
+	
+	/**
+	 * Will communicate with the tracker every N seconds.
+	 */
+	TrackerRefresher tr;
 	
 	/**
 	 * For each piece, which peer has a true.
@@ -164,14 +170,16 @@ public class Bittorrent {
 	 * Current list of peers.
 	 */
 	private List<Peer> peerList = null;
-	
-	
+
+	/**
+	 * Priority queue of requests to be made
+	 */
+	private PriorityBlockingQueue<WeightedRequest> weightedRequestQueue = null;
 	
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
-	private Bittorrent(String torrentFile, String saveFile)
-	{	
+	private Bittorrent(String torrentFile, String saveFile)	{	
 		// open the file
 		File file = new File((this.rscFileFolder+torrentFile));
 		try {
@@ -188,7 +196,7 @@ public class Bittorrent {
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
-			
+			this.tr = new TrackerRefresher(this.torrentInfo, this.peers, this.peerList);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -200,7 +208,7 @@ public class Bittorrent {
 	 * @param bytes bytes
 	 */
 	public void updateLeft(int bytes) {
-		this.left += bytes;
+		this.left += bytes; // shouldn't this be subtracting?
 	}
 	
 	/**
@@ -251,6 +259,8 @@ public class Bittorrent {
 		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
+		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
+		this.populateWeightedRequestQueue();
 	}
 	
 	/**
@@ -284,9 +294,9 @@ public class Bittorrent {
 	 * Checks if all the peer connections have been unchoked.
 	 * @return boolean True if any peers are choked, false otherwise. 
 	 */
-	public boolean peersUnchocked() {
+	public boolean peersUnchoked() {
 		for(Peer p : this.peerList) {
-			if(p.isChocked()) return true;
+			if(p.isChoked()) return true;
 		}
 		return false;
 	}
@@ -299,6 +309,45 @@ public class Bittorrent {
 	public static Bittorrent getInstance() throws Exception {
 		if(Bittorrent.instance == null) throw new Exception("Client was never initialized");
 		return Bittorrent.instance;
+	}
+	
+	/**
+	 * Returns uploaded bytes.
+	 * @return int bytes uploaded
+	 */
+	public int getUploaded() {
+		return this.uploaded;
+	}
+	
+	/**
+	 * Returns downloaded bytes.
+	 * @return int bytes downloaded
+	 */
+	public int getDownloaded() {
+		return this.downloaded;
+	}
+	
+	/**
+	 * Returns left bytes.
+	 * @return int bytes left
+	 */
+	public int getLeft() {
+		return this.left;
+	}
+	
+	/**string info hash.
+	 * @return String info hash
+	 */
+	public String getInfoHashString() {
+		return this.info_hash;
+	}
+	
+	/**
+	 * Returns event.
+	 * @return String event
+	 */
+	public String getEvent() {
+		return this.event;
 	}
 	
 	/**
@@ -369,12 +418,14 @@ public class Bittorrent {
 	 * @param bytes integer count of bytes downloaded.
 	 */
 	public void addBytesToPiece(int index, int bytes) {
-		this.downloadedByPiece[index] += bytes;
+		synchronized(downloadedByPiece) {
+			this.downloadedByPiece[index] += bytes;
+		}
 	}
 	
 	/**
 	 * Total file length.
-	 * @return int length
+	 * @return length The length of the file.
 	 */
 	int getFileLength() {
 		return this.torrentInfo.file_length;
@@ -384,7 +435,7 @@ public class Bittorrent {
 	* Returns the first available port given the range or -1 if non if available.
 	* @param from left bound
 	* @param to right bound
-	* @return int port
+	* @return port The port of the server just initialized.
 	*/
 	private int initServer(int from, int to) {
 		int port = from;
@@ -438,9 +489,11 @@ public class Bittorrent {
 	public void printPeerList() {
 		int number = 1;
 		System.out.println("-----------------------------------");
-		for(String s: this.peers) {
-			System.out.println(number+". "+s);
-			++number;
+		synchronized (this.peers) {
+			for(String s: this.peers) {
+				System.out.println(number+". "+s);
+				++number;
+			}
 		}
 		System.out.println("-----------------------------------");
 	}
@@ -470,9 +523,13 @@ public class Bittorrent {
 								this.verificationArray,
 								this.completedPieces);
 			// add the peer to the peers list
-			this.peerList.add(p);
-			// mark the connection as boolean connected in this.connectios
-			this.connections[peer] = true;
+			synchronized(peerList) {
+				synchronized(connections) {
+					this.peerList.add(p);
+					// mark the connection as boolean connected in this.connectios
+					this.connections[peer] = true;
+				}
+			}
 		}	
 	}
 	
@@ -484,10 +541,12 @@ public class Bittorrent {
 	 */
 	public void connectToPeer(String peer)throws Exception {
 		boolean connected = false;
-		for(int i = 0; i < this.peers.length; ++i) {
-			if(peer.equals(this.peers[i])) {
-				connected = true;
-				this.connectToPeer(i+1);
+		synchronized(peers) {
+			for(int i = 0; i < this.peers.length; ++i) {
+				if(peer.equals(this.peers[i])) {
+					connected = true;
+					this.connectToPeer(i+1);
+				}
 			}
 		}
 		if(!connected)
@@ -498,25 +557,68 @@ public class Bittorrent {
 	 * It will terminate all the connection with the peers.
 	 */
 	public void disposePeers() {
-		for(Peer p:this.peerList) {
-			p.dispose();
+		synchronized(peerList) {
+			for(Peer p:this.peerList) {
+				p.dispose();
+			}
 		}
 	}
 
+	private void populateWeightedRequestQueue() {
+		synchronized (weightedRequestQueue) {
+			for (int piece = 0; piece < collection.length - 1; ++piece) {
+				if (!this.completedPieces[piece]) {
+					for (int begin = 0; begin < collection[0].length / Utilities.MAX_PIECE_LENGTH; ++begin) {
+						weightedRequestQueue.offer(new WeightedRequest(
+								piece,
+								begin * Utilities.MAX_PIECE_LENGTH,
+								Utilities.MAX_PIECE_LENGTH));
+					}
+					if (this.pieceLength - ((collection[0].length / Utilities.MAX_PIECE_LENGTH) * Utilities.MAX_PIECE_LENGTH) > 0) {
+						weightedRequestQueue.offer(new WeightedRequest(
+								piece,
+								((collection[0].length / Utilities.MAX_PIECE_LENGTH) * Utilities.MAX_PIECE_LENGTH),
+								(this.pieceLength - ((collection[0].length / Utilities.MAX_PIECE_LENGTH) * Utilities.MAX_PIECE_LENGTH))));
+					}
+				}
+			}
+			int piece = collection.length - 1;
+			if (!this.completedPieces[piece]) {
+				int begin = 0;
+				while ((begin * Utilities.MAX_PIECE_LENGTH) + Utilities.MAX_PIECE_LENGTH < this.getFileLength()) {
+					weightedRequestQueue.offer(new WeightedRequest(
+							piece,
+							begin * Utilities.MAX_PIECE_LENGTH,
+							Utilities.MAX_PIECE_LENGTH));
+					++begin;
+				}
+				if (this.getFileLength() > (this.pieceLength * piece) + (begin * Utilities.MAX_PIECE_LENGTH)) {
+					weightedRequestQueue.offer(new WeightedRequest(
+							piece,
+							begin * Utilities.MAX_PIECE_LENGTH,
+							this.getFileLength() - (this.pieceLength * piece) + (begin * Utilities.MAX_PIECE_LENGTH)));
+				}
+			}
+		}
+	}
+	
 	/**
 	 * This method is a simple algorithm for sending requests for a file.
 	 */
 	public void simpleDownloadAlgorithm() {
 		// This is a temporary algorithm for Project 0.  It will be replaced with a more robust one
 		// when we are doing more than downloading a file from a known see.
-		Peer peer = peerList.get(0);
+		Peer peer = null;
+		synchronized(peerList) {
+			peer = peerList.get(0);
+		}
 		for (int i = 0; i < collection.length - 1; ++i) {
 			boolean sent = false;
 			// Attempt to request the piece until it succeeds.
 			while (!sent) {
 				try {
-					peer.requestIndex(i, 0, 16384);
-					peer.requestIndex(i, 16384, 16384);
+					peer.requestIndex(new Request(i, 0, 16384));
+					peer.requestIndex(new Request(i, 16384, 16384));
 					sent = true;
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
@@ -529,15 +631,15 @@ public class Bittorrent {
 		while (!sent) {
 			if (torrentInfo.file_length > (4.5 * torrentInfo.piece_length)){
 				try {
-					peer.requestIndex(collection.length -1, 0, 16384);
-					peer.requestIndex(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length));
+					peer.requestIndex(new Request(collection.length -1, 0, 16384));
+					peer.requestIndex(new Request(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length)));
 					sent = true;
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}
 			} else {
 				try {
-					peer.requestIndex(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length));
+					peer.requestIndex(new Request(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length)));
 					sent = true;
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
@@ -564,8 +666,10 @@ public class Bittorrent {
 		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
-		for(int i = 0; i < this.getFileLength(); ++i ) {
-			fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
+		synchronized(collection) {
+			for(int i = 0; i < this.getFileLength(); ++i ) {
+				fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
+			}
 		}
 		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
@@ -576,8 +680,10 @@ public class Bittorrent {
 	 * It will check if the file is completed for then closing it and save it.
 	 */
 	boolean isFileCompleted() {
-		for(int i = 0; i < this.completedPieces.length; ++i) {
-			if(!this.completedPieces[i]) return false;;
+		synchronized(completedPieces) {
+			for(int i = 0; i < this.completedPieces.length; ++i) {
+				if(!this.completedPieces[i]) return false;;
+			}
 		}
 		return true;
 	}
@@ -617,5 +723,8 @@ public class Bittorrent {
 			System.err.println(e.getMessage());
 		}
 	}
-
+	
+	private void refreshPeersList() {
+		
+	}
 }

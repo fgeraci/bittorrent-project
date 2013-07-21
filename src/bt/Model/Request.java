@@ -46,4 +46,8 @@ class Request {
 	int getLength() {
 		return this.length;
 	}
+	
+	protected Object clone() {
+		return new Request (this.index, this.begin, this.length);
+	}
 }

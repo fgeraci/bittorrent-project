@@ -41,7 +41,6 @@ public class Peer implements Runnable {
 	private int port;
 	private Date timeout;
 	MessageDigest sha;
-	private int maxPieceLength = 16384;
 	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
@@ -95,8 +94,10 @@ public class Peer implements Runnable {
 		completed = completedReference;
 		bitField = new boolean[fileHeap.length];
 		// sha = MessageDigest.getInstance("SHA-1");
-		for (int i = 0; i < bitField.length; ++i) {
-			bitField[i] = false;
+		synchronized(bitField) {
+			for (int i = 0; i < bitField.length; ++i) {
+				bitField[i] = false;
+			}
 		}
 		// added to start a new thread on the instantiation of a peer.
 		Thread peerThread = new Thread(this);
@@ -138,11 +139,14 @@ public class Peer implements Runnable {
 				}
 			} else {
 				if (interested && !choked) {
-					Request toSend = interestedQueue.poll();
-					if (completed[toSend.getIndex()]) {
-						send(toSend);
+					synchronized (interestedQueue) {
+						Request toSend = interestedQueue.poll();
+						if (completed[toSend.getIndex()]) {
+							send(toSend);
+						} else {
+							interestedQueue.offer(toSend);
+						}
 					}
-					interestedQueue.offer(toSend);
 				}
 			}
 		}					// This is the end of the file sending loop.
@@ -246,8 +250,10 @@ public class Peer implements Runnable {
 	
 	private void send (Request request) {
 		byte[] payload = new byte[request.getLength()];
-		for (int i = 0; i < request.getLength(); i++) {
-			payload[i] = fileHeap[request.getIndex()][request.getBegin() + i];
+		synchronized (fileHeap[request.getIndex()]){
+			for (int i = 0; i < request.getLength(); i++) {
+				payload[i] = fileHeap[request.getIndex()][request.getBegin() + i];
+			}
 		}
 		boolean sent = false;
 		while (!sent) {	// Try to send this message until it succeeds.
@@ -307,8 +313,10 @@ public class Peer implements Runnable {
 		} else {
 		// This loops over the bytes in payload and writes them into the file heap.
 			int offset;
-			for (offset = 0; offset < payload.length; ++offset) {
-				fileHeap[index][begin + offset] = payload[offset];
+			synchronized(fileHeap[index]) {
+				for (offset = 0; offset < payload.length; ++offset) {
+					fileHeap[index][begin + offset] = payload[offset];
+				}
 			}
 			try {
 				Bittorrent.getInstance().addBytesToPiece(index, offset);
@@ -323,21 +331,19 @@ public class Peer implements Runnable {
 
 	/**
 	 * This method sends a request message to the peer this object represents.
-	 * @param index piece of the file to be requested.
-	 * @param begin byte offset
-	 * @param length byte offset
+	 * @param request The index, offset, and length of the request encapsulated in a Request object.
 	 * @throws IOException will be thrown if the system is unable to dispatch the message.
 	 */
-	void requestIndex(int index, int begin, int length) throws IOException {
+	void requestIndex(Request request) throws IOException {
 		byte[] message = new byte[17];
 		ByteBuffer messageBuffer = ByteBuffer.allocate(17);
-		messageBuffer.putInt(13).put((byte) 6).putInt(index).putInt(begin).putInt(length);
+		messageBuffer.putInt(13).put((byte) 6).putInt(request.getIndex()).putInt(request.getBegin()).putInt(request.getLength());
 		// necessary to reset iterator.
 		messageBuffer.rewind();
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
-		System.out.println("-- Piece: "+index+" From: "+begin+" Bytes:  "+length+" requested");
+		System.out.println("-- Piece: "+request.getIndex()+" From: "+request.getBegin()+" Bytes:  "+request.getLength()+" requested from " + this);
 	}
 	
 	/**
@@ -346,8 +352,10 @@ public class Peer implements Runnable {
 	 * @param index The index of the piece that the peer has requested.
 	 */
 	void requestReceived (int index, int begin, int length) {
-		if (length > maxPieceLength) {;} // may drop connection
-		interestedQueue.add(new Request(index, begin, length));
+		if (length > Utilities.MAX_PIECE_LENGTH) {;} // may drop connection
+		synchronized(interestedQueue) {
+			interestedQueue.add(new Request(index, begin, length));
+		}
 	}
 	
 	/**
@@ -359,10 +367,10 @@ public class Peer implements Runnable {
 	}
 	
 	/**
-	 * Getter for chocked status.
+	 * Getter for choked status.
 	 * @return boolean True if choked, false otherwise.
 	 */
-	public boolean isChocked() {
+	public boolean isChoked() {
 		return this.choked;
 	}
 	
@@ -372,8 +380,12 @@ public class Peer implements Runnable {
 	 * @param index The index of the piece that the peer has acknowledged complete..
 	 */
 	void haveReceived (int index) {
-		bitField[index] = true;
-		interestedQueue.remove(index);
+		synchronized (interestedQueue) {
+			synchronized (bitField) {
+				bitField[index] = true;
+				interestedQueue.remove(index);
+			}
+		}
 	}
 	
 	/**
@@ -406,15 +418,15 @@ public class Peer implements Runnable {
 		mainLoop : for (int i = 0; i < pieces.length; ++i) {
 			int bit = 7;
 			int base = (bit*i);
-			for(bit = bit + base; bit >= base; --bit) {
-				if(index < this.bitField.length) {
-					this.bitField[index] = bs.get(bit);
-					index++;
-				} else break mainLoop;
-				
+			synchronized (bitField) {
+				for(bit = bit + base; bit >= base; --bit) {
+					if(index < this.bitField.length) {
+						this.bitField[index] = bs.get(bit);
+						index++;
+					} else break mainLoop;
+				}
 			}
 		}	
-		
 	}
 	
 	/**
@@ -422,7 +434,9 @@ public class Peer implements Runnable {
 	 * @return boolean[] bitfield.
 	 */
 	public boolean[] getBitField() {
-		return this.bitField;
+		synchronized(bitField) {
+			return this.bitField.clone();
+		}
 	}
 	
 	/**
@@ -436,13 +450,15 @@ public class Peer implements Runnable {
 	void sendBitfield() throws IOException {
 		BitSet bs = new BitSet();
 		//byte[] bitfield = new byte[(int) Math.ceil((float)(completed.length) / 8.0f)];
-		for (int i = 0; i < completed.length; ++i) {
-			if (completed[i]) {
-				bs.set(i, true);
-				//bitfield[i] = 1;
-			} else {
-				bs.set(i, false);
-				//bitfield[i] =0;
+		synchronized(completed) {
+			for (int i = 0; i < completed.length; ++i) {
+				if (completed[i]) {
+					bs.set(i, true);
+					//bitfield[i] = 1;
+				} else {
+					bs.set(i, false);
+					//bitfield[i] =0;
+				}
 			}
 		}
 		out.write(bs.toByteArray());
@@ -456,7 +472,9 @@ public class Peer implements Runnable {
 	void setInterested (boolean value) {
 		interested = value;
 		if (!value) {
-			interestedQueue.clear();
+			synchronized(interestedQueue) {
+				interestedQueue.clear();
+			}
 		}
 	}
 	
@@ -468,7 +486,9 @@ public class Peer implements Runnable {
 	void setChoke (boolean value) {
 		this.choked = value;
 		if (value) {
-			interestedQueue.clear();
+			synchronized(interestedQueue) {
+				interestedQueue.clear();
+			}
 		}
 	}
 	
@@ -508,36 +528,40 @@ public class Peer implements Runnable {
 	 * resources and heap memory.
 	 */
 	void dispose () {
-		listener.dispose();
-		fileHeap = null;
-		verifyHash = null;
-		completed = null;
-		listener = null;
-		choked = true;
-		interested = false;
-		running = false;
-		boolean closed = false;
-		// This loop attempts to close dataSocket once every 50 Milliseconds until it succeeds.
-		while (!closed) {
-			try {
-				dataSocket.close();
-				closed = true;
-			} catch (IOException e) {
-				try {
-					Thread.sleep(50);
-					closed = true;
-				} catch (InterruptedException e1) {
-					continue;
+		synchronized(interestedQueue) {
+			synchronized(fileHeap) {
+				listener.dispose();
+				fileHeap = null;
+				verifyHash = null;
+				completed = null;
+				listener = null;
+				choked = true;
+				interested = false;
+				running = false;
+				boolean closed = false;
+				// This loop attempts to close dataSocket once every 50 Milliseconds until it succeeds.
+				while (!closed) {
+					try {
+						dataSocket.close();
+						closed = true;
+					} catch (IOException e) {
+						try {
+							Thread.sleep(50);
+							closed = true;
+						} catch (InterruptedException e1) {
+							continue;
+						}
+					}
 				}
+				in = null;
+				out = null;
+				dataSocket = null;
+				hash = null;
+				clientID = null;
+				interestedQueue.clear();
+				interestedQueue = null;	
 			}
 		}
-		in = null;
-		out = null;
-		dataSocket = null;
-		hash = null;
-		clientID = null;
-		interestedQueue.clear();
-		interestedQueue = null;	
 	}
 	
 /**
@@ -551,22 +575,22 @@ public class Peer implements Runnable {
 		try {
 		Bittorrent bt = Bittorrent.getInstance();
 		MessageDigest sha = MessageDigest.getInstance("SHA-1");
-			
 			byte[] toDigest = null;
-			
 			if (index < fileHeap.length - 1) {
 				toDigest = new byte[bt.pieceLength];
-				for(int i = 0; i < toDigest.length; ++i) {
-					toDigest[i] = fileHeap[index][i];
+				synchronized(fileHeap) {
+					for(int i = 0; i < toDigest.length; ++i) {
+						toDigest[i] = fileHeap[index][i];
+					}
 				}
 			} else {
 				toDigest = new byte[bt.getFileLength() - ((fileHeap.length-1)*bt.pieceLength)];
-				for(int i = 0; i < toDigest.length; ++i) {
-					toDigest[i] = fileHeap[index][i];
+				synchronized(fileHeap) {
+					for(int i = 0; i < toDigest.length; ++i) {
+						toDigest[i] = fileHeap[index][i];
+					}
 				}
 			}
-			
-			
 			byte[] test = sha.digest(toDigest);
 			if (sameArray(verifyHash[index], test)) {
 				System.out.println("We have completed piece: " + index);
@@ -585,7 +609,9 @@ public class Peer implements Runnable {
 						}
 					}
 				}
-				completed[index] = true;
+				synchronized(completed) {
+					completed[index] = true;
+				}
 				if(bt.isFileCompleted()) {
 					System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
 					bt.notifyFullyDownload(); // notifies tracker
