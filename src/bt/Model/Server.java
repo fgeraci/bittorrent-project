@@ -1,6 +1,8 @@
 package bt.Model;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * This class will initiate a new thread as the server side of the
@@ -23,6 +25,11 @@ public class Server implements Runnable {
 	public boolean getServerStatus() {
 		return this.serverSocket.isBound();
 	}
+	
+	/**
+	 * Boolean controller for the server.
+	 */
+	private boolean running = true;
 	
 	/**
 	 * Listening socket for the server.
@@ -68,10 +75,6 @@ public class Server implements Runnable {
 					port = -1;
 					break;
 				}
-			} finally {
-				try {
-					// if(ss != null) ss.close(); // NOT NECESSARY
-				} catch (Exception e) { System.err.println(e.getMessage()); }
 			}
 		}
 	}
@@ -89,6 +92,7 @@ public class Server implements Runnable {
 	 * @throws Exception
 	 */
 	public void terminateServer() throws Exception {
+		this.running = false;
 		this.serverSocket.close();
 	}
 	
@@ -97,6 +101,15 @@ public class Server implements Runnable {
 	 */
 	public void run() {
 		this.initServer(6881, 6889);
+		while(running) {
+			try {
+				Socket newSocket = this.serverSocket.accept();
+				InetAddress IP = newSocket.getInetAddress();
+				String IPAddress = IP.getHostAddress();
+			} catch (Exception e) {
+				System.out.println("-- SERVER ERROR: Failed to connect to incoming peer.");
+			}
+		}
 		System.out.println("Server intiated OK");
 		
 	}

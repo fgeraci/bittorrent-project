@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.Queue;
 
 import bt.Utils.Utilities;
+import bt.View.UserInterface;
 
 /**
  * Creates a connection with a peer to download a file.
@@ -613,10 +614,9 @@ public class Peer implements Runnable {
 					completed[index] = true;
 				}
 				if(bt.isFileCompleted()) {
-					System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
 					bt.notifyFullyDownloaded(); // notifies tracker
 					bt.saveFile(); // create the downloaded file
-					Utilities.callClose();
+					UserInterface.receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
 				}
 			} else {
 				System.out.println("Index # " + index + " failed was not verified.");

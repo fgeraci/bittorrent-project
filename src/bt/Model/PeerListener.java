@@ -129,7 +129,7 @@ class PeerListener implements Runnable {
 						tcpInput.getInt());
 				break;
 			case 7:	// piece
-				System.out.println("-- Piece received, analyzing...");
+				System.out.println("-- Piece received from: "+parent+", analyzing...");
 				byte[] payload = new byte[length - 9];
 				tcpInput.position(1);
 				int index = tcpInput.getInt();
