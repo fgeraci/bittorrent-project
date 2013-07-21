@@ -260,6 +260,7 @@ public class Bittorrent {
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
 		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
+		this.populateWeightedRequestQueue();
 	}
 	
 	/**
@@ -563,6 +564,40 @@ public class Bittorrent {
 		}
 	}
 
+	private void populateWeightedRequestQueue() {
+		synchronized (weightedRequestQueue) {
+			for (int piece = 0; piece < collection.length - 1; ++piece) {
+				for (int begin = 0; begin < collection[0].length / Utilities.MAX_PIECE_LENGTH; ++begin) {
+					weightedRequestQueue.offer(new WeightedRequest(
+							piece,
+							begin * Utilities.MAX_PIECE_LENGTH,
+							Utilities.MAX_PIECE_LENGTH));
+				}
+				if (this.pieceLength - ((collection[0].length / Utilities.MAX_PIECE_LENGTH) * Utilities.MAX_PIECE_LENGTH) > 0) {
+					weightedRequestQueue.offer(new WeightedRequest(
+							piece,
+							((collection[0].length / Utilities.MAX_PIECE_LENGTH) * Utilities.MAX_PIECE_LENGTH),
+							(this.pieceLength - ((collection[0].length / Utilities.MAX_PIECE_LENGTH) * Utilities.MAX_PIECE_LENGTH))));
+				}
+			}
+			int piece = collection.length - 1;
+			int begin = 0;
+			while ((begin * Utilities.MAX_PIECE_LENGTH) + Utilities.MAX_PIECE_LENGTH < this.getFileLength()) {
+				weightedRequestQueue.offer(new WeightedRequest(
+						piece,
+						begin * Utilities.MAX_PIECE_LENGTH,
+						Utilities.MAX_PIECE_LENGTH));
+				++begin;
+			}
+			if (this.getFileLength() > (this.pieceLength * piece) + (begin * Utilities.MAX_PIECE_LENGTH)) {
+				weightedRequestQueue.offer(new WeightedRequest(
+						piece,
+						begin * Utilities.MAX_PIECE_LENGTH,
+						this.getFileLength() - (this.pieceLength * piece) + (begin * Utilities.MAX_PIECE_LENGTH)));
+			}
+		}
+	}
+	
 	/**
 	 * This method is a simple algorithm for sending requests for a file.
 	 */

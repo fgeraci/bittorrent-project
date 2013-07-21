@@ -18,6 +18,8 @@ import bt.Model.Bittorrent;
  */
 public class Utilities {
 	
+	public static final int MAX_PIECE_LENGTH = 16384;
+	
 	/**
 	 * Returns a byte stream from the given file.
 	 * @param file

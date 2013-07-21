@@ -41,7 +41,6 @@ public class Peer implements Runnable {
 	private int port;
 	private Date timeout;
 	MessageDigest sha;
-	public static final int MAX_PIECE_LENGTH = 16384;
 	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
@@ -353,7 +352,7 @@ public class Peer implements Runnable {
 	 * @param index The index of the piece that the peer has requested.
 	 */
 	void requestReceived (int index, int begin, int length) {
-		if (length > MAX_PIECE_LENGTH) {;} // may drop connection
+		if (length > Utilities.MAX_PIECE_LENGTH) {;} // may drop connection
 		synchronized(interestedQueue) {
 			interestedQueue.add(new Request(index, begin, length));
 		}
