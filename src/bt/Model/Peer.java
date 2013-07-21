@@ -91,7 +91,7 @@ public class Peer implements Runnable {
 		clientID = peerID;
 		fileHeap = heapReference;
 		verifyHash = verifyReference;
-		completed = completedReference;
+		completed = completedReference;	// points to bittorrent.completedPieces
 		bitField = new boolean[fileHeap.length];
 		// sha = MessageDigest.getInstance("SHA-1");
 		synchronized(bitField) {
@@ -127,7 +127,7 @@ public class Peer implements Runnable {
 	public void run() {
 		handShake();
 		Thread listenerThread = new Thread(listener);
-		listenerThread.start(); // changed, it was run(), which wont start a new thread.
+		listenerThread.start(); // changed, it was run(), which won't start a new thread.
 		// This will block until the handshake was done and we can start downloading.
 		
 		while(running) {	// This is the file sending loop. 

@@ -155,6 +155,7 @@ public class Bittorrent {
 	private byte[][] verificationArray = null;
 	
 	//This is going to have to be filled out properly later.
+	//We must be sure to allocate this on the heap, so that our reference is valid at each Peer object instance.
 	/**
 	 * This array reads true if the piece at the index has been downloaded and verified, and false
 	 * otherwise.
@@ -351,6 +352,13 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Returns reference to this.peerList
+	 */
+	public List<Peer> getPeerList() {
+		return this.peerList;
+	}
+	
+	/**
 	 * It will issue and HTTP GET request to obtain bencoded information 
 	 * about peers and seeds in the server.
 	 * @throws IOException 
@@ -503,19 +511,20 @@ public class Bittorrent {
 	 * @param peer peer number
 	 */
 	public void connectToPeer(int peer) throws Exception {
+		Peer p;
 		peer = peer - 1;
 		// create peer, attempt connection, feed arguments.
 		if(peer < 0 || peer >= this.peers.length) {
 			throw new IllegalArgumentException("Invalid peer number, out of range.");
 		} else if(this.connections[peer]) {
-			throw new Exception("Connection already stablished with peer: "+this.peers[peer]);
+			throw new Exception("Connection already established with peer: "+this.peers[peer]);
 		} else {
 			// get info
 			String ip = Utilities.getIPFromString(this.peers[peer]);
 			int port = Utilities.getPortFromString(this.peers[peer]);
 			System.out.println();
 			// attempt peer
-			Peer p = new Peer(	ip,
+			p = new Peer(	ip,
 								port,
 								Utilities.getHashBytes(this.torrentInfo.info_hash),
 								this.clientID.getBytes(), 
@@ -530,7 +539,7 @@ public class Bittorrent {
 					this.connections[peer] = true;
 				}
 			}
-		}	
+		}
 	}
 	
 	/**
@@ -607,7 +616,7 @@ public class Bittorrent {
 	 */
 	public void simpleDownloadAlgorithm() {
 		// This is a temporary algorithm for Project 0.  It will be replaced with a more robust one
-		// when we are doing more than downloading a file from a known see.
+		// when we are doing more than downloading a file from a known seed.
 		Peer peer = null;
 		synchronized(peerList) {
 			peer = peerList.get(0);
@@ -648,11 +657,46 @@ public class Bittorrent {
 		}
 	}
 	/**
-	 * This method is our algorithm for rending requests for the file we are downloading.
+	 * This method is our algorithm for sending requests for the file we are downloading.
 	 */
-	public void downloadAlgorithm() throws NotifyPromptException {
+	public void downloadAlgorithm(Peer peer) throws NotifyPromptException {
 		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
 		// Implement algorithm here.
+		for (int i = 0; i < collection.length - 1; ++i) {
+			boolean sent = false;
+			// Attempt to request the piece until it succeeds.
+			while (!sent) {
+				try {
+					peer.requestIndex(new Request(i, 0, 16384));
+					peer.requestIndex(new Request(i, 16384, 16384));
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+			sent = false;
+			
+		}
+		boolean sent = false;
+		while (!sent) {
+			if (torrentInfo.file_length > (4.5 * torrentInfo.piece_length)){
+				try {
+					peer.requestIndex(new Request(collection.length -1, 0, 16384));
+					peer.requestIndex(new Request(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length)));
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			} else {
+				try {
+					peer.requestIndex(new Request(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length)));
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
+
 		// this.queueBitFields();
 		// throw new NotifyPromptException("Download Algorithm done.");
 		

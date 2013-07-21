@@ -12,13 +12,14 @@ import bt.Utils.Utilities;
 public class UserInterface {
 	
 	private Bittorrent bittorrent;
+	private Peer peer=null;
 	
 	private static UserInterface instance = null;
 	
 	private UserInterface(Bittorrent bt) {
 		this.bittorrent = bt;
 		// Program's loop
-		System.out.println("Connection Successfull, welcome");
+		System.out.println("Connection Successful, welcome");
 		System.out.println("Input help for commands");
 		// client's loop OR connect directly to a client (for project 0)
 		//RUBTClient.clientLoop(); /* <- Client's loop */
@@ -40,7 +41,10 @@ public class UserInterface {
 			System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 			
 			// 3. start bitfields queue
-			bittorrent.downloadAlgorithm();
+			for (int i=0; i<bittorrent.getPeerList().size(); i++) {
+				peer = bittorrent.getPeerList().get(i);
+				bittorrent.downloadAlgorithm(peer);
+			}
 			
 		} catch (NotifyPromptException ne) { // to be triggered just for notification purposes.
 			System.out.println(ne.getMessage());

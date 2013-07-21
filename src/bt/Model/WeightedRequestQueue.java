@@ -32,7 +32,7 @@ class WeightedRequest extends Request implements Comparable<WeightedRequest> {
 	
 	/**
 	 * Constructor with all fields specified
-	 * Constructor with default weight parameter of 1
+	 * Constructor with default weight parameter explicitly defined.
 	 * @param index index of piece to be requested
 	 * @param begin offset from beginning of piece requested byte stream begins at.
 	 * @param length length of requested byte stream
