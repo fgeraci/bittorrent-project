@@ -33,9 +33,9 @@ public class CommandParser {
 			break;
 		case "serverstatus":
 			if(Server.getInstance().getServerStatus()) {
-				System.out.println("Server bounded to client");
+				System.out.println("Server bound to client");
 			} else {
-				System.out.println("Server unbounded listening for incoming connections");
+				System.out.println("Server unbound: listening for incoming connections");
 			}
 			break;
 		case "printpeers":

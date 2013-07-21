@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+/*
 package bt.Model;
 
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * The main listener thread for each peer this client is connected to.
  * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
- */
+ *//*
 
 class PeerListener implements Runnable {
 	
@@ -25,7 +25,7 @@ class PeerListener implements Runnable {
 	 * changed after the PeerListener has been constructed.
 	 * @param parent
 	 * @param inStream
-	 */
+	 *//*
 	PeerListener (Peer parent, InputStream inStream) {
 		this.in = inStream;
 		this.parent = parent;
@@ -33,7 +33,7 @@ class PeerListener implements Runnable {
 
 	/**
 	 * This is the thread loop for a PeerListener, which receives all messages from a particular peer.
-	 */
+	 *//*
 	public void run() {
 		while(running) {
 			if(!parent.peerAccepted) {
@@ -58,7 +58,7 @@ class PeerListener implements Runnable {
 	/**
 	 * This method is called when a message has been received and we have not completed handshaking
 	 * successfully.
-	 */
+	 *//*
 	void receiveHandshake() {		
 		byte[] tcpArray = new byte[68];
 		try {
@@ -83,7 +83,7 @@ class PeerListener implements Runnable {
 	/**
 	 * This method handles any incoming message once handshaking has been completed successfully.
 	 * @throws IOException IOException is thrown when we cannot read from the TCP buffer.
-	 */
+	 *//*
 	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
 		in.read(lengthArray, 0, 4);
@@ -108,7 +108,7 @@ class PeerListener implements Runnable {
 				} catch (Exception e) {
 					System.err.println("Failed to get an instance of BitTorrent.");
 				}
-				*/
+				*//*
 				break; // message was received and processed.
 			case 2:	// interested
 				parent.setInterested(true);
@@ -157,7 +157,7 @@ class PeerListener implements Runnable {
 	/**
 	 * This method is called by the parent of this object as the first action of its own dispose method to
 	 * remove references to itself which might prevent garbage collection.
-	 */
+	 *//*
 	void dispose () {
 		running = false;
 		in = null;
@@ -165,7 +165,7 @@ class PeerListener implements Runnable {
 	}
 	
 }
-=======
+*/
 package bt.Model;
 
 import java.io.IOException;
@@ -332,4 +332,4 @@ class PeerListener implements Runnable {
 	}
 	
 }
->>>>>>> aaba09fbfc41904ea0e9940bf0e9422225c96e61
+

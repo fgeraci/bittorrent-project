@@ -41,7 +41,7 @@ public class Bittorrent {
 	/**
 	 * For each piece, which peer has a true.
 	 */
-	private boolean[][] bitfieldsPieces;
+	private boolean[][] bitfieldPieces;
 	
 	/**
 	 * Size of each piece
@@ -651,7 +651,7 @@ public class Bittorrent {
 	 * This method is our algorithm for rending requests for the file we are downloading.
 	 */
 	public void downloadAlgorithm() throws NotifyPromptException {
-		this.bitfieldsPieces = new boolean[this.pieces][this.peerList.size()];
+		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
 		// Implement algorithm here.
 		// this.queueBitFields();
 		// throw new NotifyPromptException("Download Algorithm done.");
@@ -691,7 +691,7 @@ public class Bittorrent {
 	/**
 	 * Notifies the tracker the file was successfully downloaded.
 	 */
-	void notifyFullyDownload() {
+	void notifyFullyDownloaded() {
 		int port = this.server.getPort();
 		this.event = "completed";
 		String response = null;
@@ -716,7 +716,7 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			// System.out.println(responseInBytes);
+			 System.out.println("responseInBytes: " + responseInBytes);  /* */
 			// close streams
 			fromServer.close();
 		} catch (Exception e) {

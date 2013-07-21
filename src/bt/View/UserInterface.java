@@ -37,7 +37,7 @@ public class UserInterface {
 					e.getMessage();
 				}
 			}
-			System.out.println("-- All peers are unchocked, start DownloadingAlgorithm --");
+			System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 			
 			// 3. start bitfields queue
 			bittorrent.downloadAlgorithm();
