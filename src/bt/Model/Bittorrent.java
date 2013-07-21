@@ -208,7 +208,7 @@ public class Bittorrent {
 	 * @param bytes bytes
 	 */
 	public void updateLeft(int bytes) {
-		this.left += bytes; // shouldn't this be subtracting?
+		this.left -= bytes;
 	}
 	
 	/**

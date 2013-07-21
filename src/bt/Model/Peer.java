@@ -614,7 +614,7 @@ public class Peer implements Runnable {
 				}
 				if(bt.isFileCompleted()) {
 					System.out.println("\n-- FILE SUCCESSFULLY DOWNLOADED --");
-					bt.notifyFullyDownload(); // notifies tracker
+					bt.notifyFullyDownloaded(); // notifies tracker
 					bt.saveFile(); // create the downloaded file
 					Utilities.callClose();
 				}
