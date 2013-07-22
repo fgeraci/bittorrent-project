@@ -25,11 +25,31 @@ import bt.View.UserInterface;
 
 public class Peer implements Runnable {
 	
+	/**
+	 * Actual bytes of torrent files by pieces.
+	 */
 	private byte[][] fileHeap = null;
+	
+	/**
+	 * Verification values per piece.
+	 */
 	private byte[][] verifyHash = null;
+	
+	/**
+	 * Array of true/false as per each piece completion.
+	 */
 	private boolean[] completed = null;
+	
+	/**
+	 * Received bitfield from client.
+	 */
 	private boolean[] bitField = null;
+	
+	/**
+	 * Peer's PeerListener instance.
+	 */
 	private PeerListener listener = null;
+	
 	private boolean choked = true;
 	private boolean interested = false;
 	private Socket dataSocket = null;
@@ -491,15 +511,12 @@ public class Peer implements Runnable {
 	 */
 	void sendBitfield() throws IOException {
 		BitSet bs = new BitSet();
-		//byte[] bitfield = new byte[(int) Math.ceil((float)(completed.length) / 8.0f)];
 		synchronized(completed) {
 			for (int i = 0; i < completed.length; ++i) {
 				if (completed[i]) {
 					bs.set(i, true);
-					//bitfield[i] = 1;
 				} else {
 					bs.set(i, false);
-					//bitfield[i] =0;
 				}
 			}
 		}

@@ -242,4 +242,17 @@ public class Utilities {
 		 }
 		 return -1; // no more pieces are needed.
 	 }
+	 
+	 public static String bitFieldToString(boolean[] bits) {
+		 String bitfield = "";
+		 for(int i = 0; i < bits.length; ++i) {
+			 if(bits[i]) {
+				 bitfield += "1";
+			 } else {
+				 bitfield += "0";
+			 }
+		 }
+		 return bitfield;
+		 
+	 }
 }

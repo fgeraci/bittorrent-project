@@ -6,6 +6,7 @@ package bt.Exceptions;
  *
  */
 
+@SuppressWarnings("serial")
 public class NotifyPromptException extends Exception {
 	
 	public NotifyPromptException(String message) {

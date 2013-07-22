@@ -9,13 +9,21 @@ import bt.Exceptions.NotifyPromptException;
 import bt.Utils.CommandParser;
 import bt.Utils.Utilities;
 
+/**
+ * The class represents the UI between the user and the client.
+ * @author Isaac Yochelson, Robert Schomburg and Fernand Geraci
+ *
+ */
 public class UserInterface {
 	
 	private Bittorrent bittorrent;
 	private Peer peer=null;
-	
 	private static UserInterface instance = null;
 	
+	/**
+	 * Constructs a UserInterface instance.
+	 * @param bt
+	 */
 	private UserInterface(Bittorrent bt) {
 		this.bittorrent = bt;
 		// Program's loop
@@ -40,7 +48,7 @@ public class UserInterface {
 			}
 			System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 			
-			int peerListSize=bittorrent.getPeerList().size();
+			int peerListSize = bittorrent.getPeerList().size();
 
 			// 3. start bitfields queue
 			for (int i=0; i<peerListSize; i++) {
@@ -50,7 +58,7 @@ public class UserInterface {
 			try {
 				for (int i=0; i<peerListSize; i++) {
 					Peer peer = bittorrent.getPeerList().get(i);
-					System.out.println("\n\tpeer "+ i +" bitfield:  "+ peer.getBitField().toString());
+					System.out.println("\n\tpeer "+ i +" bitfield:  "+ Utilities.bitFieldToString(peer.getBitField()));
 					//THIS DOES NOT DISPLAY AS I HOPED//
 				}
 			} catch (Exception e) { 
@@ -65,6 +73,10 @@ public class UserInterface {
 			System.out.println(e.getMessage());	}
 	}
 	
+	/**
+	 * Instance getter.
+	 * @return UserInterface instance.
+	 */
 	public static UserInterface getInstance() {
 		if(UserInterface.instance == null) {
 			throw new IllegalAccessError("UserInterface never instantiated.");
@@ -72,6 +84,10 @@ public class UserInterface {
 		return UserInterface.instance;
 	}
 	
+	/**
+	 * Alternative Instance getter.
+	 * @return UserInterface instance.
+	 */
 	public static UserInterface getInstance(Bittorrent bt) {
 		if(UserInterface.instance == null) {
 			UserInterface.instance = new UserInterface(bt);

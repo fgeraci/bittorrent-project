@@ -7,6 +7,7 @@ package bt.Exceptions;
  *
  */
 
+@SuppressWarnings("serial")
 public class BencodingException extends Exception {
 	
 	/**

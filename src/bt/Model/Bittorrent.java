@@ -11,12 +11,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.PriorityBlockingQueue;
-
 import bt.Exceptions.NotifyPromptException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
@@ -754,10 +752,6 @@ public class Bittorrent {
 				}
 			}
 		}
-
-		// this.queueBitFields();
-		// throw new NotifyPromptException("Download Algorithm done.");
-		
 	}
 	
 	/**
@@ -799,10 +793,6 @@ public class Bittorrent {
 				}
 			}
 		}
-
-		// this.queueBitFields();
-		// throw new NotifyPromptException("Download Algorithm done.");
-		
 	}
 
 	/**
@@ -873,7 +863,7 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			 System.out.println("responseInBytes: " + responseInBytes);  /* */
+			System.out.println("-- Tracker notified of download completion.");
 			// close streams
 			fromServer.close();
 		} catch (Exception e) {
