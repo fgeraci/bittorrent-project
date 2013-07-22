@@ -116,11 +116,10 @@ public class Server implements Runnable {
 				System.out.println(" -- Server Terminated --");
 			}
 		}
-<<<<<<< HEAD
+
 		System.out.println("Server initiated OK");
 		
-=======
->>>>>>> 8de38b99a17799c0a18a4d0fd08eec54a662db25
+
 	}
 
 }
