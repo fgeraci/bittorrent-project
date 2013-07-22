@@ -109,6 +109,47 @@ public class Peer implements Runnable {
 	 * Default constructor used for testing from CommandParser interface
 	 */
 	public Peer() {};
+	
+	/**
+	 * Overloaded constructor for accepted peers from the server.
+	 * @param address
+	 * @param port
+	 * @param socket
+	 * @param hashIn
+	 * @param peerID
+	 * @param heapReference
+	 * @param verifyReference
+	 * @param completedReference
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public Peer(final String address, final int port, Socket socket, final byte[] hashIn, final byte[] peerID,
+			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
+			throws UnknownHostException, IOException, Exception {
+		this.IP = address;
+		this.port = port;
+		interestedQueue = new ArrayDeque <Request> ();
+		dataSocket = socket;
+		in = dataSocket.getInputStream();
+		listener = new PeerListener(this, in);
+		out = dataSocket.getOutputStream();
+		hash = hashIn;
+		clientID = peerID;
+		fileHeap = heapReference;
+		verifyHash = verifyReference;
+		completed = completedReference;	// points to bittorrent.completedPieces
+		bitField = new boolean[fileHeap.length];
+		// sha = MessageDigest.getInstance("SHA-1");
+		synchronized(bitField) {
+			for (int i = 0; i < bitField.length; ++i) {
+				bitField[i] = false;
+			}
+		}
+		// added to start a new thread on the instantiation of a peer.
+		Thread peerThread = new Thread(this);
+		peerThread.start();
+	}
 		
 	/**
 	 * It sets the handshake response from the peer.

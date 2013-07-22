@@ -542,6 +542,34 @@ public class Bittorrent {
 	}
 	
 	/**
+	* Creates a new peer connection to an incoming peer from the server.
+	* @param String IPAddress
+	* @param int port
+	* @param Socket socket
+	*/
+	public void connectToIncomingPeer(String IPAddress, int port, Socket socket) {
+		try {
+			Peer p;
+			p = new Peer(	IPAddress,
+							port,
+							socket,
+							Utilities.getHashBytes(this.torrentInfo.info_hash),
+							this.clientID.getBytes(), 
+							this.collection,
+							this.verificationArray,
+							this.completedPieces);
+			// add the peer to the peers list
+			synchronized(peerList) {
+				synchronized(connections) {
+					this.peerList.add(p);
+				}
+			}
+		} catch(Exception e) { // let's hope this wont happen.
+			System.out.println("Failed to connect to incoming peer: "+IPAddress+":"+port);
+		}
+	}
+	
+	/**
 	 * For the sake of Project 0, this will connect to the selected peer.
 	 * Please do not pay attention to the i+1, that's to compensate an i - 1
 	 * on the called method.
@@ -572,6 +600,9 @@ public class Bittorrent {
 		}
 	}
 
+	/**
+	 * It creates a queue for delivery pieces as per their priority.
+	 */
 	private void populateWeightedRequestQueue() {
 		synchronized (weightedRequestQueue) {
 			for (int piece = 0; piece < collection.length - 1; ++piece) {
@@ -655,6 +686,7 @@ public class Bittorrent {
 			}
 		}
 	}
+	
 	/**
 	 * This method is our algorithm for sending requests for the file we are downloading.
 	 */
@@ -767,7 +799,10 @@ public class Bittorrent {
 		}
 	}
 	
+	/**
+	 * We are not really sure what this do.
+	 */
 	private void refreshPeersList() {
-		
+		// stay put for the implementation in incoming episodes!
 	}
 }
