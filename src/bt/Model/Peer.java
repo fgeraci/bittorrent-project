@@ -677,12 +677,14 @@ public class Peer implements Runnable {
 					}
 				}
 				synchronized(completed) {
-					completed[index] = true;
-				}
-				if(bt.isFileCompleted()) {
-					bt.notifyFullyDownloaded(); // notifies tracker
-					bt.saveFile(); // create the downloaded file
-					UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+					if(!bt.isFileCompleted()){
+						completed[index] = true;
+						if(bt.isFileCompleted()) {
+							bt.notifyFullyDownloaded(); // notifies tracker
+							bt.saveFile(); // create the downloaded file
+							UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+						}
+					}
 				}
 			} else {
 				System.out.println("Index # " + index + " failed was not verified.");

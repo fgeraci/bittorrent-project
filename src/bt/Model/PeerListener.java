@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import bt.View.UserInterface;
+
 /**
  * 
  * The main listener thread for each peer this client is connected to.
