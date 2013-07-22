@@ -103,15 +103,19 @@ public class Server implements Runnable {
 		this.initServer(6881, 6889);
 		while(running) {
 			try {
+				// listen for connections
 				Socket newSocket = this.serverSocket.accept();
+				// take the info of the new connection
 				InetAddress IP = newSocket.getInetAddress();
+				int port = newSocket.getPort();
 				String IPAddress = IP.getHostAddress();
+				// send it to the client for connection
+				Bittorrent.getInstance().connectToIncomingPeer(IPAddress, port, newSocket);
+				
 			} catch (Exception e) {
-				System.out.println("-- SERVER ERROR: Failed to connect to incoming peer.");
+				System.out.println(" -- Server Terminated --");
 			}
 		}
-		System.out.println("Server intiated OK");
-		
 	}
 
 }
