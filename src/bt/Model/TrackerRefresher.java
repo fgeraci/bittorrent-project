@@ -24,10 +24,10 @@ public class TrackerRefresher implements Runnable {
 	public void run() {
 		while(this.refresh) {
 			try {
-				Thread.sleep(15*1000);
+				Thread.sleep(10*1000);
 				String[] recentList = this.getPeerList();
 				if(recentList != null) {
-					UserInterface.receiveEvent("Updating peer list...");
+					UserInterface.getInstance().receiveEvent("Updating peer list...");
 				}
 			} catch (Exception e) { /* this should never happen */ }
 		}

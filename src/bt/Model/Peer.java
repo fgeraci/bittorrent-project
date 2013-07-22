@@ -682,7 +682,7 @@ public class Peer implements Runnable {
 				if(bt.isFileCompleted()) {
 					bt.notifyFullyDownloaded(); // notifies tracker
 					bt.saveFile(); // create the downloaded file
-					UserInterface.receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+					UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
 				}
 			} else {
 				System.out.println("Index # " + index + " failed was not verified.");
