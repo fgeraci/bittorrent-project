@@ -30,7 +30,7 @@ public class UserInterface {
 			bittorrent.connectToPeer("128.6.171.5:6986");
 			
 			// 2. wait for getting unchoked.
-			while(bittorrent.peersUnchoked()) {
+			while(bittorrent.peersChoked()) {
 				System.out.println("-- Waiting for all peers to unchoke.");
 				try {
 					Thread.sleep(1500);
@@ -40,11 +40,22 @@ public class UserInterface {
 			}
 			System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 			
+			int peerListSize=bittorrent.getPeerList().size();
+
 			// 3. start bitfields queue
-			for (int i=0; i<bittorrent.getPeerList().size(); i++) {
-				peer = bittorrent.getPeerList().get(i);
+			for (int i=0; i<peerListSize; i++) {
+				Peer peer = bittorrent.getPeerList().get(i);
 				bittorrent.downloadAlgorithm(peer);
 			}
+			try {
+				for (int i=0; i<peerListSize; i++) {
+					Peer peer = bittorrent.getPeerList().get(i);
+					System.out.println("\n\tpeer "+ i +" bitfield:  "+ peer.getBitField().toString());
+					//THIS DOES NOT DISPLAY AS I HOPED//
+				}
+			} catch (Exception e) { 
+				System.err.println(e.getMessage());	
+			}			
 			
 		} catch (NotifyPromptException ne) { // to be triggered just for notification purposes.
 			System.out.println(ne.getMessage());

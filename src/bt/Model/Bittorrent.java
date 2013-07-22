@@ -39,7 +39,7 @@ public class Bittorrent {
 	TrackerRefresher tr;
 	
 	/**
-	 * For each piece, which peer has a true.
+	 * For each piece, indicates which peer has a true.
 	 */
 	private boolean[][] bitfieldPieces;
 	
@@ -93,10 +93,12 @@ public class Bittorrent {
 	 * Input stream from server.
 	 */
 	private DataInputStream readFromServer;
+	
 	/**
 	 * Output stream to server.
 	 */
 	private DataOutputStream writeToServer;
+	
 	/**
 	 * Client socket to communicate with the tracker server.
 	 */
@@ -289,17 +291,29 @@ public class Bittorrent {
 	 */
 	public void queueBitFields() {
 		// do something
+		// I'm trying to get bitfields first!
 	}
 	
 	/**
 	 * Checks if all the peer connections have been unchoked.
 	 * @return boolean True if any peers are choked, false otherwise. 
 	 */
-	public boolean peersUnchoked() {
+	public boolean peersChoked() {
 		for(Peer p : this.peerList) {
 			if(p.isChoked()) return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Checks if a single peer connection has been unchoked.
+	 * @return boolean True if this peer is choked, false otherwise. 
+	 */
+	public boolean peerChoked(Peer peer) {
+		if(peer.isChoked()) 
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -359,16 +373,27 @@ public class Bittorrent {
 	}
 	
 	/**
-	 * It will issue and HTTP GET request to obtain bencoded information 
+	 * It will issue an HTTP GET request to obtain bencoded information 
 	 * about peers and seeds in the server.
 	 * @throws IOException 
 	 */
 	public String sendRequestToTracker() {
+		String response = null;
 		// initializes the server and returns its port
 		this.server = Server.getInstance();
-		int port = this.server.getPort();
 		
-		String response = null;
+		//int port = this.server.getPort();//THIS CALL MIGHT FAIL
+		int port = -1;
+		while (this.server.getPort() == -1) {
+			System.err.println("Waiting for available port...");
+			if (port == -1) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					continue;
+				}
+			}
+		}
 		try {
 			
 			// create the tracker URL for the GET request
@@ -507,7 +532,7 @@ public class Bittorrent {
 	}
 	
 	/**
-	 * Connect to the selected peer. Rustic implementation, but its just a starter.
+	 * Connect to the selected peer. Rustic implementation, but it's just a starter.
 	 * @param peer peer number
 	 */
 	public void connectToPeer(int peer) throws Exception {
@@ -686,9 +711,57 @@ public class Bittorrent {
 			}
 		}
 	}
+	/**
+	 * This method is our default algorithm for sending requests for the file we are downloading.
+	 */
+	public void downloadAlgorithm() throws NotifyPromptException {
+		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
+		
+		Peer peer = null;	//HERE WE MUST CHOOSE THE PEER WE WILL REQUEST FROM//
+		
+		// Implement algorithm here.
+		for (int i = 0; i < collection.length - 1; ++i) {
+			boolean sent = false;
+			// Attempt to request the piece until it succeeds.
+			while (!sent) {
+				try {
+					peer.requestIndex(new Request(i, 0, 16384));
+					peer.requestIndex(new Request(i, 16384, 16384));
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+			sent = false;
+			
+		}
+		boolean sent = false;
+		while (!sent) {
+			if (torrentInfo.file_length > (4.5 * torrentInfo.piece_length)){
+				try {
+					peer.requestIndex(new Request(collection.length -1, 0, 16384));
+					peer.requestIndex(new Request(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length)));
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			} else {
+				try {
+					peer.requestIndex(new Request(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length)));
+					sent = true;
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
+
+		// this.queueBitFields();
+		// throw new NotifyPromptException("Download Algorithm done.");
+		
+	}
 	
 	/**
-	 * This method is our algorithm for sending requests for the file we are downloading.
+	 * This is our TEST method for sending requests for the file we are downloading.
 	 */
 	public void downloadAlgorithm(Peer peer) throws NotifyPromptException {
 		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
@@ -705,8 +778,7 @@ public class Bittorrent {
 					System.err.println(e.getMessage());
 				}
 			}
-			sent = false;
-			
+			sent = false;			
 		}
 		boolean sent = false;
 		while (!sent) {
@@ -767,7 +839,17 @@ public class Bittorrent {
 	 * Notifies the tracker the file was successfully downloaded.
 	 */
 	void notifyFullyDownloaded() {
-		int port = this.server.getPort();
+		int port = -1;
+		while (this.server.getPort() == -1) {
+			System.err.println("Waiting for available port...");
+			if (port == -1) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					continue;
+				}
+			}
+		}
 		this.event = "completed";
 		String response = null;
 		try {	
@@ -800,7 +882,7 @@ public class Bittorrent {
 	}
 	
 	/**
-	 * We are not really sure what this do.
+	 * We are not really sure what this will do.
 	 */
 	private void refreshPeersList() {
 		// stay put for the implementation in incoming episodes!

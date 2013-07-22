@@ -58,13 +58,13 @@ public class RUBTClient {
 			ui = UserInterface.getInstance(bittorrent);
 			UserInterface.receiveEvent(" --> Client successfully initiated. <-- ");
 		} else {
-			System.err.println("ERROR: Insuficient arguments");
+			System.err.println("ERROR: Insufficient arguments");
 			System.out.println("usage: RUBTClient <torrent filename> <output filename>");
 			System.exit(-1);
 		}
 		
 		/** Program's loop
-		System.out.println("Connection Successfull, welcome");
+		System.out.println("Connection Successful, welcome");
 		System.out.println("Input help for commands");
 		// client's loop OR connect directly to a client (for project 0)
 		//RUBTClient.clientLoop(); /* <- Client's loop 
@@ -74,7 +74,7 @@ public class RUBTClient {
 			bittorrent.connectToPeer("128.6.171.4:6929");
 			bittorrent.connectToPeer("128.6.171.5:6986");
 			
-			// 2. wait for getting unchocked.
+			// 2. wait for getting unchoked.
 			while(bittorrent.peersUnchocked()) {
 				System.out.println("-- Waiting for all peers to unchoke.");
 				try {
@@ -83,7 +83,7 @@ public class RUBTClient {
 					e.getMessage();
 				}
 			}
-			System.out.println("-- All peers are unchocked, start DownloadingAlgorithm --");
+			System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 			
 			// 3. start bitfields queue
 			bittorrent.downloadAlgorithm();
