@@ -511,7 +511,6 @@ public class Bittorrent {
 	 * @param peer peer number
 	 */
 	public void connectToPeer(int peer) throws Exception {
-		Peer p;
 		peer = peer - 1;
 		// create peer, attempt connection, feed arguments.
 		if(peer < 0 || peer >= this.peers.length) {
@@ -524,7 +523,7 @@ public class Bittorrent {
 			int port = Utilities.getPortFromString(this.peers[peer]);
 			System.out.println();
 			// attempt peer
-			p = new Peer(	ip,
+			Peer p = new Peer(	ip,
 								port,
 								Utilities.getHashBytes(this.torrentInfo.info_hash),
 								this.clientID.getBytes(), 

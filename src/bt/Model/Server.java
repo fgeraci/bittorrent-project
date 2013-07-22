@@ -110,7 +110,7 @@ public class Server implements Runnable {
 				System.out.println("-- SERVER ERROR: Failed to connect to incoming peer.");
 			}
 		}
-		System.out.println("Server intiated OK");
+		System.out.println("Server initiated OK");
 		
 	}
 
