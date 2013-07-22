@@ -384,7 +384,7 @@ public class Bittorrent {
 		
 		//int port = this.server.getPort();//THIS CALL MIGHT FAIL
 		int port = -1;
-		while (this.server.getPort() == -1) {
+		while ((port=this.server.getPort()) == -1) {
 			System.err.println("Waiting for available port...");
 			if (port == -1) {
 				try {
@@ -840,7 +840,7 @@ public class Bittorrent {
 	 */
 	void notifyFullyDownloaded() {
 		int port = -1;
-		while (this.server.getPort() == -1) {
+		while ((port=this.server.getPort()) == -1) {
 			System.err.println("Waiting for available port...");
 			if (port == -1) {
 				try {
