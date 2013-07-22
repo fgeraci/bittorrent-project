@@ -26,6 +26,11 @@ import bt.View.UserInterface;
 public class Peer implements Runnable {
 	
 	/**
+	 * This boolean determines whether is a requested by client or incoming connection.
+	 */
+	private boolean incoming = false;
+	
+	/**
 	 * Actual bytes of torrent files by pieces.
 	 */
 	private byte[][] fileHeap = null;
@@ -166,6 +171,7 @@ public class Peer implements Runnable {
 				bitField[i] = false;
 			}
 		}
+		this.incoming = true; // tells this is going to initiate the handshake.
 		// added to start a new thread on the instantiation of a peer.
 		Thread peerThread = new Thread(this);
 		peerThread.start();
@@ -187,7 +193,9 @@ public class Peer implements Runnable {
 	 * requested file pieces to that peer.
 	 */
 	public void run() {
-		handShake();
+		if(!this.incoming) {
+			handShake();
+		}
 		Thread listenerThread = new Thread(listener);
 		listenerThread.start(); // changed, it was run(), which won't start a new thread.
 		// This will block until the handshake was done and we can start downloading.
