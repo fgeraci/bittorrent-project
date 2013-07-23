@@ -54,6 +54,16 @@ public class CommandParser {
 				// call Bittorrent client method to connect to peer.
 			} catch (Exception e) { System.out.println(e.getMessage()); }
 			break;
+		case "connections":
+			System.out.println("Connections: ");
+			if(Bittorrent.getInstance().getPeerList().size() > 0) {
+				for(Peer p : Bittorrent.getInstance().getPeerList() ) {
+					System.out.println("\t"+p);
+				}
+			} else {
+				System.out.println("\tNo one.");
+			}
+			break;
 		default:
 			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}
@@ -66,6 +76,7 @@ public class CommandParser {
 		System.out.println("\nHELP ---------------------------");
 		System.out.println("help - Available Commands (so far)");
 		System.out.println("connect - Select a peer and attempt connection.");
+		System.out.println("connections - list all active TCP sessions");
 		System.out.println("printpeers - Print list of available peers");
 		System.out.println("serverstatus - server's bound status.");
 		System.out.println("quit - terminates the client.");
