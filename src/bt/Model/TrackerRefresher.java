@@ -10,12 +10,51 @@ import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
 import bt.View.UserInterface;
 
+
+/**
+ * This class will contact the Tracker periodically for refreshing event status and peers list.
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
+ *
+ */
+
 public class TrackerRefresher implements Runnable {
 
 	private boolean refresh = true;
 	private TorrentInfo torrentInfo;
+	private static TrackerRefresher instance = null;
 	
-	public TrackerRefresher(TorrentInfo ti, String[] peers, List<Peer> peerList) {
+	/**
+	 * Access a single tracker refresher instance.
+	 * @param TorrentInfo ti
+	 * @param String[] peers
+	 * @param List peerList
+	 * @return
+	 */
+	public static TrackerRefresher getInstance(TorrentInfo ti, String[] peers, List<Peer> peerList) {
+		if(TrackerRefresher.instance == null) {
+			TrackerRefresher.instance = new TrackerRefresher(ti, peers, peerList);
+		}
+		return TrackerRefresher.instance;
+	}
+	
+	/**
+	 * Provides an already instantiated single tracker refresher instance.
+	 * @return
+	 */
+	public static TrackerRefresher getInstance() {
+		if(TrackerRefresher.instance == null) {
+			throw new IllegalAccessError("Tracker Refresher was never instantiated.");
+		}
+		return TrackerRefresher.instance;
+	}
+	
+	/**
+	 * Constructs a tracker refresher instance.
+	 * @param ti
+	 * @param peers
+	 * @param peerList
+	 */
+	private TrackerRefresher(TorrentInfo ti, String[] peers, List<Peer> peerList) {
 		this.torrentInfo = ti;
 		Thread thread = new Thread(this);
 		thread.start();
@@ -33,6 +72,10 @@ public class TrackerRefresher implements Runnable {
 		}
 	}
 	
+	/**
+	 * Refreshes the peers list.
+	 * @return String[] peers list
+	 */
 	private String[] getPeerList() {
 		
 		try {
@@ -68,5 +111,25 @@ public class TrackerRefresher implements Runnable {
 			fromServer.close();
 			return newList;
 		} catch (Exception e) { return null; }
+	}
+	
+	/**
+	 * Notifies the tracker that the client is stopping.
+	 */
+	public void notifyClose() throws Exception {
+		Server server = Server.getInstance();
+		int port = server.getPort();
+		Bittorrent bt = Bittorrent.getInstance();
+		bt.setEvent("stopped");
+		// create the tracker URL for the GET request
+		URL tracker = new URL(
+			this.torrentInfo.announce_url+
+			"?info_hash="+Utilities.encodeInfoHashToURL(bt.getInfoHash())+
+			"&peer_id="+bt.getPeerId()+
+			"&port="+port+
+			"&uploaded="+ bt.getUploaded()+
+			"&downloaded="+ bt.getDownloaded()+
+			"&left="+ bt.getLeft()+
+			"&event="+ bt.getEvent());
 	}
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import bt.Model.Bittorrent;
+import bt.Model.TrackerRefresher;
 
 /**
  * A pure utilities class filled of static methods for specific tasks.
@@ -139,9 +140,12 @@ public class Utilities {
 	  */
 	 public static void callClose() {
 		 try {
+			 
 			 Bittorrent.getInstance().stopServer();
 			 Bittorrent.getInstance().disposePeers();
 			 System.out.println("\n -- Client Terminated -- ");
+			 System.out.println("\t> Peers disposed");
+			 System.out.println("\t> Tracker Notified");
 			 System.exit(0);
 		 } catch (Exception e) { /* this should never happen */	 } 
 	 }

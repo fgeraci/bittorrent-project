@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.PriorityBlockingQueue;
+
 import bt.Exceptions.NotifyPromptException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
@@ -197,7 +198,7 @@ public class Bittorrent {
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
-			this.tr = new TrackerRefresher(this.torrentInfo, this.peers, this.peerList);
+			this.tr = TrackerRefresher.getInstance(this.torrentInfo, this.peers, this.peerList);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -519,6 +520,7 @@ public class Bittorrent {
 	 * @throws IOException
 	 */
 	public void stopServer() throws IOException, Exception {
+		TrackerRefresher.getInstance().notifyClose();
 		this.server.terminateServer();
 	}
 	
@@ -876,6 +878,17 @@ public class Bittorrent {
 			fromServer.close();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Changes the event status from the client.
+	 * @param String event
+	 */
+	public void setEvent(String event) {
+		switch(event) {
+		case "started": case "stopped": case "completed":
+			this.event = event;
 		}
 	}
 
