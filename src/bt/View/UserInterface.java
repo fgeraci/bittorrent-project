@@ -77,8 +77,9 @@ public class UserInterface implements Runnable {
 			try {
 				for (int i=0; i<peerListSize; i++) {
 					Peer peer = bittorrent.getPeerList().get(i);
-					System.out.println("\n\tpeer "+ i +" bitfield:  "+ Utilities.bitFieldToString(peer.getBitField()));
-					//THIS DOES NOT DISPLAY AS I HOPED// NOW IT DOES
+					System.out.println("\tpeer "+ 
+							bittorrent.getPeerList().get(i).toString() +" bitfield:  "+ 
+							Utilities.bitFieldToString(peer.getBitField()));
 				}
 				System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 				this.clientLoop();
