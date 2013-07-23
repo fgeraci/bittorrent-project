@@ -57,7 +57,7 @@ class PeerListener implements Runnable {
 	}
 	
 	/**
-	 * This method is called when a message has been received and we have not completed handshaking
+	 * This method is called when a message has been received and we have not yet completed handshaking
 	 * successfully.
 	 */
 	void receiveHandshake() {		
@@ -68,16 +68,18 @@ class PeerListener implements Runnable {
 			System.out.println(">>> Listening from Peer : "+this.parent+"...");
 			this.parent.validateInfoHash(tcpArray);
 			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
+			// this is optional if client has no pieces
 			try { if (!Bittorrent.getInstance().noPieces())
-				this.parent.sendBitfield(); // this is optional if client has no pieces
+				this.parent.sendBitfield(); 
 			} catch (Exception e) {
 				System.err.println(e.getMessage());}
+			// initiate an open communication with the parent peer of this listener
 			this.parent.showInterested();
 			this.parent.unChoke();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// This just means we are off slightly on our timing.
+				// This just means we are ahead slightly with our timing.
 			} 
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
