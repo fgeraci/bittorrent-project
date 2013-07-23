@@ -341,6 +341,14 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * @return boolean value as to whether client has downloaded no pieces at all
+	 */
+	public boolean noPieces() {
+		if (this.downloaded == 0) return true;
+		else return false;
+	}
+	
+	/**
 	 * Returns left bytes.
 	 * @return int bytes left
 	 */
@@ -799,7 +807,7 @@ public class Bittorrent {
 	 * Closes and saves the file after the client successfully downloaded it.
 	 * @throws IOException
 	 */
-	public void saveFile () throws IOException {
+	public void saveFile() throws IOException {
 		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
@@ -870,7 +878,7 @@ public class Bittorrent {
 			System.err.println(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * We are not really sure what this will do.
 	 */

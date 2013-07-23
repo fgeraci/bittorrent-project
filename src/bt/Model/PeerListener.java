@@ -37,11 +37,11 @@ class PeerListener implements Runnable {
 	 */
 	public void run() {
 		while(running) {
-			if(!parent.peerAccepted) {
+			if(!this.parent.peerAccepted) {
 				receiveHandshake();
 			} else {
-				try {
-					readLine();
+				try { // ...reading InputStream to this instance
+					this.readLine();
 					try {
 						Thread.sleep(400);
 					} catch (InterruptedException e) {
@@ -63,14 +63,17 @@ class PeerListener implements Runnable {
 	void receiveHandshake() {		
 		byte[] tcpArray = new byte[68];
 		try {
-			in.read(tcpArray);
+			this.in.read(tcpArray);
 			System.out.println("<<< Data received, processing...");
 			System.out.println(">>> Listening from Peer : "+this.parent+"...");
-			parent.validateInfoHash(tcpArray);
-			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+parent+" -");
-			parent.showInterested();
-			parent.sendBitfield();
-			parent.unChoke();
+			this.parent.validateInfoHash(tcpArray);
+			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
+			try { if (!Bittorrent.getInstance().noPieces())
+				this.parent.sendBitfield(); // this is optional if client has no pieces
+			} catch (Exception e) {
+				System.err.println(e.getMessage());}
+			this.parent.showInterested();
+			this.parent.unChoke();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -82,16 +85,18 @@ class PeerListener implements Runnable {
 	}
 	
 	/**
-	 * This method handles any incoming message once hanshaking has been completed successfully.
+	 * This method handles any incoming message once handshaking has been completed successfully.
 	 * @throws IOException IOException is thrown when we cannot read from the TCP buffer.
 	 */
 	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
-		in.read(lengthArray, 0, 4);
+		this.in.read(lengthArray, 0, 4);
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
 		int length = lengthBuffer.getInt();
 		byte[] tcpArray = new byte[length];
-		in.read(tcpArray, 0, length);
+		// read message from the remote parent peer of this instance
+		this.in.read(tcpArray, 0, length);
+		// load message into ByteBuffer container for convenience
 		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 		if (length == 0) {
 			parent.updateTimout();  // This is a keep alive
@@ -161,8 +166,8 @@ class PeerListener implements Runnable {
 	 */
 	void dispose () {
 		running = false;
-		in = null;
-		parent = null;
+		this.in = null;
+		this.parent = null;
 	}
 	
 }

@@ -357,7 +357,7 @@ public class Peer implements Runnable {
 	/**
 	 * This method is called by the PeerListener child of this object when a piece of the file is received
 	 * from the peer this object represents.  If this piece is already marked completed, we will assume that
-	 * this peer's have message has been lost, and will resend it.  If it is not marked completed, we will
+	 * this peer's 'have' message has been lost, and will resend it.  If it is not marked completed, we will
 	 * add this data to the fileHeap and attempt to verify that the piece is complete.
 	 * @param index The index of this piece of the file.
 	 * @param begin The base zero offset from the beginning of this piece where the payload begins.
@@ -633,7 +633,7 @@ public class Peer implements Runnable {
 	
 /**
  * This method verifies that the piece of the file with the given index is complete and valid.  If the
- * file is complete and valid, It will be marked complete in the completed array, and a The peer will be
+ * file is complete and valid, It will be marked complete in the completed array, and the peer will be
  * sent a have message.
  * @param index The piece of the file being verified
  * @throws Exception This exception is thrown if there is no existing instance of the BitTorrent class.
@@ -646,6 +646,7 @@ public class Peer implements Runnable {
 			if (index < fileHeap.length - 1) {
 				toDigest = new byte[bt.pieceLength];
 				synchronized(fileHeap) {
+					// load full-sized piece to be hashed
 					for(int i = 0; i < toDigest.length; ++i) {
 						toDigest[i] = fileHeap[index][i];
 					}
@@ -653,20 +654,25 @@ public class Peer implements Runnable {
 			} else {
 				toDigest = new byte[bt.getFileLength() - ((fileHeap.length-1)*bt.pieceLength)];
 				synchronized(fileHeap) {
+					// load possibly partial-sized piece to be hashed
 					for(int i = 0; i < toDigest.length; ++i) {
 						toDigest[i] = fileHeap[index][i];
 					}
 				}
 			}
+			// hash this piece 
 			byte[] test = sha.digest(toDigest);
-			if (sameArray(verifyHash[index], test)) {
+			// test the piece
+			if (sameArray(verifyHash[index], test)) { 
+				// piece hash is correct
 				System.out.println("We have completed piece: " + index);
 				boolean sent = false;
 				// This is a bit complicated looking, but this block attempts to send a have message every
 				// 50 Milliseconds until it succeeds.
 				while (!sent) {
 					try {
-						showFinished(index);
+						// Notify this peer that client now has piece
+						this.showFinished(index);
 						sent = true;
 					} catch (IOException e) {
 						try {
@@ -686,7 +692,7 @@ public class Peer implements Runnable {
 						}
 					}
 				}
-			} else {
+			} else { // piece hash is incorrect
 				System.out.println("Index # " + index + " failed was not verified.");
 			}
 		} catch (NoSuchAlgorithmException e) {
