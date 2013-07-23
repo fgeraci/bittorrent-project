@@ -807,7 +807,7 @@ public class Bittorrent {
 	 * Closes and saves the file after the client successfully downloaded it.
 	 * @throws IOException
 	 */
-	public void saveFile() throws IOException {
+	public void saveFile () throws IOException {
 		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
