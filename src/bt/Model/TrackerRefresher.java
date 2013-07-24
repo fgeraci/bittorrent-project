@@ -90,7 +90,7 @@ public class TrackerRefresher implements Runnable {
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(bt.getInfoHash())+
 				"&peer_id="+bt.getPeerId()+
-				"&port="+port+
+				"&port="+Server.getInstance().getPort()+
 				"&uploaded="+ bt.getUploaded()+
 				"&downloaded="+ bt.getDownloaded()+
 				"&left="+ bt.getLeft()+

@@ -176,6 +176,14 @@ public class Peer implements Runnable {
 		Thread peerThread = new Thread(this);
 		peerThread.start();
 	}
+	
+	/**
+	 * If the peer is incoming is True, false otherwise.
+	 * @return boolean True or False
+	 */
+	public boolean isIncoming() {
+		return this.incoming;
+	}
 		
 	/**
 	 * It sets the handshake response from the peer.
@@ -195,7 +203,10 @@ public class Peer implements Runnable {
 	public void run() {
 		if(!this.incoming) {
 			handShake();
+		} else {
+			this.listener.receiveHandshake();
 		}
+		
 		Thread listenerThread = new Thread(listener);
 		listenerThread.start(); // changed, it was run(), which won't start a new thread.
 		// This will block until the handshake was done and we can start downloading.
@@ -562,7 +573,7 @@ public class Peer implements Runnable {
 	/**
 	 * Performs the handshake to open connection with peer.
 	 */
-	private void handShake() {
+	public void handShake() {
  		byte[] handShakeBA = new byte[68];		
 		ByteBuffer handShakeBB = ByteBuffer.allocate(68);
 		String btProtocol = "BitTorrent protocol";

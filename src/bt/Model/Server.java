@@ -66,7 +66,7 @@ public class Server implements Runnable {
 		while(true) {
 			try {
 				this.serverSocket = new ServerSocket(port);
-				this.port = port;
+				this.port = this.serverSocket.getLocalPort();
 				// ss.close();
 				break;
 			} catch (Exception e) {
@@ -77,6 +77,17 @@ public class Server implements Runnable {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Returns the IP:port string representation.
+	 * I need to look into this.
+	 */
+	public void serverInfo() {
+		InetAddress IP = this.serverSocket.getInetAddress();
+		String ipString = IP.getHostAddress();
+		int port = this.serverSocket.getLocalPort();
+		System.out.println("Server Address > "+ipString+":"+port);
 	}
 	
 	/**

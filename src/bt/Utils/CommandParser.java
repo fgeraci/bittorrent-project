@@ -33,7 +33,8 @@ public class CommandParser {
 			break;
 		case "serverstatus":
 			if(Server.getInstance().getServerStatus()) {
-				System.out.println("Server bound to client");
+				System.out.println("Server listening...");
+				Server.getInstance().serverInfo();
 			} else {
 				System.out.println("Server unbound: listening for incoming connections");
 			}

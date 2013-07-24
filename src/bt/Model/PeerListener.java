@@ -67,6 +67,9 @@ class PeerListener implements Runnable {
 			System.out.println("<<< Data received, processing...");
 			System.out.println(">>> Listening from Peer : "+this.parent+"...");
 			this.parent.validateInfoHash(tcpArray);
+			if(parent.isIncoming()) {
+				parent.handShake();
+			}
 			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
 			// this is optional if client has no pieces
 			try { if (!Bittorrent.getInstance().noPieces())
