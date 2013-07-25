@@ -712,16 +712,31 @@ public class Bittorrent {
 	}
 	
 	public void downloadAlgorithm() {
-		updateWeights();
-		synchronized(weightedRequestQueue) {
-			synchronized (peerList) {
-				for (WeightedRequest req: weightedRequestQueue) {
-					for (Peer peer: peerList) {
-						if (peer.peerHasPiece(req.getIndex())) {
-							peer.requestIndex(req.getRequest());
+		while(!isFileCompleted()) {
+			updateWeights();
+			synchronized(weightedRequestQueue) {
+				synchronized (peerList) {
+					for (WeightedRequest req: weightedRequestQueue) {
+						for (Peer peer: peerList) {
+							if (peer.getPendingRequests() < 3 && peer.peerHasPiece(req.getIndex())) {
+								boolean sent = false;
+								while (!sent) {
+									try {
+										peer.requestIndex(req.getRequest());
+										sent = true;
+									} catch (IOException e) {
+										//do nothing here and try again.
+									}
+								}
+							}
 						}
 					}
 				}
+			}
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				continue;
 			}
 		}
 	}
@@ -740,92 +755,6 @@ public class Bittorrent {
 		synchronized(weightedRequestQueue) {
 			for (WeightedRequest req: weightedRequestQueue) {
 				req.update(weights[req.getIndex()]);
-			}
-		}
-	}
-	
-	/**
-	 * This method is our default algorithm for sending requests for the file we are downloading.
-	 *
-	public void downloadAlgorithm() throws NotifyPromptException {
-		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
-		
-		Peer peer = null;	//HERE WE MUST CHOOSE THE PEER WE WILL REQUEST FROM//
-		
-		// Implement algorithm here.
-		for (int i = 0; i < collection.length - 1; ++i) {
-			boolean sent = false;
-			// Attempt to request the piece until it succeeds.
-			while (!sent) {
-				try {
-					peer.requestIndex(new Request(i, 0, 16384));
-					peer.requestIndex(new Request(i, 16384, 16384));
-					sent = true;
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
-			}
-			sent = false;
-			
-		}
-		boolean sent = false;
-		while (!sent) {
-			if (torrentInfo.file_length > (4.5 * torrentInfo.piece_length)){
-				try {
-					peer.requestIndex(new Request(collection.length -1, 0, 16384));
-					peer.requestIndex(new Request(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length)));
-					sent = true;
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
-			} else {
-				try {
-					peer.requestIndex(new Request(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length)));
-					sent = true;
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
-			}
-		}
-	}
-	
-	/**
-	 * This is our TEST method for sending requests for the file we are downloading.
-	 *
-	public void downloadAlgorithm(Peer peer) throws NotifyPromptException {
-		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
-		// Implement algorithm here.
-		for (int i = 0; i < collection.length - 1; ++i) {
-			boolean sent = false;
-			// Attempt to request the piece until it succeeds.
-			while (!sent) {
-				try {
-					peer.requestIndex(new Request(i, 0, 16384));
-					peer.requestIndex(new Request(i, 16384, 16384));
-					sent = true;
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
-			}
-			sent = false;			
-		}
-		boolean sent = false;
-		while (!sent) {
-			if (torrentInfo.file_length > (4.5 * torrentInfo.piece_length)){
-				try {
-					peer.requestIndex(new Request(collection.length -1, 0, 16384));
-					peer.requestIndex(new Request(collection.length -1, 16384, torrentInfo.file_length - (int) (4.5 * torrentInfo.piece_length)));
-					sent = true;
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
-			} else {
-				try {
-					peer.requestIndex(new Request(collection.length -1, 0,  torrentInfo.file_length - (4 * torrentInfo.piece_length)));
-					sent = true;
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-				}
 			}
 		}
 	}
@@ -944,5 +873,13 @@ public class Bittorrent {
 				// set connected to false;
 			}
 		}
+	}
+
+	/**
+	 * Returns a clone of our PeerList
+	 * @return a clone of our PeerList
+	 */
+	public LinkedList<Peer> getPeerList() {
+		return (LinkedList<Peer>)((LinkedList<Peer>) this.peerList).clone();
 	}
 }
