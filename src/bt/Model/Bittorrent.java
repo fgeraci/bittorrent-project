@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -36,11 +37,6 @@ public class Bittorrent {
 	 * Will communicate with the tracker every N seconds.
 	 */
 	TrackerRefresher tr;
-	
-	/**
-	 * For each piece, indicates which peer has a true.
-	 */
-	private boolean[][] bitfieldPieces;
 	
 	/**
 	 * Size of each piece
@@ -298,8 +294,10 @@ public class Bittorrent {
 	 * @return boolean True if any peers are choked, false otherwise. 
 	 */
 	public boolean peersChoked() {
-		for(Peer p : this.peerList) {
-			if(p.isChoked()) return true;
+		synchronized(peerList) {
+			for(Peer p : this.peerList) {
+				if(p.isChoked()) return true;
+			}
 		}
 		return false;
 	}
@@ -370,13 +368,6 @@ public class Bittorrent {
 	 */
 	public String getEvent() {
 		return this.event;
-	}
-	
-	/**
-	 * Returns reference to this.peerList
-	 */
-	public List<Peer> getPeerList() {
-		return this.peerList;
 	}
 	
 	/**
@@ -719,9 +710,43 @@ public class Bittorrent {
 			}
 		}
 	}
+	
+	public void downloadAlgorithm() {
+		updateWeights();
+		synchronized(weightedRequestQueue) {
+			synchronized (peerList) {
+				for (WeightedRequest req: weightedRequestQueue) {
+					for (Peer peer: peerList) {
+						if (peer.peerHasPiece(req.getIndex())) {
+							peer.requestIndex(req.getRequest());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private void updateWeights() {
+		int[] weights = new int[pieces];
+		synchronized(peerList) {
+			for (Peer peer: peerList) {
+				for (int index = 0; index < this.pieces; index++) {
+					if (peer.peerHasPiece(index)) {
+						++weights[index];
+					}
+				}
+			}
+		}
+		synchronized(weightedRequestQueue) {
+			for (WeightedRequest req: weightedRequestQueue) {
+				req.update(weights[req.getIndex()]);
+			}
+		}
+	}
+	
 	/**
 	 * This method is our default algorithm for sending requests for the file we are downloading.
-	 */
+	 *
 	public void downloadAlgorithm() throws NotifyPromptException {
 		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
 		
@@ -766,7 +791,7 @@ public class Bittorrent {
 	
 	/**
 	 * This is our TEST method for sending requests for the file we are downloading.
-	 */
+	 *
 	public void downloadAlgorithm(Peer peer) throws NotifyPromptException {
 		this.bitfieldPieces = new boolean[this.pieces][this.peerList.size()];
 		// Implement algorithm here.

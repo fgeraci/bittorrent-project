@@ -55,6 +55,7 @@ public class Peer implements Runnable {
 	 */
 	private PeerListener listener = null;
 	
+	private int pendingRequests;
 	private boolean choked = true;
 	private boolean interested = false;
 	private Socket dataSocket = null;
@@ -424,6 +425,7 @@ public class Peer implements Runnable {
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
+		this.pendingRequests++;
 		System.out.println("-- Piece: "+request.getIndex()+" From: "+request.getBegin()+" Bytes:  "+request.getLength()+" requested from " + this);
 	}
 	
@@ -511,12 +513,13 @@ public class Peer implements Runnable {
 	}
 	
 	/**
-	 * BitField boolean getter.
-	 * @return boolean[] bitfield.
+	 * This method is used to determine if a peer has a piece of the file being downloaded.
+	 * @param index the piece of the file being queried
+	 * @return true if the peer this object represents has that piece of the file, false otherwise.
 	 */
-	public boolean[] getBitField() {
-		synchronized(bitField) {
-			return this.bitField.clone();
+	boolean peerHasPiece(int index) {
+		synchronized (bitField) {
+			return bitField[index];
 		}
 	}
 	
@@ -677,6 +680,7 @@ public class Peer implements Runnable {
 			if (sameArray(verifyHash[index], test)) { 
 				// piece hash is correct
 				System.out.println("We have completed piece: " + index);
+				this.pendingRequests--;
 				boolean sent = false;
 				// This is a bit complicated looking, but this block attempts to send a have message every
 				// 50 Milliseconds until it succeeds.
@@ -729,6 +733,10 @@ public class Peer implements Runnable {
 			}
 		}
 		return true;
+	}
+	
+	public int getPendingRequests() {
+		return this.pendingRequests;
 	}
 	
 	/**
