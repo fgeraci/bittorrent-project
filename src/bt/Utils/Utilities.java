@@ -20,6 +20,7 @@ import bt.Model.TrackerRefresher;
 public class Utilities {
 	
 	public static final int MAX_PIECE_LENGTH = 16384;
+	public static final int MAX_TIMEOUT = 120000;
 	
 	/**
 	 * Returns a byte stream from the given file.

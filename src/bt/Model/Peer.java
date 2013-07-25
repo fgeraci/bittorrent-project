@@ -166,7 +166,6 @@ public class Peer implements Runnable {
 		verifyHash = verifyReference;
 		completed = completedReference;	// points to bittorrent.completedPieces
 		bitField = new boolean[fileHeap.length];
-		// sha = MessageDigest.getInstance("SHA-1");
 		synchronized(bitField) {
 			for (int i = 0; i < bitField.length; ++i) {
 				bitField[i] = false;
@@ -176,6 +175,7 @@ public class Peer implements Runnable {
 		// added to start a new thread on the instantiation of a peer.
 		Thread peerThread = new Thread(this);
 		peerThread.start();
+		updateTimeout();
 	}
 	
 	/**
@@ -212,33 +212,41 @@ public class Peer implements Runnable {
 		listenerThread.start(); // changed, it was run(), which won't start a new thread.
 		// This will block until the handshake was done and we can start downloading.
 		
-		while(running) {	// This is the file sending loop. 
-			if (interestedQueue.isEmpty()) {
+		while(running) {	// This is the file sending loop.
+			if (this.timeout.getTime() - new Date().getTime() > Utilities.MAX_TIMEOUT) {
 				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					continue;
+					Bittorrent.getInstance().terminatePeer(this.IP);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			} else {
-				if (interested && !choked) {
-					synchronized (interestedQueue) {
-						Request toSend = interestedQueue.poll();
-						if (completed[toSend.getIndex()]) {
-							send(toSend);
-						} else {
-							interestedQueue.offer(toSend);
+				if (interestedQueue.isEmpty()) {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						continue;
+					}
+				} else {
+					if (interested && !choked) {
+						synchronized (interestedQueue) {
+							Request toSend = interestedQueue.poll();
+							if (completed[toSend.getIndex()]) {
+								send(toSend);
+							} else {
+								interestedQueue.offer(toSend);
+							}
 						}
 					}
 				}
-			}
-		}					// This is the end of the file sending loop.
+			}					// This is the end of the file sending loop.
+		}
 	}
 	
 	/**
 	 * When called, this method replaces timeout with a new Date object, which by default is set to
 	 * the current date and time.
 	 */
-	void updateTimout () {
+	void updateTimeout () {
 		timeout = new Date();
 	}
 	
@@ -376,6 +384,7 @@ public class Peer implements Runnable {
 	 * @param payload A byte array of the incoming data.
 	 */
 	void getPiece (int index, int begin, byte[] payload) {
+		updateTimeout();
 		if (completed[index]) {
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every
@@ -435,6 +444,7 @@ public class Peer implements Runnable {
 	 * @param index The index of the piece that the peer has requested.
 	 */
 	void requestReceived (int index, int begin, int length) {
+		updateTimeout();
 		if (length > Utilities.MAX_PIECE_LENGTH) {;} // may drop connection
 		synchronized(interestedQueue) {
 			interestedQueue.add(new Request(index, begin, length));
@@ -463,6 +473,7 @@ public class Peer implements Runnable {
 	 * @param index The index of the piece that the peer has acknowledged complete..
 	 */
 	void haveReceived (int index) {
+		updateTimeout();
 		synchronized (interestedQueue) {
 			synchronized (bitField) {
 				bitField[index] = true;
@@ -489,6 +500,7 @@ public class Peer implements Runnable {
 	}
 	
 	void receiveBitfield(byte[] bitfield) {
+		updateTimeout();
 		byte[] pieces = new byte[bitfield.length-1]; // substract the length of the bitfield's bytes.
 		for(int i = 0; i < pieces.length; ++i) {
 			pieces[i] = bitfield[i+1]; 
@@ -551,6 +563,7 @@ public class Peer implements Runnable {
 	 * @param value Value for interested flag.
 	 */
 	void setInterested (boolean value) {
+		updateTimeout();
 		interested = value;
 		if (!value) {
 			synchronized(interestedQueue) {
@@ -565,6 +578,7 @@ public class Peer implements Runnable {
 	 * @param value Value for the choked flag.
 	 */
 	void setChoke (boolean value) {
+		updateTimeout();
 		this.choked = value;
 		if (value) {
 			synchronized(interestedQueue) {

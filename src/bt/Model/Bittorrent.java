@@ -725,7 +725,11 @@ public class Bittorrent {
 										peer.requestIndex(req.getRequest());
 										sent = true;
 									} catch (IOException e) {
-										//do nothing here and try again.
+										try {
+											Thread.sleep(50);
+										} catch (InterruptedException e1) {
+											continue;
+										}
 									}
 								}
 							}

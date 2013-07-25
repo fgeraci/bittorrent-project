@@ -70,17 +70,8 @@ public class UserInterface implements Runnable {
 			int peerListSize = bittorrent.getPeerList().size();
 
 			// 3. start bitfields queue
-			for (int i=0; i<peerListSize; i++) {
-				Peer peer = bittorrent.getPeerList().get(i);
-				bittorrent.downloadAlgorithm(peer);
-			}
+			bittorrent.downloadAlgorithm();
 			try {
-				for (int i=0; i<peerListSize; i++) {
-					Peer peer = bittorrent.getPeerList().get(i);
-					System.out.println("\tpeer "+ 
-							bittorrent.getPeerList().get(i).toString() +" bitfield:  "+ 
-							Utilities.bitFieldToString(peer.getBitField()));
-				}
 				System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 				this.clientLoop();
 			} catch (Exception e) { 

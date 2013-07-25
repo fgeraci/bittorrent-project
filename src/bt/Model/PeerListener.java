@@ -107,7 +107,7 @@ class PeerListener implements Runnable {
 		// load message into ByteBuffer container for convenience
 		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 		if (length == 0) {
-			parent.updateTimout();  // This is a keep alive
+			parent.updateTimeout();  // This is a keep alive
 			} else {
 			switch (tcpArray[0]) {
 			case 0:	// choke
