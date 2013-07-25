@@ -887,6 +887,10 @@ public class Bittorrent {
 	 * @return a clone of our PeerList
 	 */
 	public LinkedList<Peer> getPeerList() {
-		return (LinkedList<Peer>)((LinkedList<Peer>) this.peerList).clone();
+		List<Peer> linkedList = new LinkedList<Peer>();
+		for(Peer p: this.peerList) {
+			linkedList.add(p);
+		}
+		return (LinkedList<Peer>)linkedList;
 	}
 }
