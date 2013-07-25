@@ -898,4 +898,26 @@ public class Bittorrent {
 	private void refreshPeersList() {
 		// stay put for the implementation in incoming episodes!
 	}
+	
+	/**
+	 * It terminates gracefully a connection to a peer.
+	 * @param String peer
+	 */
+	public void terminatePeer(String peer) {
+		for(Peer p : this.peerList) {
+			if(peer.equals(p)) {
+				p.dispose();
+				// I will complete these eventually.
+				this.peerList.remove((Peer)p);
+				/*
+				for(int i = 0; i < this.peers.length; ++i) {
+					if(p.toString().equals(this.peers[i])) {
+						
+					}
+				}*/
+				// remove from lists
+				// set connected to false;
+			}
+		}
+	}
 }
