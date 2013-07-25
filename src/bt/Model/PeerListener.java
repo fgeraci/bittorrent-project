@@ -48,7 +48,10 @@ class PeerListener implements Runnable {
 						continue;
 						}
 				} catch (IOException e) {
-					System.err.println(e.getMessage());
+					System.err.println(e.getMessage()); // this will be triggered if client drops connection.
+					try {
+						Bittorrent.getInstance().terminatePeer(parent.toString());
+					} catch (Exception ex) { /* why whould this happen? */ }
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -136,9 +139,14 @@ class PeerListener implements Runnable {
 				parent.receiveBitfield(bitfield);
 				break;
 			case 6:	// request
-				parent.requestReceived(tcpInput.getInt(),
-						tcpInput.getInt(),
-						tcpInput.getInt());
+				int requestindex = tcpInput.getInt();
+				int requestbegin = tcpInput.getInt();
+				int requestlength = tcpInput.getInt();
+				UserInterface.getInstance().receiveEvent("<<< Receiving request for index: "+requestindex
+													+" begin: "+requestbegin+
+													" length: "+requestlength);
+				
+				parent.requestReceived(requestindex, requestbegin, requestlength);
 				break;
 			case 7:	// piece
 				System.out.println("-- Piece received from: "+parent+", analyzing...");
