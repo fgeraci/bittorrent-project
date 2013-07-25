@@ -1,6 +1,5 @@
 package bt.Model;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,7 +53,8 @@ public class Peer implements Runnable {
 	 * Peer's PeerListener instance.
 	 */
 	private PeerListener listener = null;
-	
+
+	private Bittorrent parent = null;
 	private int pendingRequests;
 	private boolean choked = true;
 	private boolean interested = false;
@@ -102,13 +102,15 @@ public class Peer implements Runnable {
 	 * of the file.
 	 * @throws UnknownHostException If the address cannot be resolved to a host, this exception will be thrown.
 	 * @throws IOException If a connection cannot be opened to this host, this exception will be thrown.
-	 */	
+	 */
 	
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID,
-			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
+			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference,
+			Bittorrent creator)
 			throws UnknownHostException, IOException, Exception {
 		this.IP = address;
 		this.port = port;
+		this.parent = creator;
 		interestedQueue = new ArrayDeque <Request> ();
 		dataSocket = new Socket(address, port);
 		in = dataSocket.getInputStream();
@@ -129,6 +131,7 @@ public class Peer implements Runnable {
 		// added to start a new thread on the instantiation of a peer.
 		Thread peerThread = new Thread(this);
 		peerThread.start();
+		updateTimeout();
 	}
 	
 	/**
@@ -151,8 +154,9 @@ public class Peer implements Runnable {
 	 * @throws Exception
 	 */
 	public Peer(final String address, final int port, Socket socket, final byte[] hashIn, final byte[] peerID,
-			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference)
+			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference, Bittorrent creator)
 			throws UnknownHostException, IOException, Exception {
+		this.parent = creator;
 		this.IP = address;
 		this.port = port;
 		interestedQueue = new ArrayDeque <Request> ();
@@ -215,7 +219,7 @@ public class Peer implements Runnable {
 		while(running) {	// This is the file sending loop.
 			if (this.timeout.getTime() - new Date().getTime() > Utilities.MAX_TIMEOUT) {
 				try {
-					Bittorrent.getInstance().terminatePeer(this.IP);
+					this.parent.terminatePeer(this.toString());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -410,7 +414,7 @@ public class Peer implements Runnable {
 				}
 			}
 			try {
-				Bittorrent.getInstance().addBytesToPiece(index, offset);
+				this.parent.addBytesToPiece(index, offset);
 			} catch (Exception e) {System.out.println(e.getMessage());}
 			try {
 				verifySHA(index);
@@ -668,11 +672,10 @@ public class Peer implements Runnable {
  */
 	private void verifySHA(int index) throws Exception {
 		try {
-		Bittorrent bt = Bittorrent.getInstance();
 		MessageDigest sha = MessageDigest.getInstance("SHA-1");
 			byte[] toDigest = null;
 			if (index < fileHeap.length - 1) {
-				toDigest = new byte[bt.pieceLength];
+				toDigest = new byte[this.parent.pieceLength];
 				synchronized(fileHeap) {
 					// load full-sized piece to be hashed
 					for(int i = 0; i < toDigest.length; ++i) {
@@ -680,7 +683,7 @@ public class Peer implements Runnable {
 					}
 				}
 			} else {
-				toDigest = new byte[bt.getFileLength() - ((fileHeap.length-1)*bt.pieceLength)];
+				toDigest = new byte[this.parent.getFileLength() - ((fileHeap.length-1)*this.parent.pieceLength)];
 				synchronized(fileHeap) {
 					// load possibly partial-sized piece to be hashed
 					for(int i = 0; i < toDigest.length; ++i) {
@@ -712,11 +715,11 @@ public class Peer implements Runnable {
 					}
 				}
 				synchronized(completed) {
-					if(!bt.isFileCompleted()){
+					if(!this.parent.isFileCompleted()){
 						completed[index] = true;
-						if(bt.isFileCompleted()) {
-							bt.notifyFullyDownloaded(); // notifies tracker
-							bt.saveFile(); // create the downloaded file
+						if(this.parent.isFileCompleted()) {
+							this.parent.notifyFullyDownloaded(); // notifies tracker
+							this.parent.saveFile(); // create the downloaded file
 							UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
 						}
 					}

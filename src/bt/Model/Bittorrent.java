@@ -553,7 +553,8 @@ public class Bittorrent {
 								this.clientID.getBytes(), 
 								this.collection,
 								this.verificationArray,
-								this.completedPieces);
+								this.completedPieces,
+								this);
 			// add the peer to the peers list
 			synchronized(peerList) {
 				synchronized(connections) {
@@ -581,7 +582,8 @@ public class Bittorrent {
 							this.clientID.getBytes(), 
 							this.collection,
 							this.verificationArray,
-							this.completedPieces);
+							this.completedPieces,
+							this);
 			// add the peer to the peers list
 			synchronized(peerList) {
 				synchronized(connections) {
