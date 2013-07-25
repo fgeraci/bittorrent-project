@@ -735,6 +735,7 @@ public class Bittorrent {
 									}
 								}
 							}
+							weightedRequestQueue.remove(req);
 						}
 					}
 				}
