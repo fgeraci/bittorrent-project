@@ -1,5 +1,6 @@
 package bt.Model;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -100,9 +101,9 @@ public class Server implements Runnable {
 	
 	/**
 	 * Closes the current TCP connection.
-	 * @throws Exception
+	 * @throws IOException thrown if the socket cannot be closed gracefully
 	 */
-	public void terminateServer() throws Exception {
+	public void terminateServer() throws IOException {
 		this.running = false;
 		this.serverSocket.close();
 	}

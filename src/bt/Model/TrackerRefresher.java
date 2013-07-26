@@ -1,10 +1,12 @@
 package bt.Model;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
@@ -115,8 +117,10 @@ public class TrackerRefresher implements Runnable {
 	
 	/**
 	 * Notifies the tracker that the client is stopping.
+	 * @throws UnknownBittorrentException 
+	 * @throws MalformedURLException 
 	 */
-	public void notifyClose() throws Exception {
+	public void notifyClose() throws UnknownBittorrentException, MalformedURLException {
 		Server server = Server.getInstance();
 		int port = server.getPort();
 		Bittorrent bt = Bittorrent.getInstance();

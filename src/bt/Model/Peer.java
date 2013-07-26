@@ -107,7 +107,7 @@ public class Peer implements Runnable {
 	public Peer(final String address, final int port, final byte[] hashIn, final byte[] peerID,
 			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference,
 			Bittorrent creator)
-			throws UnknownHostException, IOException, Exception {
+			throws UnknownHostException, IOException {
 		this.IP = address;
 		this.port = port;
 		this.parent = creator;
@@ -151,11 +151,10 @@ public class Peer implements Runnable {
 	 * @param completedReference
 	 * @throws UnknownHostException
 	 * @throws IOException
-	 * @throws Exception
 	 */
 	public Peer(final String address, final int port, Socket socket, final byte[] hashIn, final byte[] peerID,
 			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference, Bittorrent creator)
-			throws UnknownHostException, IOException, Exception {
+			throws UnknownHostException, IOException {
 		this.parent = creator;
 		this.IP = address;
 		this.port = port;
@@ -669,9 +668,9 @@ public class Peer implements Runnable {
  * file is complete and valid, It will be marked complete in the completed array, and the peer will be
  * sent a have message.
  * @param index The piece of the file being verified
- * @throws Exception This exception is thrown if there is no existing instance of the BitTorrent class.
+ * @throws IOException This exception is thrown if we fail to open the file for saving.
  */
-	private void verifySHA(int index) throws Exception {
+	private void verifySHA(int index) throws IOException {
 		try {
 		MessageDigest sha = MessageDigest.getInstance("SHA-1");
 			byte[] toDigest = null;

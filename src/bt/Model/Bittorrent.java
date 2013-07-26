@@ -4,12 +4,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +20,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import bt.Exceptions.DuplicatePeerException;
 import bt.Exceptions.NotifyPromptException;
+import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
@@ -243,9 +248,10 @@ public class Bittorrent {
 	
 	/**
 	 * Initializes the state of the client from the properties file.
-	 * @throws Exception
+	 * @throws IOException thrown if we cannot open the torrent file to read
+	 * @throws FileNotFoundException thrown if we cannot find the torrent file
 	 */
-	private void initClientState() throws Exception {
+	private void initClientState() throws FileNotFoundException, IOException {
 		double blocks = ((double)(this.torrentInfo.file_length)) / this.torrentInfo.piece_length;
 		this.pieces = (int)(Math.ceil(blocks));
 		this.pieceLength = this.torrentInfo.piece_length;
@@ -321,10 +327,10 @@ public class Bittorrent {
 	/**
 	 * Returns the singleton instance of the client.
 	 * @return Bittorrent instance
-	 * @throws Exception
+	 * @throws UnknownBittorrentException thrown if the client was never initialized.
 	 */
-	public static Bittorrent getInstance() throws Exception {
-		if(Bittorrent.instance == null) throw new Exception("Client was never initialized");
+	public static Bittorrent getInstance() throws UnknownBittorrentException  {
+		if(Bittorrent.instance == null) throw new UnknownBittorrentException("Client was never initialized");
 		return Bittorrent.instance;
 	}
 	
@@ -513,9 +519,10 @@ public class Bittorrent {
 	
 	/**
 	 * Terminates server on close.
-	 * @throws IOException
+	 * @throws UnknownBittorrentException 
+	 * @throws IOException 
 	 */
-	public void stopServer() throws IOException, Exception {
+	public void stopServer() throws IOException, UnknownBittorrentException  {
 		TrackerRefresher.getInstance().notifyClose();
 		this.server.terminateServer();
 	}
@@ -538,14 +545,17 @@ public class Bittorrent {
 	/**
 	 * Connect to the selected peer. Rustic implementation, but it's just a starter.
 	 * @param peer peer number
+	 * @throws IOException thrown if we cannot open the torrent file for reading
+	 * @throws UnknownHostException thrown if we cannot resolve the tracker's hostname
+	 * @throws DuplicatePeerException thrown if the peer is already in the peer list
 	 */
-	public void connectToPeer(int peer) throws Exception {
+	public void connectToPeer(int peer) throws UnknownHostException, IOException, DuplicatePeerException {
 		peer = peer - 1;
 		// create peer, attempt connection, feed arguments.
 		if(peer < 0 || peer >= this.peers.length) {
 			throw new IllegalArgumentException("Invalid peer number, out of range.");
 		} else if(this.connections[peer]) {
-			throw new Exception("Connection already established with peer: "+this.peers[peer]);
+			throw new DuplicatePeerException("Connection already established with peer: "+this.peers[peer]);
 		} else {
 			// get info
 			String ip = Utilities.getIPFromString(this.peers[peer]);
@@ -576,27 +586,25 @@ public class Bittorrent {
 	* @param String IPAddress
 	* @param int port
 	* @param Socket socket
+	 * @throws IOException thrown if we cannot open the torrent file for reading
+	 * @throws UnknownHostException thrown if we cannot resolve the tracker's hostname
 	*/
-	public void connectToIncomingPeer(String IPAddress, int port, Socket socket) {
-		try {
-			Peer p;
-			p = new Peer(	IPAddress,
-							port,
-							socket,
-							Utilities.getHashBytes(this.torrentInfo.info_hash),
-							this.clientID.getBytes(), 
-							this.collection,
-							this.verificationArray,
-							this.completedPieces,
-							this);
-			// add the peer to the peers list
-			synchronized(peerList) {
-				synchronized(connections) {
-					this.peerList.add(p);
-				}
+	public void connectToIncomingPeer(String IPAddress, int port, Socket socket) throws UnknownHostException, IOException {
+		Peer p;
+		p = new Peer(	IPAddress,
+						port,
+						socket,
+						Utilities.getHashBytes(this.torrentInfo.info_hash),
+						this.clientID.getBytes(), 
+						this.collection,
+						this.verificationArray,
+						this.completedPieces,
+						this);
+		// add the peer to the peers list
+		synchronized(peerList) {
+			synchronized(connections) {
+				this.peerList.add(p);
 			}
-		} catch(Exception e) { // let's hope this wont happen.
-			System.out.println("Failed to connect to incoming peer: "+IPAddress+":"+port);
 		}
 	}
 	
@@ -605,8 +613,11 @@ public class Bittorrent {
 	 * Please do not pay attention to the i+1, that's to compensate an i - 1
 	 * on the called method.
 	 * @param peer ipAndPort
+	 * @throws DuplicatePeerException 
+	 * @throws IOException 
+	 * @throws UnknownHostException 
 	 */
-	public void connectToPeer(String peer)throws Exception {
+	public void connectToPeer(String peer)throws IllegalArgumentException, UnknownHostException, IOException, DuplicatePeerException {
 		boolean connected = false;
 		synchronized(peers) {
 			for(int i = 0; i < this.peers.length; ++i) {

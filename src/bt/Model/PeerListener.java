@@ -76,8 +76,10 @@ class PeerListener implements Runnable {
 			}
 			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
 			// this is optional if client has no pieces
-			try { if (!Bittorrent.getInstance().noPieces())
-				this.parent.sendBitfield(); 
+			try {
+				if (!Bittorrent.getInstance().noPieces()) {
+					this.parent.sendBitfield(); 
+				}
 			} catch (Exception e) {
 				System.err.println(e.getMessage());}
 			// initiate an open communication with the parent peer of this listener
