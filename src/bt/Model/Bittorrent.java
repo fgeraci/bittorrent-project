@@ -39,6 +39,12 @@ public class Bittorrent {
 	TrackerRefresher tr;
 	
 	/**
+	 * Whenever this countdown reaches 0, which will occur every three minutes, we will add all pieces
+	 * that have not been verified to our weighted request queue.
+	 */
+	private int countdownToRequeue = 0;
+	
+	/**
 	 * Size of each piece
 	 */
 	public int pieceLength;
@@ -258,7 +264,6 @@ public class Bittorrent {
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
 		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
-		this.populateWeightedRequestQueue();
 	}
 	
 	/**
@@ -715,6 +720,10 @@ public class Bittorrent {
 	
 	public void downloadAlgorithm() {
 		while(!isFileCompleted()) {
+			if (--this.countdownToRequeue < 0) {
+				this.populateWeightedRequestQueue();
+				this.countdownToRequeue = 90;
+			}
 			updateWeights();
 			boolean requested = false;
 			PriorityBlockingQueue<WeightedRequest> nextQueue = new PriorityBlockingQueue<WeightedRequest>();
