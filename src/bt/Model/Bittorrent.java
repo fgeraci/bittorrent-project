@@ -676,7 +676,7 @@ public class Bittorrent {
 					weightedRequestQueue.offer(new WeightedRequest(
 							piece,
 							begin * Utilities.MAX_PIECE_LENGTH,
-							this.getFileLength() - (this.pieceLength * piece) + (begin * Utilities.MAX_PIECE_LENGTH)));
+							this.getFileLength() - ((this.pieceLength * piece) + (begin * Utilities.MAX_PIECE_LENGTH))));
 				}
 			}
 		}
@@ -741,10 +741,13 @@ public class Bittorrent {
 				synchronized (peerList) {
 					while (!weightedRequestQueue.isEmpty()) {
 						WeightedRequest req = weightedRequestQueue.poll();
-						requested = false;
-						for (Peer peer: peerList) {
-							if (!requested) {
-								if (peer.getPendingRequests() < 3 && peer.peerHasPiece(req.getIndex())) {
+						requested = false; // get the first piece we need
+						for (Peer peer: peerList) { // for each peer we are connected to
+							if (!requested) { // always run at least once per peer
+								int pendingReqs = peer.getPendingRequests();
+								int pieceNumber = req.getIndex();
+								boolean hasPiece = peer.peerHasPiece(pieceNumber);
+								if (pendingReqs < 3 && hasPiece) {
 									boolean sent = false;
 									requested = true;
 									while (!sent) {

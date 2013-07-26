@@ -55,7 +55,7 @@ public class Peer implements Runnable {
 	private PeerListener listener = null;
 
 	private Bittorrent parent = null;
-	private int pendingRequests;
+	private int pendingRequests = 0;
 	private boolean choked = true;
 	private boolean interested = false;
 	private Socket dataSocket = null;
@@ -432,7 +432,10 @@ public class Peer implements Runnable {
 	void requestIndex(Request request) throws IOException {
 		byte[] message = new byte[17];
 		ByteBuffer messageBuffer = ByteBuffer.allocate(17);
-		messageBuffer.putInt(13).put((byte) 6).putInt(request.getIndex()).putInt(request.getBegin()).putInt(request.getLength());
+		int index = request.getIndex();
+		int begin = request.getBegin();
+		int length = request.getLength();
+		messageBuffer.putInt(13).put((byte) 6).putInt(index).putInt(begin).putInt(length);
 		// necessary to reset iterator.
 		messageBuffer.rewind();
 		messageBuffer.get(message);

@@ -52,6 +52,7 @@ class PeerListener implements Runnable {
 					System.err.println(e.getMessage()); // this will be triggered if client drops connection.
 					try {
 						Bittorrent.getInstance().terminatePeer(parent.toString());
+						break;
 					} catch (Exception ex) { /* why whould this happen? */ }
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -104,14 +105,12 @@ class PeerListener implements Runnable {
 		this.in.read(lengthArray, 0, 4);
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
 		int length = lengthBuffer.getInt();
-		if (length < 0 || length > Utilities.MAX_PIECE_LENGTH) {
-			length = 0;
-		}
 		byte[] tcpArray = new byte[length];
 		// read message from the remote parent peer of this instance
 		this.in.read(tcpArray, 0, length);
 		// load message into ByteBuffer container for convenience
 		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
+
 		if (length == 0) {
 			parent.updateTimeout();  // This is a keep alive
 		} else {
