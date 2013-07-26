@@ -101,6 +101,9 @@ class PeerListener implements Runnable {
 		this.in.read(lengthArray, 0, 4);
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
 		int length = lengthBuffer.getInt();
+		if (length < 0) {
+			length = 0;
+		}
 		byte[] tcpArray = new byte[length];
 		// read message from the remote parent peer of this instance
 		this.in.read(tcpArray, 0, length);
@@ -108,7 +111,7 @@ class PeerListener implements Runnable {
 		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 		if (length == 0) {
 			parent.updateTimeout();  // This is a keep alive
-			} else {
+		} else {
 			switch (tcpArray[0]) {
 			case 0:	// choke
 				parent.setChoke(true);

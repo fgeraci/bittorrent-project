@@ -697,7 +697,7 @@ public class Peer implements Runnable {
 			if (sameArray(verifyHash[index], test)) { 
 				// piece hash is correct
 				System.out.println("We have completed piece: " + index);
-				this.pendingRequests--;
+				this.pendingRequests -= (int)Math.ceil((double)this.parent.pieceLength / (double)Utilities.MAX_PIECE_LENGTH);
 				boolean sent = false;
 				// This is a bit complicated looking, but this block attempts to send a have message every
 				// 50 Milliseconds until it succeeds.

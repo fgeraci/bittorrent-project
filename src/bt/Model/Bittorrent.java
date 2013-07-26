@@ -716,29 +716,39 @@ public class Bittorrent {
 	public void downloadAlgorithm() {
 		while(!isFileCompleted()) {
 			updateWeights();
+			boolean requested = false;
+			PriorityBlockingQueue<WeightedRequest> nextQueue = new PriorityBlockingQueue<WeightedRequest>();
 			synchronized(weightedRequestQueue) {
 				synchronized (peerList) {
-					for (WeightedRequest req: weightedRequestQueue) {
+					while (!weightedRequestQueue.isEmpty()) {
+						WeightedRequest req = weightedRequestQueue.poll();
+						requested = false;
 						for (Peer peer: peerList) {
-							if (peer.getPendingRequests() < 3 && peer.peerHasPiece(req.getIndex())) {
-								boolean sent = false;
-								while (!sent) {
-									try {
-										peer.requestIndex(req.getRequest());
-										sent = true;
-									} catch (IOException e) {
+							if (!requested) {
+								if (peer.getPendingRequests() < 3 && peer.peerHasPiece(req.getIndex())) {
+									boolean sent = false;
+									requested = true;
+									while (!sent) {
 										try {
-											Thread.sleep(50);
-										} catch (InterruptedException e1) {
-											continue;
+											peer.requestIndex(req.getRequest());
+											sent = true;
+										} catch (IOException e) {
+											try {
+												Thread.sleep(50);
+											} catch (InterruptedException e1) {
+												continue;
+											}
 										}
 									}
 								}
 							}
-							weightedRequestQueue.remove(req);
+						}
+						if (!requested) {
+							nextQueue.offer(req);
 						}
 					}
 				}
+				weightedRequestQueue = nextQueue;
 			}
 			try {
 				Thread.sleep(2000);
