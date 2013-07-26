@@ -722,7 +722,7 @@ public class Bittorrent {
 		while(!isFileCompleted()) {
 			if (--this.countdownToRequeue < 0) {
 				this.populateWeightedRequestQueue();
-				this.countdownToRequeue = 90;
+				this.countdownToRequeue = 15;
 			}
 			updateWeights();
 			boolean requested = false;

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import bt.Utils.Utilities;
 import bt.View.UserInterface;
 
 /**
@@ -101,7 +102,7 @@ class PeerListener implements Runnable {
 		this.in.read(lengthArray, 0, 4);
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
 		int length = lengthBuffer.getInt();
-		if (length < 0) {
+		if (length < 0 || length > Utilities.MAX_PIECE_LENGTH) {
 			length = 0;
 		}
 		byte[] tcpArray = new byte[length];
