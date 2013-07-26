@@ -44,7 +44,7 @@ class PeerListener implements Runnable {
 				try { // ...reading InputStream to this instance
 					this.readLine();
 					try {
-						Thread.sleep(400);
+						Thread.sleep(1500);
 					} catch (InterruptedException e) {
 						continue;
 						}
@@ -105,6 +105,12 @@ class PeerListener implements Runnable {
 		this.in.read(lengthArray, 0, 4);
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
 		int length = lengthBuffer.getInt();
+		if(length < 0 || length > 16394) {
+			if (length == 0) {
+				parent.updateTimeout();  // This is a keep alive
+			}
+			return;
+		}
 		byte[] tcpArray = new byte[length];
 		// read message from the remote parent peer of this instance
 		this.in.read(tcpArray, 0, length);
