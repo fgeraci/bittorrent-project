@@ -76,7 +76,12 @@ public class UserInterface implements Runnable {
 				this.clientLoop();
 			} catch (Exception e) { 
 				System.err.println(e.getMessage());	
+<<<<<<< HEAD
 			}
+=======
+			}			
+			
+>>>>>>> d686158d04faf54457ea3208fe76fdc3b7d88dab
 		} catch (Exception e) { // FATAL ERROR 
 			
 			Utilities.callClose();
