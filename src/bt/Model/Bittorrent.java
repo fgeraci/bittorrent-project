@@ -650,7 +650,7 @@ public class Bittorrent {
 			int piece = collection.length - 1;
 			if (!this.completedPieces[piece]) {
 				int begin = 0;
-				while ((begin * Utilities.MAX_PIECE_LENGTH) + Utilities.MAX_PIECE_LENGTH < this.getFileLength()) {
+				while ((begin * Utilities.MAX_PIECE_LENGTH) + Utilities.MAX_PIECE_LENGTH < this.getFileLength() - (piece * this.pieceLength)) {
 					weightedRequestQueue.offer(new WeightedRequest(
 							piece,
 							begin * Utilities.MAX_PIECE_LENGTH,
