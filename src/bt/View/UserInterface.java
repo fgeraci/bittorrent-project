@@ -78,8 +78,6 @@ public class UserInterface implements Runnable {
 				System.err.println(e.getMessage());	
 			}			
 			
-		} catch (NotifyPromptException ne) { // to be triggered just for notification purposes.
-			System.out.println(ne.getMessage());
 		} catch (Exception e) { // FATAL ERROR 
 			
 			Utilities.callClose();
