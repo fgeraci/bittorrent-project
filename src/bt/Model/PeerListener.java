@@ -75,7 +75,10 @@ class PeerListener implements Runnable {
 			if(parent.isIncoming()) {
 				parent.handShake();
 				parent.unChoke();
-				parent.sendBitfield();
+				try {
+					Thread.sleep(500);
+					parent.sendBitfield();
+				} catch (Exception e) {}
 			}
 			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
 			// this is optional if client has no pieces

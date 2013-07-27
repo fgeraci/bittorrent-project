@@ -553,15 +553,18 @@ public class Peer implements Runnable {
 	void sendBitfield() throws IOException {
 		BitSet bs = new BitSet();
 		synchronized(completed) {
+			int index = completed.length-1;
 			for (int i = 0; i < completed.length; ++i) {
 				if (completed[i]) {
-					bs.set(i, true);
+					bs.set(index, true);
 				} else {
-					bs.set(i, false);
+					bs.set(index, false);
 				}
+				--index;
 			}
 		}
-		out.write(bs.toByteArray());
+		byte[] bitfield = bs.toByteArray();
+		out.write(bitfield);
 		out.flush();
 	}
 	/**
