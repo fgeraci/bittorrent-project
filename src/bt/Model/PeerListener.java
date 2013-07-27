@@ -65,7 +65,8 @@ class PeerListener implements Runnable {
 	 * This method is called when a message has been received and we have not yet completed handshaking
 	 * successfully.
 	 */
-	void receiveHandshake() {		
+	void receiveHandshake() {
+		boolean unchockedPeer = false;
 		byte[] tcpArray = new byte[68];
 		try {
 			this.in.read(tcpArray);
@@ -79,8 +80,8 @@ class PeerListener implements Runnable {
 					parent.sendBitfield();
 					Thread.sleep(100);
 					parent.unChoke();
-					Thread.sleep(100);
-				} catch (Exception e) { }
+					unchockedPeer = true;
+				} catch (Exception e) { System.out.println(e.getMessage()); }
 			}
 			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
 			// this is optional if client has no pieces
@@ -92,7 +93,9 @@ class PeerListener implements Runnable {
 				System.err.println(e.getMessage());}
 			// initiate an open communication with the parent peer of this listener
 			this.parent.showInterested();
-			this.parent.unChoke();
+			if(!unchockedPeer) {
+				this.parent.unChoke();
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

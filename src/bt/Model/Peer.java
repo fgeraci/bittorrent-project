@@ -560,11 +560,28 @@ public class Peer implements Runnable {
 					bs.set(i, false);
 				}
 			}
+			// get byte representation of bitfield in little endian
 			byte[] bytesInBitField = bs.toByteArray();
+			// calculate number of 0s to shift left
 			int shiftLeft = (8*bytesInBitField.length) - bs.cardinality();
+			// get the value to be adjusted from the array
 			int last = bytesInBitField[bytesInBitField.length-1];
+			// adjust it - working ok.
 			bytesInBitField[bytesInBitField.length-1] =  (byte)(last << shiftLeft);
-			out.write(bytesInBitField);
+			// instantiate the actual array to be sent.
+			byte[] toSend = new byte[bytesInBitField.length+2];
+			int length = bytesInBitField.length+1;
+			ByteBuffer bf = ByteBuffer.allocate((5+bytesInBitField.length));
+			bf.rewind();
+			bf.putInt(length);
+			bf.put((byte)5);
+			for(byte b : bytesInBitField) {
+				bf.put(b);
+			}
+			bf.rewind();
+			byte[] sendThis = bf.array();
+			bf.get(sendThis);
+			out.write(sendThis);
 			out.flush();
 		}
 	}
