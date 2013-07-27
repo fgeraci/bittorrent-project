@@ -83,7 +83,7 @@ public class Bittorrent {
 	/**
 	 * Hard coded .torrent file path.
 	 */
-	private String rscFileFolder = "rsc"+File.separator;;
+	private String rscFileFolder = "rsc"+File.separator;
 	
 	/**
 	 * Decoded .torrent file information.

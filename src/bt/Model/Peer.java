@@ -560,9 +560,13 @@ public class Peer implements Runnable {
 					bs.set(i, false);
 				}
 			}
+			byte[] bytesInBitField = bs.toByteArray();
+			int shiftLeft = (8*bytesInBitField.length) - bs.cardinality();
+			int last = bytesInBitField[bytesInBitField.length-1];
+			bytesInBitField[bytesInBitField.length-1] =  (byte)(last << shiftLeft);
+			out.write(bytesInBitField);
+			out.flush();
 		}
-		out.write(bs.toByteArray());
-		out.flush();
 	}
 	/**
 	 * Sets the interested bit flag on this peer's connection.  When a peer sets not interested we
