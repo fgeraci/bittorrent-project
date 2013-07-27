@@ -74,11 +74,6 @@ class PeerListener implements Runnable {
 			this.parent.validateInfoHash(tcpArray);
 			if(parent.isIncoming()) {
 				parent.handShake();
-				parent.unChoke();
-				try {
-					Thread.sleep(500);
-					parent.sendBitfield();
-				} catch (Exception e) {}
 			}
 			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
 			// this is optional if client has no pieces
@@ -195,11 +190,7 @@ class PeerListener implements Runnable {
 	 */
 	void dispose () {
 		running = false;
-		try {
-			this.in.close();
-		} catch (Exception e) {
-			System.out.println("Stream of "+parent+" failed to close.");
-		}
+		this.in = null;
 		this.parent = null;
 	}
 	

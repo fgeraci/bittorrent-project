@@ -71,14 +71,12 @@ public class UserInterface implements Runnable {
 
 			// 3. start bitfields queue
 			bittorrent.downloadAlgorithm();
-			
 			try {
 				//System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 				this.clientLoop();
 			} catch (Exception e) { 
 				System.err.println(e.getMessage());	
-			}
-					
+			}		
 		} catch (Exception e) { // FATAL ERROR 
 			
 			Utilities.callClose();

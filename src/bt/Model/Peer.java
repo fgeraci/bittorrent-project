@@ -553,18 +553,15 @@ public class Peer implements Runnable {
 	void sendBitfield() throws IOException {
 		BitSet bs = new BitSet();
 		synchronized(completed) {
-			int index = completed.length-1;
 			for (int i = 0; i < completed.length; ++i) {
 				if (completed[i]) {
-					bs.set(index, true);
+					bs.set(i, true);
 				} else {
-					bs.set(index, false);
+					bs.set(i, false);
 				}
-				--index;
 			}
 		}
-		byte[] bitfield = bs.toByteArray();
-		out.write(bitfield);
+		out.write(bs.toByteArray());
 		out.flush();
 	}
 	/**
@@ -647,7 +644,6 @@ public class Peer implements Runnable {
 				// This loop attempts to close dataSocket once every 50 Milliseconds until it succeeds.
 				while (!closed) {
 					try {
-						this.out.close();
 						dataSocket.close();
 						closed = true;
 					} catch (IOException e) {

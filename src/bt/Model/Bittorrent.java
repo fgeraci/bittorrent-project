@@ -640,7 +640,7 @@ public class Bittorrent {
 			}
 		}
 	}
-	
+
 	/**
 	 * It creates a queue for delivery pieces as per their priority.
 	 */
