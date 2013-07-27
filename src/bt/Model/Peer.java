@@ -644,6 +644,7 @@ public class Peer implements Runnable {
 				// This loop attempts to close dataSocket once every 50 Milliseconds until it succeeds.
 				while (!closed) {
 					try {
+						this.out.close();
 						dataSocket.close();
 						closed = true;
 					} catch (IOException e) {

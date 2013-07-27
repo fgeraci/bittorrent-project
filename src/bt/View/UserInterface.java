@@ -56,7 +56,7 @@ public class UserInterface implements Runnable {
 			//bittorrent.connectToPeer("74.95.182.13:6625");
 			bittorrent.connectToPeer("128.6.171.3:6916");
 			bittorrent.connectToPeer("128.6.171.4:6929");
-			//bittorrent.connectToPeer("128.6.171.5:6986");
+			bittorrent.connectToPeer("128.6.171.5:6986");
 			
 			// 2. wait for getting unchoked.
 			while(bittorrent.peersChoked()) {
@@ -71,12 +71,14 @@ public class UserInterface implements Runnable {
 
 			// 3. start bitfields queue
 			bittorrent.downloadAlgorithm();
+			
 			try {
-				System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
+				//System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 				this.clientLoop();
 			} catch (Exception e) { 
 				System.err.println(e.getMessage());	
-			}		
+			}
+					
 		} catch (Exception e) { // FATAL ERROR 
 			
 			Utilities.callClose();
@@ -102,7 +104,7 @@ public class UserInterface implements Runnable {
 		Scanner sc = new Scanner(System.in);
 		while(true) {
 			try {
-				System.out.print("%> ");
+				System.out.print("\n%> ");
 				String nextLine = sc.nextLine();
 				CommandParser.execute(nextLine);
 			} catch(NotifyPromptException ne) {

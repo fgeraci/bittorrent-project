@@ -190,7 +190,11 @@ class PeerListener implements Runnable {
 	 */
 	void dispose () {
 		running = false;
-		this.in = null;
+		try {
+			this.in.close();
+		} catch (Exception e) {
+			System.out.println("Stream of "+parent+" failed to close.");
+		}
 		this.parent = null;
 	}
 	
