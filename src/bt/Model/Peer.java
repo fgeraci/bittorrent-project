@@ -108,30 +108,7 @@ public class Peer implements Runnable {
 			byte[][] heapReference, byte[][] verifyReference, boolean[] completedReference,
 			Bittorrent creator)
 			throws UnknownHostException, IOException {
-		this.IP = address;
-		this.port = port;
-		this.parent = creator;
-		interestedQueue = new ArrayDeque <Request> ();
-		dataSocket = new Socket(address, port);
-		in = dataSocket.getInputStream();
-		listener = new PeerListener(this, in);
-		out = dataSocket.getOutputStream();
-		hash = hashIn;
-		clientID = peerID;
-		fileHeap = heapReference;
-		verifyHash = verifyReference;
-		completed = completedReference;	// points to bittorrent.completedPieces
-		bitField = new boolean[fileHeap.length];
-		// sha = MessageDigest.getInstance("SHA-1");
-		synchronized(bitField) {
-			for (int i = 0; i < bitField.length; ++i) {
-				bitField[i] = false;
-			}
-		}
-		// added to start a new thread on the instantiation of a peer.
-		Thread peerThread = new Thread(this);
-		peerThread.start();
-		updateTimeout();
+		this(address, port, new Socket(address, port), hashIn, peerID, heapReference, verifyReference, completedReference, creator);
 	}
 	
 	/**
