@@ -459,6 +459,7 @@ public class Peer implements Runnable {
 			System.err.println("Dropping connection, because requested length ("+ length +
 					") is greater than maximum-piece-length"+ Utilities.MAX_PIECE_LENGTH + ".");
 			this.dispose();
+			return;
 		} 
 		synchronized(interestedQueue) {
 			interestedQueue.add(new Request(index, begin, length));
