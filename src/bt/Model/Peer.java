@@ -372,6 +372,8 @@ public class Peer implements Runnable {
 		byte[] message = null;
 		ByteBuffer messageBuffer = ByteBuffer.allocate(length + 4);
 		messageBuffer.putInt(length).put((byte)7).putInt(index).putInt(begin).put(payload);
+		messageBuffer.rewind();
+		message = messageBuffer.array();
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
