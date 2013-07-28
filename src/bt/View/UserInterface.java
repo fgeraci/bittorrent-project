@@ -14,7 +14,7 @@ import bt.Utils.Utilities;
 
 /**
  * The class represents the UI between the user and the client.
- * @author Isaac Yochelson, Robert Schomburg and Fernand Geraci
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *
  */
 public class UserInterface implements Runnable {

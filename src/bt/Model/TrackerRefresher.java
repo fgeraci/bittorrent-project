@@ -24,6 +24,7 @@ public class TrackerRefresher implements Runnable {
 	private boolean refresh = true;
 	private TorrentInfo torrentInfo;
 	private static TrackerRefresher instance = null;
+	private int interval;
 	
 	/**
 	 * Access a single tracker refresher instance.
@@ -32,9 +33,10 @@ public class TrackerRefresher implements Runnable {
 	 * @param List peerList
 	 * @return
 	 */
-	public static TrackerRefresher getInstance(TorrentInfo ti, String[] peers, List<Peer> peerList) {
+	public static TrackerRefresher getInstance(
+			TorrentInfo ti, String[] peers, List<Peer> peerList, int interval) {
 		if(TrackerRefresher.instance == null) {
-			TrackerRefresher.instance = new TrackerRefresher(ti, peers, peerList);
+			TrackerRefresher.instance = new TrackerRefresher(ti, peers, peerList, interval);
 		}
 		return TrackerRefresher.instance;
 	}
@@ -56,7 +58,8 @@ public class TrackerRefresher implements Runnable {
 	 * @param peers
 	 * @param peerList
 	 */
-	private TrackerRefresher(TorrentInfo ti, String[] peers, List<Peer> peerList) {
+	private TrackerRefresher(
+			TorrentInfo ti, String[] peers, List<Peer> peerList, int interval) {
 		this.torrentInfo = ti;
 		Thread thread = new Thread(this);
 		thread.start();
@@ -107,12 +110,21 @@ public class TrackerRefresher implements Runnable {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			newList = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(responseInBytes));
-			
+			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
+			newList = Utilities.decodeCompressedPeers(trackerResponse);
+			this.interval = Utilities.decodeInterval(trackerResponse);
 			// close streams
 			fromServer.close();
 			return newList;
 		} catch (Exception e) { return null; }
+	}
+	
+	/**
+	 * Returns the interval requested by the tracker
+	 * @return integer interval
+	 */
+	private int getInterval() {
+		return this.interval;
 	}
 	
 	/**

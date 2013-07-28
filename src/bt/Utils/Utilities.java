@@ -137,6 +137,16 @@ public class Utilities {
 	  }
 	 
 	 /**
+	  * Returns the update interval requested by tracker
+	  * @param map: the interval
+	  * @return the integer value
+	  */
+	 public static int decodeInterval(Map map) {
+		 int interval = (int)map.get(ByteBuffer.wrap("interval".getBytes()));
+		 return interval;		 
+	 }
+	 
+	 /**
 	  * Terminates the client.
 	  */
 	 public static void callClose() {
