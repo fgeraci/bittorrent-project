@@ -34,9 +34,6 @@ public class UserInterface implements Runnable {
 		System.out.println("Input help for commands");
 		Thread UIThread = new Thread(this);
 		UIThread.start();
-		// client's loop OR connect directly to a client (for project 0)
-		//RUBTClient.clientLoop(); /* <- Client's loop */
-		
 	}
 	
 	/**
@@ -52,11 +49,6 @@ public class UserInterface implements Runnable {
 	
 	public void run() {
 		try {
-			// 1. connect to peers - need to remove this once working
-			//bittorrent.connectToPeer("74.95.182.13:6625");
-//			bittorrent.connectToPeer("128.6.171.3:6916");
-//			bittorrent.connectToPeer("128.6.171.4:6929");
-//			bittorrent.connectToPeer("128.6.171.5:6986");
 			
 			// 2. wait for getting unchoked.
 			while(bittorrent.peersChoked()) {
@@ -72,7 +64,6 @@ public class UserInterface implements Runnable {
 			// 3. start bitfields queue
 			bittorrent.downloadAlgorithm();
 			try {
-				//System.out.println("-- All peers are unchoked, start DownloadingAlgorithm --");
 				this.clientLoop();
 			} catch (Exception e) { 
 				System.err.println(e.getMessage());	

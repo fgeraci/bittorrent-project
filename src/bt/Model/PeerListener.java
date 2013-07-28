@@ -171,19 +171,25 @@ class PeerListener implements Runnable {
 				parent.requestReceived(requestindex, requestbegin, requestlength);
 				break;
 			case 7:	// piece
-				System.out.println("-- Piece received from: "+parent+", analyzing...");
-				byte[] payload = new byte[length - 9];
-				tcpInput.position(1);
-				int index = tcpInput.getInt();
-				int begin = tcpInput.getInt();
-				for(int i = 0; i < payload.length; ++i) {
-					payload[i] = tcpInput.get();
-				}
-				System.out.println("Index: "+index+" - Begin: "+begin);
+				boolean isCompleted = false;
 				try {
-					parent.getPiece(index, begin, payload);
-				} catch (Exception e) {e.printStackTrace();}
-				break;
+					isCompleted = Bittorrent.getInstance().isFileCompleted();
+				} catch (Exception e) {}
+				if(!isCompleted) {
+					System.out.println("-- Piece received from: "+parent+", analyzing...");
+					byte[] payload = new byte[length - 9];
+					tcpInput.position(1);
+					int index = tcpInput.getInt();
+					int begin = tcpInput.getInt();
+					for(int i = 0; i < payload.length; ++i) {
+						payload[i] = tcpInput.get();
+					}
+					System.out.println("Index: "+index+" - Begin: "+begin);
+					try {
+						parent.getPiece(index, begin, payload);
+					} catch (Exception e) {e.printStackTrace();}
+					break;
+				} else break;
 			case 8:	// cancel
 				parent.cancelIndex(tcpInput.getInt(5),
 						tcpInput.getInt(9),

@@ -737,6 +737,10 @@ public class Bittorrent {
 		}
 	}
 	
+	/**
+	 * For each peer ask 3 pieces and re-queue every N milliseconds. Each peer is responsible for
+	 * keeping state on number of served and pending requests.
+	 */
 	public void downloadAlgorithm() {
 		while(!isFileCompleted()) {
 			if (--this.countdownToRequeue < 0) {
@@ -789,6 +793,9 @@ public class Bittorrent {
 		}
 	}
 	
+	/**
+	 * Updates the requests' weights in the queue.
+	 */
 	private void updateWeights() {
 		int[] weights = new int[pieces];
 		synchronized(peerList) {
@@ -831,7 +838,7 @@ public class Bittorrent {
 	boolean isFileCompleted() {
 		synchronized(completedPieces) {
 			for(int i = 0; i < this.completedPieces.length; ++i) {
-				if(!this.completedPieces[i]) return false;;
+				if(!this.completedPieces[i]) return false;
 			}
 		}
 		return true;
@@ -892,13 +899,6 @@ public class Bittorrent {
 		case "started": case "stopped": case "completed":
 			this.event = event;
 		}
-	}
-
-	/**
-	 * We are not really sure what this will do.
-	 */
-	private void refreshPeersList() {
-		// stay put for the implementation in incoming episodes!
 	}
 	
 	/**

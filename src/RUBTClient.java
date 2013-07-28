@@ -56,7 +56,7 @@ public class RUBTClient {
 		if(args.length >= 2) {
 			bittorrent = Bittorrent.getInstance(args[0], args[1]);
 			ui = UserInterface.getInstance(bittorrent);
-			ui.receiveEvent(" --> Client successfully initiated. <-- ");
+			System.out.println(" --> Client successfully initiated. <-- ");
 			clientLoop(); // THIS IS NOT OFFICIAL
 		} else {
 			System.err.println("ERROR: Insufficient arguments");
