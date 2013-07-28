@@ -377,6 +377,8 @@ public class Peer implements Runnable {
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
+		System.out.println("Piece with index ("+ index +"), begin ("+ begin +
+				"), size ("+ payloadSize +") was sent to "+ this.toString() +".");		
 	}
 	
 	/**
