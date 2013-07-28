@@ -142,7 +142,10 @@ public class Utilities {
 	  * @return the integer value
 	  */
 	 public static int decodeInterval(Map map) {
-		 int interval = (int)map.get(ByteBuffer.wrap("interval".getBytes()));
+		 int interval = -1;
+		 try {
+			 interval = (int)map.get(ByteBuffer.wrap("interval".getBytes()));
+		 } catch (Exception e) {}
 		 return interval;		 
 	 }
 	 
