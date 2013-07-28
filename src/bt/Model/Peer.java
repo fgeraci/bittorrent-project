@@ -454,7 +454,12 @@ public class Peer implements Runnable {
 	 */
 	void requestReceived (int index, int begin, int length) {
 		updateTimeout();
-		if (length > Utilities.MAX_PIECE_LENGTH) {;} // may drop connection
+		if (length > Utilities.MAX_PIECE_LENGTH) {
+			// may drop connection
+			System.err.println("Dropping connection, because requested length ("+ length +
+					") is greater than maximum-piece-length"+ Utilities.MAX_PIECE_LENGTH + ".");
+			this.dispose();
+		} 
 		synchronized(interestedQueue) {
 			interestedQueue.add(new Request(index, begin, length));
 		}
@@ -482,6 +487,10 @@ public class Peer implements Runnable {
 	 * @param index The index of the piece that the peer has acknowledged complete..
 	 */
 	void haveReceived (int index) {
+		if ((index >= bitField.length) || (index < 0)) {
+			System.err.println("haveReceived index ("+ index +") is out-of-range.");
+			return;
+		}
 		updateTimeout();
 		synchronized (interestedQueue) {
 			synchronized (bitField) {

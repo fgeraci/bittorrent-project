@@ -50,7 +50,8 @@ public class CommandParser {
 			System.out.print("PEER NUMBER >> ");
 			Scanner sc = new Scanner(System.in);
 			try {
-				peer = Integer.parseInt(sc.nextLine());
+				peer = Integer.parseInt(sc.nextLine())-1;
+				// peer number input is offset by one, to make it zero-based.
 				Bittorrent.getInstance().connectToPeer(peer);
 				// call Bittorrent client method to connect to peer.
 			} catch (Exception e) { System.out.println(e.getMessage()); }

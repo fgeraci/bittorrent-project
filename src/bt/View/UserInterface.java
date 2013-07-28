@@ -54,9 +54,9 @@ public class UserInterface implements Runnable {
 		try {
 			// 1. connect to peers - need to remove this once working
 			//bittorrent.connectToPeer("74.95.182.13:6625");
-			bittorrent.connectToPeer("128.6.171.3:6916");
-			bittorrent.connectToPeer("128.6.171.4:6929");
-			bittorrent.connectToPeer("128.6.171.5:6986");
+//			bittorrent.connectToPeer("128.6.171.3:6916");
+//			bittorrent.connectToPeer("128.6.171.4:6929");
+//			bittorrent.connectToPeer("128.6.171.5:6986");
 			
 			// 2. wait for getting unchoked.
 			while(bittorrent.peersChoked()) {
