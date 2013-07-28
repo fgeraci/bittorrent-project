@@ -18,12 +18,6 @@ public class CommandParser {
 	 * Main entry point for parsing commands.
 	 * @param String command
 	 */
-	
-	/**
-	 * This dummy variable to access Peer class static methods
-	 */
-//	static Peer agent = new Peer();
-	
 	public static void execute(String command) throws Exception {
 		switch(command) {
 		case "quit":

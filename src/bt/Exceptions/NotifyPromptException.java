@@ -9,6 +9,10 @@ package bt.Exceptions;
 @SuppressWarnings("serial")
 public class NotifyPromptException extends Exception {
 	
+	/**
+	 * A special exception for notifying the UI.
+	 * @param String message
+	 */
 	public NotifyPromptException(String message) {
 		super(message);
 	}

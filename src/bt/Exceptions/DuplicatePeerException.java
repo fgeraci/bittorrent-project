@@ -5,12 +5,11 @@ package bt.Exceptions;
 
 /**
  * @author Isaac Yochelson, Fernando Geraci, Robert Shomburg
- *
  */
 public class DuplicatePeerException extends Exception {
 
 	/**
-	 * 
+	 * Custom exception.
 	 */
 	public DuplicatePeerException() {
 		super("This peer is already known.");

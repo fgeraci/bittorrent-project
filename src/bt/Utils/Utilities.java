@@ -55,8 +55,6 @@ public class Utilities {
 		return bytesArray;
 	}
 	
-	
-	
 	/**
 	 * Returns a String representation of a ByteBuffer.
 	 * @param bb ByteBuffer to be converted to a string
@@ -82,7 +80,6 @@ public class Utilities {
 	 * @param infoHash The sha hash of the torrent file.
 	 * @return String encoded info_hash URL
 	 */
-	
 	public static String encodeInfoHashToURL(String infoHash) {
 		String encodedURL = "";
 		if(infoHash.length() == 0) return infoHash;
@@ -261,6 +258,11 @@ public class Utilities {
 		 return -1; // no more pieces are needed.
 	 }
 	 
+	 /**
+	  * Converts a bitfield into a string.
+	  * @param boolean[] bits
+	  * @return String bitfield string representation.
+	  */
 	 public static String bitFieldToString(boolean[] bits) {
 		 String bitfield = "";
 		 for(int i = 0; i < bits.length; ++i) {

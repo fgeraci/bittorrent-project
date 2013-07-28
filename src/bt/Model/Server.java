@@ -50,6 +50,10 @@ public class Server implements Runnable {
 		serverthread.start();
 	}
 	
+	/**
+	 * Returns a single already instantiated 
+	 * @return
+	 */
 	public static Server getInstance() {
 		if(Server.instance == null) {
 			Server.instance = new Server();

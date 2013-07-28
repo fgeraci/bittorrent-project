@@ -300,14 +300,6 @@ public class Bittorrent {
 	}
 	
 	/**
-	 * Queues bitfields for selecting pieces from peers.
-	 */
-	public void queueBitFields() {
-		// do something
-		// I'm trying to get bitfields first!
-	}
-	
-	/**
 	 * Checks if all the peer connections have been unchoked.
 	 * @return boolean True if any peers are choked, false otherwise. 
 	 */

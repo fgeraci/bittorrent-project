@@ -341,6 +341,10 @@ public class Peer implements Runnable {
 		out.flush();
 	}
 	
+	/**
+	 * Sends a request to a peer.
+	 * @param Request request
+	 */
 	private void send (Request request) {
 		byte[] payload = new byte[request.getLength()];
 		synchronized (fileHeap[request.getIndex()]){
@@ -519,6 +523,10 @@ public class Peer implements Runnable {
 		out.flush();
 	}
 	
+	/**
+	 * Received a peer's bitfield.
+	 * @param bitfield
+	 */
 	void receiveBitfield(byte[] bitfield) {
 		updateTimeout();
 		byte[] pieces = new byte[bitfield.length-1]; // substract the length of the bitfield's bytes.
@@ -598,6 +606,8 @@ public class Peer implements Runnable {
 			out.flush();
 		}
 	}
+	
+	
 	/**
 	 * Sets the interested bit flag on this peer's connection.  When a peer sets not interested we
 	 * clear the interestedQueue.
@@ -700,13 +710,13 @@ public class Peer implements Runnable {
 		}
 	}
 	
-/**
- * This method verifies that the piece of the file with the given index is complete and valid.  If the
- * file is complete and valid, It will be marked complete in the completed array, and the peer will be
- * sent a have message.
- * @param index The piece of the file being verified
- * @throws IOException This exception is thrown if we fail to open the file for saving.
- */
+	/**
+	 * This method verifies that the piece of the file with the given index is complete and valid.  If the
+	 * file is complete and valid, It will be marked complete in the completed array, and the peer will be
+	 * sent a have message.
+	 * @param index The piece of the file being verified
+	 * @throws IOException This exception is thrown if we fail to open the file for saving.
+	 */
 	private void verifySHA(int index) throws IOException {
 		try {
 		MessageDigest sha = MessageDigest.getInstance("SHA-1");
