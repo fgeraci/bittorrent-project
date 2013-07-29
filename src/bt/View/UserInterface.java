@@ -49,10 +49,13 @@ public class UserInterface implements Runnable {
 	
 	public void run() {
 		try {
+			// 1. Connect to peers
+			bittorrent.connectToPeer("128.6.171.3:6916");
+			bittorrent.connectToPeer("128.6.171.4:6929");
 			
 			// 2. wait for getting unchoked.
 			while(bittorrent.peersChoked()) {
-				System.out.println("-- Waiting for all peers to unchoke.");
+				System.out.println("-- Waiting for peers to unchoke.");
 				try {
 					Thread.sleep(1500);
 				} catch(Exception e) {

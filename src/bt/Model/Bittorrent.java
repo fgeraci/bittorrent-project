@@ -617,7 +617,10 @@ public class Bittorrent {
 	 * @throws IOException 
 	 * @throws UnknownHostException 
 	 */
-	public void connectToPeer(String peer)throws IllegalArgumentException, UnknownHostException, IOException, DuplicatePeerException {
+	public void connectToPeer(String peer)
+			throws IllegalArgumentException, UnknownHostException, 
+				IOException, DuplicatePeerException 
+	{
 		boolean connected = false;
 		synchronized(peers) {
 			for(int i = 0; i < this.peers.length; ++i) {
