@@ -428,6 +428,7 @@ public class Peer implements Runnable {
 			} catch (Exception e) {System.out.println(e.getMessage());}
 			try {
 				verifySHA(index);
+				/ update parent.
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 			}

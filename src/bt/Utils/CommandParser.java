@@ -21,6 +21,9 @@ public class CommandParser {
 	public static void execute(String command) throws Exception {
 		switch(command) {
 		case "quit":
+//			try {
+//				Bittorrent.getInstance().notifyStoppedDownloading();
+//			} catch (Exception e) { System.out.println(e.getMessage()); }
 			Utilities.callClose();
 		case "help":
 			CommandParser.printHelp();

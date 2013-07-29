@@ -525,6 +525,11 @@ public class Bittorrent {
 	 */
 	public void stopServer() throws IOException, UnknownBittorrentException  {
 		TrackerRefresher.getInstance().notifyClose();
+		this.setState("uploaded", Integer.toString(this.getUploaded()));
+		this.setState("downloaded", Integer.toString(this.getDownloaded()));
+		this.setState("left", Integer.toString(this.getLeft()));
+		this.setState("event", this.getEvent());
+		this.saveState();
 		this.server.terminateServer();
 	}
 	
@@ -828,6 +833,35 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Save download state of torrent to prop.properties file
+	 */
+	public void saveState () throws IOException {
+		System.out.println("-- Saving state...");
+		FileOutputStream fileOut = new FileOutputStream(
+				this.rscFileFolder+"prop.properties");
+		this.properties.store(fileOut, 
+				"# properties file - CS352 - Bittorrent Project");
+	}
+	
+	/**
+	 * Set complete state in properties object
+	 */
+	public void setState() {
+		
+	}
+	
+	/**
+	 * Sets state in properties object
+	 * @params key/value pair of strings
+	 */
+	public void setState(String key, String value) {
+		switch (key){
+			case "uploaded": case "downloaded": case "left": case "event":
+				this.properties.setProperty(key, value);
+		}
+	}
+	
+	/**
 	 * It will check if the file is completed for then closing it and save it.
 	 */
 	boolean isFileCompleted() {
@@ -888,7 +922,7 @@ public class Bittorrent {
 	/**
 	 * Notifies the tracker that the client has stopped downloading.
 	 */
-	void notifyStoppedDownloading() {
+	public void notifyStoppedDownloading() {
 		int port = -1;
 		while ((port=this.server.getPort()) == -1) {
 			System.err.println("Waiting for available port...");
