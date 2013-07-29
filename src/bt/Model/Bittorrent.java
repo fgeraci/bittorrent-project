@@ -180,10 +180,10 @@ public class Bittorrent {
 	 */
 	private List<Peer> peerList = null;
 	
-	/**
-	 * The tracker update interval in seconds for this torrent
-	 */
-	private int interval;
+//	/**
+//	 * The tracker update interval in seconds for this torrent
+//	 */
+//	private int interval;
 
 	/**
 	 * Priority queue of requests to be made
@@ -196,6 +196,8 @@ public class Bittorrent {
 	private Bittorrent(String torrentFile, String saveFile)	{	
 		// open the file
 		File file = new File((this.rscFileFolder+torrentFile));
+		//WE WANT TO DETECT PRESSENCE OF OUTPUT FILE IN ORDER TO LEAVE PREVIOUS STATE INTACT//
+		File fileName = new File((File.separator+saveFile)); 
 		try {
 			// get file info
 			this.peerList = new ArrayList<Peer>();
@@ -205,14 +207,18 @@ public class Bittorrent {
 		    	this.clientID = Utilities.generateID();
 		    }
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
-			this.interval = 0;
+//			this.interval = 0;
 			this.printTorrentInfoFields();
 			this.initClientState();
+			//IF OUTPUT FILE DOES NOT EXIST, NULL OUT PROP.PROPERTIES FILE//
+			if (true)//(!fileName.exists())
+				this.resetState();
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
+			this.event = "started";
 			// request the tracker for peers
 			this.sendRequestToTracker();
 			this.tr = TrackerRefresher.getInstance(
-					this.torrentInfo, this.peers, this.peerList, this.interval);
+					this.torrentInfo, this.peers, this.peerList/*, this.interval */);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -418,10 +424,10 @@ public class Bittorrent {
 			// create the tracker URL for the GET request
 
 			URL tracker = new URL(
-				this.torrentInfo.announce_url+
-				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
-				"&peer_id="+this.clientID+
-				"&port="+port +
+				this.torrentInfo.announce_url +
+				"?info_hash="+ Utilities.encodeInfoHashToURL(this.info_hash) +
+				"&peer_id="+ this.clientID +
+				"&port="+ port +
 				"&uploaded="+ this.uploaded +
 				"&downloaded="+ this.downloaded +
 				"&left="+ this.left +
@@ -436,16 +442,17 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
-			this.peers = Utilities.decodeCompressedPeers(trackerResponse);
-			this.interval = Utilities.decodeInterval(trackerResponse);
+//			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
+			this.peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(responseInBytes));
+//			this.interval = Utilities.decodeInterval(trackerResponse);
+			
 			System.out.println("Peers List:");
 			this.printPeerList();
 			this.connections = new boolean[this.peers.length];
 			// close streams
 			fromServer.close();
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			System.err.println("GET request to tracker failed.");
 		}
 		return response;
 	}
@@ -637,6 +644,7 @@ public class Bittorrent {
 		boolean connected = false;
 		synchronized(peers) {
 			for(int i = 0; i < this.peers.length; ++i) {
+				// get peer numbers for correct peers to make request to
 				if(peer.equals(this.peers[i])) {
 					connected = true;
 					this.connectToPeer(i);
@@ -750,7 +758,7 @@ public class Bittorrent {
 	 * keeping state on number of served and pending requests.
 	 */
 	public void downloadAlgorithm() {
-		while((this.getEvent() == "stopped") || (!isFileCompleted())) {
+		while((this.getEvent() != "stopped") && (!isFileCompleted())) {
 			if (--this.countdownToRequeue < 0) {
 				this.populateWeightedRequestQueue();
 				this.countdownToRequeue = 15;
@@ -838,6 +846,7 @@ public class Bittorrent {
 		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
 		fileOut.close();
+		this.saveState();
 	}
 	
 	/**
@@ -848,7 +857,7 @@ public class Bittorrent {
 		FileOutputStream fileOut = new FileOutputStream(
 				this.rscFileFolder+"prop.properties");
 		this.properties.store(fileOut, 
-				"# properties file - CS352 - Bittorrent Project");
+				" properties file - CS352 - Bittorrent Project");
 	}
 	
 	/**
@@ -870,6 +879,19 @@ public class Bittorrent {
 			case "uploaded": case "downloaded": case "left": case "event":
 				this.properties.setProperty(key, value);
 		}
+	}
+	
+	/**
+	 * Resets properties object to initialized state
+	 */
+	private void resetState() {
+		this.setState("uploaded", Integer.toString(0));
+		this.setState("downloaded", Integer.toString(0));
+		this.setState("left", Integer.toString(this.pieces));
+		this.setState("event", "started");
+		try {
+			this.saveState();
+		} catch (IOException e){};
 	}
 	
 	/**

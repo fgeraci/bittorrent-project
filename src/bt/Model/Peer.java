@@ -760,6 +760,8 @@ public class Peer implements Runnable {
 						// Notify this peer that client now has piece
 						this.showFinished(index);
 						sent = true;
+						this.parent.updateDownloaded(1);
+						this.parent.updateLeft(1);
 
 					} catch (IOException e) {
 						try {
@@ -773,6 +775,8 @@ public class Peer implements Runnable {
 					if(!this.parent.isFileCompleted()){
 						completed[index] = true;
 						if(this.parent.isFileCompleted()) {
+							this.parent.updateLeft(1);
+							this.parent.updateDownloaded(1);
 							this.parent.notifyFullyDownloaded(); // notifies tracker
 							this.parent.saveFile(); // create the downloaded file
 							UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");

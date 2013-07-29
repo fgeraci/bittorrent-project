@@ -35,9 +35,9 @@ public class TrackerRefresher implements Runnable {
 	 * @return
 	 */
 	public static TrackerRefresher getInstance(
-			TorrentInfo ti, String[] peers, List<Peer> peerList, int interval) {
+			TorrentInfo ti, String[] peers, List<Peer> peerList/*, this.interval */) {
 		if(TrackerRefresher.instance == null) {
-			TrackerRefresher.instance = new TrackerRefresher(ti, peers, peerList, interval);
+			TrackerRefresher.instance = new TrackerRefresher(ti, peers, peerList/*, interval */);
 		}
 		return TrackerRefresher.instance;
 	}
@@ -60,7 +60,7 @@ public class TrackerRefresher implements Runnable {
 	 * @param peerList
 	 */
 	private TrackerRefresher(
-			TorrentInfo ti, String[] peers, List<Peer> peerList, int interval) {
+			TorrentInfo ti, String[] peers, List<Peer> peerList/*, this.interval */) {
 		this.torrentInfo = ti;
 		Thread thread = new Thread(this);
 		thread.start();
@@ -72,7 +72,7 @@ public class TrackerRefresher implements Runnable {
 			int tr_min_interval = -1;
 			while(this.refresh) {
 				try {
-					tr_interval = 10; // THIS SHOULD BE REMOVED //
+//					tr_interval = 10; // THIS SHOULD BE REMOVED //
 					Thread.sleep(refresh*1000);
 					String[] recentList = this.getPeerList();
 					try {
