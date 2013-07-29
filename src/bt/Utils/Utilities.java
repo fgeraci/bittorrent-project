@@ -134,16 +134,33 @@ public class Utilities {
 	  }
 	 
 	 /**
-	  * Returns the update interval requested by tracker
-	  * @param map: the interval
-	  * @return the integer value
+	  * Returns the updated interval requested by tracker
+	  * @param map: the interval key
+	  * @return the integer value of interval
 	  */
 	 public static int decodeInterval(Map map) {
 		 int interval = -1;
 		 try {
 			 interval = (int)map.get(ByteBuffer.wrap("interval".getBytes()));
-		 } catch (Exception e) {}
+		 } catch (Exception e) {
+			 System.err.println("Tracker interval = -1, because not received.");
+		 }
 		 return interval;		 
+	 }
+	 
+	 /**
+	  * Returns the updated min_interval requested by tracker
+	  * @param map: the min_interval key
+	  * @return the integer value of min_interval
+	  */
+	 public static int decodeMinInterval(Map map) {
+		 int min_interval = -1;
+		 try {
+			 min_interval = (int)map.get(ByteBuffer.wrap("min_interval".getBytes()));
+		 } catch (Exception e) {
+			 System.err.println("Tracker min_interval = -1, because not received.");
+		 }
+		 return min_interval;		 
 	 }
 	 
 	 /**
