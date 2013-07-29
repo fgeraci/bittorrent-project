@@ -222,9 +222,11 @@ public class Bittorrent {
 	/**
 	 * Updates the value in left bytes for the file.
 	 * @param bytes bytes
+	 * @return updated int value of left
 	 */
-	public void updateLeft(int bytes) {
+	public int updateLeft(int bytes) {
 		this.left -= bytes;
+		return this.left;
 	}
 	
 	/**
@@ -350,6 +352,15 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Updates downloaded bytes.
+	 * @return updated int bytes downloaded
+	 */
+	public int updateDownloaded(int bytes) {
+		this.downloaded += bytes;
+		return this.downloaded;
+	}
+	
+	/**
 	 * @return boolean value as to whether client has downloaded no pieces at all
 	 */
 	public boolean noPieces() {
@@ -410,10 +421,10 @@ public class Bittorrent {
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
 				"&peer_id="+this.clientID+
-				"&port="+port+
-				"&uploaded="+ this.uploaded+
-				"&downloaded="+ this.downloaded+
-				"&left="+ this.left+
+				"&port="+port +
+				"&uploaded="+ this.uploaded +
+				"&downloaded="+ this.downloaded +
+				"&left="+ this.left +
 				"&event="+ this.event);
 			// open streams
 			InputStream fromServer = tracker.openStream();
@@ -525,11 +536,8 @@ public class Bittorrent {
 	 */
 	public void stopServer() throws IOException, UnknownBittorrentException  {
 		TrackerRefresher.getInstance().notifyClose();
-		this.setState("uploaded", Integer.toString(this.getUploaded()));
-		this.setState("downloaded", Integer.toString(this.getDownloaded()));
-		this.setState("left", Integer.toString(this.getLeft()));
-		this.setState("event", this.getEvent());
-		this.saveState();
+		this.setState(); // set torrent state in this.properties object
+		this.saveState(); // save torrent state in prop.properties file
 		this.server.terminateServer();
 	}
 	
@@ -847,12 +855,15 @@ public class Bittorrent {
 	 * Set complete state in properties object
 	 */
 	public void setState() {
-		
+		this.setState("uploaded", Integer.toString(this.getUploaded()));
+		this.setState("downloaded", Integer.toString(this.getDownloaded()));
+		this.setState("left", Integer.toString(this.getLeft()));
+		this.setState("event", this.getEvent());
 	}
 	
 	/**
-	 * Sets state in properties object
-	 * @params key/value pair of strings
+	 * Sets state in properties object field
+	 * @params string key/value pair
 	 */
 	public void setState(String key, String value) {
 		switch (key){
@@ -893,13 +904,13 @@ public class Bittorrent {
 		try {	
 			// create the tracker URL for the GET request
 			URL tracker = new URL(
-				this.torrentInfo.announce_url+
-				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
-				"&peer_id="+this.clientID+
+				this.torrentInfo.announce_url +
+				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash) +
+				"&peer_id="+ this.clientID +
 				"&port="+port+
-				"&uploaded="+ this.uploaded+
-				"&downloaded="+ this.torrentInfo.file_length+
-				"&left="+ 0+
+				"&uploaded="+ this.uploaded +
+				"&downloaded="+ this.torrentInfo.file_length +
+				"&left="+ 0 +
 				"&event="+ this.event);
 			// open streams
 			InputStream fromServer = tracker.openStream();
@@ -942,10 +953,10 @@ public class Bittorrent {
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
 				"&peer_id="+this.clientID+
-				"&port="+port+
+				"&port="+ port +
 				"&uploaded="+ this.uploaded+
 				"&downloaded="+ this.torrentInfo.file_length+
-				"&left="+ 0+
+				"&left="+ 0 +
 				"&event="+ this.event);
 			// open streams
 			InputStream fromServer = tracker.openStream();

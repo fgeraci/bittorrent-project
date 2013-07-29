@@ -428,7 +428,12 @@ public class Peer implements Runnable {
 			} catch (Exception e) {System.out.println(e.getMessage());}
 			try {
 				verifySHA(index);
-				/ update parent.
+				// update parent.properties
+				this.parent.setState("left", 
+						Integer.toString(this.parent.updateLeft(1)));
+				this.parent.setState("downloaded", 
+						Integer.toString(this.parent.updateDownloaded(1)));
+				this.parent.saveState();
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 			}
@@ -755,6 +760,7 @@ public class Peer implements Runnable {
 						// Notify this peer that client now has piece
 						this.showFinished(index);
 						sent = true;
+
 					} catch (IOException e) {
 						try {
 							Thread.sleep(50);
