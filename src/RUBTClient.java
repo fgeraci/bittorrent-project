@@ -52,16 +52,15 @@ public class RUBTClient {
 		Bittorrent bittorrent = null;
 		@SuppressWarnings("unused")
 		UserInterface ui = null;
-		
-		if(args.length >= 2) {
-			bittorrent = Bittorrent.getInstance(args[0], args[1]);
-			ui = UserInterface.getInstance(bittorrent);
-			System.out.println(" --> Client successfully initiated. <-- ");
-			clientLoop(); // THIS IS NOT OFFICIAL
-		} else {
-			System.err.println("ERROR: Insufficient arguments");
-			System.out.println("usage: RUBTClient <torrent filename> <output filename>");
-			System.exit(-1);
-		}
+		try {
+			if(args.length >= 2) {
+				bittorrent = Bittorrent.getInstance(args[0], args[1]);
+				bittorrent.startExecuting();
+			} else {
+				System.err.println("ERROR: Insufficient arguments");
+				System.out.println("usage: RUBTClient <torrent filename> <output filename>");
+				System.exit(-1);
+			}
+		} catch (Exception e) {}
 	}
 }

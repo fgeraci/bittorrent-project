@@ -27,8 +27,8 @@ public class UserInterface implements Runnable {
 	 * Constructs a UserInterface instance.
 	 * @param bt
 	 */
-	private UserInterface(Bittorrent bt) {
-		this.bittorrent = bt;
+	private UserInterface() {
+		
 		// Program's loop
 		System.out.println("Connection Successful, welcome");
 		System.out.println("Input help for commands");
@@ -36,36 +36,10 @@ public class UserInterface implements Runnable {
 		UIThread.start();
 	}
 	
-	/**
-	 * Instance getter.
-	 * @return UserInterface instance.
-	 */
-	public static UserInterface getInstance() {
-		if(UserInterface.instance == null) {
-			throw new IllegalAccessError("UserInterface never instantiated.");
-		}
-		return UserInterface.instance;
-	}
-	
 	public void run() {
 		try {
-			// 1. Connect to peers
-			bittorrent.connectToPeer("128.6.171.3:6916");
-			bittorrent.connectToPeer("128.6.171.4:6929");
 			
-			// 2. wait for getting unchoked.
-			while(bittorrent.peersChoked()) {
-				System.out.println("-- Waiting for peers to unchoke.");
-				try {
-					Thread.sleep(1500);
-				} catch(Exception e) {
-					e.getMessage();
-				}
-			}
-			int peerListSize = bittorrent.getPeerList().size();
-
-			// 3. start bitfields queue
-			bittorrent.downloadAlgorithm();
+			
 			try {
 				this.clientLoop();
 			} catch (Exception e) { 
@@ -81,9 +55,9 @@ public class UserInterface implements Runnable {
 	 * Alternative Instance getter.
 	 * @return UserInterface instance.
 	 */
-	public static UserInterface getInstance(Bittorrent bt) {
+	public static UserInterface getInstance() {
 		if(UserInterface.instance == null) {
-			UserInterface.instance = new UserInterface(bt);
+			UserInterface.instance = new UserInterface();
 		}
 		return UserInterface.instance;
 	}

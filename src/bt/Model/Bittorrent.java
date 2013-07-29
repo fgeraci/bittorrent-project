@@ -26,6 +26,7 @@ import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
+import bt.View.UserInterface;
 
 /**
  * Bittorrent is the main class for the client. It will initialize the
@@ -180,10 +181,10 @@ public class Bittorrent {
 	 */
 	private List<Peer> peerList = null;
 	
-//	/**
-//	 * The tracker update interval in seconds for this torrent
-//	 */
-//	private int interval;
+	/**
+	 * The tracker update interval in seconds for this torrent
+	 */
+	private int interval;
 
 	/**
 	 * Priority queue of requests to be made
@@ -196,8 +197,6 @@ public class Bittorrent {
 	private Bittorrent(String torrentFile, String saveFile)	{	
 		// open the file
 		File file = new File((this.rscFileFolder+torrentFile));
-		//WE WANT TO DETECT PRESSENCE OF OUTPUT FILE IN ORDER TO LEAVE PREVIOUS STATE INTACT//
-		File fileName = new File((File.separator+saveFile)); 
 		try {
 			// get file info
 			this.peerList = new ArrayList<Peer>();
@@ -207,32 +206,49 @@ public class Bittorrent {
 		    	this.clientID = Utilities.generateID();
 		    }
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
-//			this.interval = 0;
+			this.interval = 0;
 			this.printTorrentInfoFields();
 			this.initClientState();
-			//IF OUTPUT FILE DOES NOT EXIST, NULL OUT PROP.PROPERTIES FILE//
-			if (true)//(!fileName.exists())
-				this.resetState();
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
-			this.event = "started";
 			// request the tracker for peers
 			this.sendRequestToTracker();
 			this.tr = TrackerRefresher.getInstance(
-					this.torrentInfo, this.peers, this.peerList/*, this.interval */);
+					this.torrentInfo, this.peers, this.peerList, this.interval);
+			UserInterface ui = UserInterface.getInstance();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
 	
+	/**
+	 * This method will be called and execute specific instructions from different projects.
+	 * For example, for Porject 1, it will execute automatic connections to specific peers.
+	 */
+	public void startExecuting() throws Exception {
+		
+		this.connectToPeer("128.6.171.3:6916");
+		this.connectToPeer("128.6.171.4:6929");
+		
+		while(this.peersChoked()) {
+			System.out.println("-- Waiting for all peers to unchoke.");
+			try {
+				Thread.sleep(1500);
+			} catch(Exception e) {
+				e.getMessage();
+			}
+		}
+		int peerListSize = this.getPeerList().size();
+
+		// 3. start bitfields queue
+		this.downloadAlgorithm();
+	}
 	
 	/**
 	 * Updates the value in left bytes for the file.
 	 * @param bytes bytes
-	 * @return updated int value of left
 	 */
-	public int updateLeft(int bytes) {
+	public void updateLeft(int bytes) {
 		this.left -= bytes;
-		return this.left;
 	}
 	
 	/**
@@ -358,15 +374,6 @@ public class Bittorrent {
 	}
 	
 	/**
-	 * Updates downloaded bytes.
-	 * @return updated int bytes downloaded
-	 */
-	public int updateDownloaded(int bytes) {
-		this.downloaded += bytes;
-		return this.downloaded;
-	}
-	
-	/**
 	 * @return boolean value as to whether client has downloaded no pieces at all
 	 */
 	public boolean noPieces() {
@@ -424,13 +431,13 @@ public class Bittorrent {
 			// create the tracker URL for the GET request
 
 			URL tracker = new URL(
-				this.torrentInfo.announce_url +
-				"?info_hash="+ Utilities.encodeInfoHashToURL(this.info_hash) +
-				"&peer_id="+ this.clientID +
-				"&port="+ port +
-				"&uploaded="+ this.uploaded +
-				"&downloaded="+ this.downloaded +
-				"&left="+ this.left +
+				this.torrentInfo.announce_url+
+				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
+				"&peer_id="+this.clientID+
+				"&port="+port+
+				"&uploaded="+ this.uploaded+
+				"&downloaded="+ this.downloaded+
+				"&left="+ this.left+
 				"&event="+ this.event);
 			// open streams
 			InputStream fromServer = tracker.openStream();
@@ -442,17 +449,16 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-//			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
-			this.peers = Utilities.decodeCompressedPeers((Map)Bencoder2.decode(responseInBytes));
-//			this.interval = Utilities.decodeInterval(trackerResponse);
-			
+			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
+			this.peers = Utilities.decodeCompressedPeers(trackerResponse);
+			this.interval = Utilities.decodeInterval(trackerResponse);
 			System.out.println("Peers List:");
 			this.printPeerList();
 			this.connections = new boolean[this.peers.length];
 			// close streams
 			fromServer.close();
 		} catch (Exception e) {
-			System.err.println("GET request to tracker failed.");
+			System.err.println(e.getMessage());
 		}
 		return response;
 	}
@@ -543,8 +549,6 @@ public class Bittorrent {
 	 */
 	public void stopServer() throws IOException, UnknownBittorrentException  {
 		TrackerRefresher.getInstance().notifyClose();
-		this.setState(); // set torrent state in this.properties object
-		this.saveState(); // save torrent state in prop.properties file
 		this.server.terminateServer();
 	}
 	
@@ -637,14 +641,10 @@ public class Bittorrent {
 	 * @throws IOException 
 	 * @throws UnknownHostException 
 	 */
-	public void connectToPeer(String peer)
-			throws IllegalArgumentException, UnknownHostException, 
-				IOException, DuplicatePeerException 
-	{
+	public void connectToPeer(String peer)throws IllegalArgumentException, UnknownHostException, IOException, DuplicatePeerException {
 		boolean connected = false;
 		synchronized(peers) {
 			for(int i = 0; i < this.peers.length; ++i) {
-				// get peer numbers for correct peers to make request to
 				if(peer.equals(this.peers[i])) {
 					connected = true;
 					this.connectToPeer(i);
@@ -758,7 +758,7 @@ public class Bittorrent {
 	 * keeping state on number of served and pending requests.
 	 */
 	public void downloadAlgorithm() {
-		while((this.getEvent() != "stopped") && (!isFileCompleted())) {
+		while(!isFileCompleted()) {
 			if (--this.countdownToRequeue < 0) {
 				this.populateWeightedRequestQueue();
 				this.countdownToRequeue = 15;
@@ -846,52 +846,6 @@ public class Bittorrent {
 		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
 		fileOut.close();
-		this.saveState();
-	}
-	
-	/**
-	 * Save download state of torrent to prop.properties file
-	 */
-	public void saveState () throws IOException {
-		System.out.println("-- Saving state...");
-		FileOutputStream fileOut = new FileOutputStream(
-				this.rscFileFolder+"prop.properties");
-		this.properties.store(fileOut, 
-				" properties file - CS352 - Bittorrent Project");
-	}
-	
-	/**
-	 * Set complete state in properties object
-	 */
-	public void setState() {
-		this.setState("uploaded", Integer.toString(this.getUploaded()));
-		this.setState("downloaded", Integer.toString(this.getDownloaded()));
-		this.setState("left", Integer.toString(this.getLeft()));
-		this.setState("event", this.getEvent());
-	}
-	
-	/**
-	 * Sets state in properties object field
-	 * @params string key/value pair
-	 */
-	public void setState(String key, String value) {
-		switch (key){
-			case "uploaded": case "downloaded": case "left": case "event":
-				this.properties.setProperty(key, value);
-		}
-	}
-	
-	/**
-	 * Resets properties object to initialized state
-	 */
-	private void resetState() {
-		this.setState("uploaded", Integer.toString(0));
-		this.setState("downloaded", Integer.toString(0));
-		this.setState("left", Integer.toString(this.pieces));
-		this.setState("event", "started");
-		try {
-			this.saveState();
-		} catch (IOException e){};
 	}
 	
 	/**
@@ -926,59 +880,13 @@ public class Bittorrent {
 		try {	
 			// create the tracker URL for the GET request
 			URL tracker = new URL(
-				this.torrentInfo.announce_url +
-				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash) +
-				"&peer_id="+ this.clientID +
-				"&port="+port+
-				"&uploaded="+ this.uploaded +
-				"&downloaded="+ this.torrentInfo.file_length +
-				"&left="+ 0 +
-				"&event="+ this.event);
-			// open streams
-			InputStream fromServer = tracker.openStream();
-			byte[] responseInBytes = new byte[512];
-			// read all the response from the server
-			int b = -1;
-			int pos = 0;
-			while((b = fromServer.read()) != -1) {
-				responseInBytes[pos] = (byte)b;
-				++pos;
-			}
-			System.out.println("-- Tracker has been notified of download completion.");
-			// close streams
-			fromServer.close();
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-	
-	/**
-	 * Notifies the tracker that the client has stopped downloading.
-	 */
-	public void notifyStoppedDownloading() {
-		int port = -1;
-		while ((port=this.server.getPort()) == -1) {
-			System.err.println("Waiting for available port...");
-			if (port == -1) {
-				try {
-					Thread.sleep(20);
-				} catch (InterruptedException e) {
-					continue;
-				}
-			}
-		}
-		this.event = "stopped";
-		String response = null;
-		try {	
-			// create the tracker URL for the GET request
-			URL tracker = new URL(
 				this.torrentInfo.announce_url+
 				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
 				"&peer_id="+this.clientID+
-				"&port="+ port +
+				"&port="+port+
 				"&uploaded="+ this.uploaded+
 				"&downloaded="+ this.torrentInfo.file_length+
-				"&left="+ 0 +
+				"&left="+ 0+
 				"&event="+ this.event);
 			// open streams
 			InputStream fromServer = tracker.openStream();
@@ -990,6 +898,7 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
+			System.out.println("-- Tracker notified of download completion.");
 			// close streams
 			fromServer.close();
 		} catch (Exception e) {

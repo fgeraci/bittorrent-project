@@ -25,7 +25,6 @@ public class TrackerRefresher implements Runnable {
 	private TorrentInfo torrentInfo;
 	private static TrackerRefresher instance = null;
 	private int interval;
-	private int min_interval;
 	
 	/**
 	 * Access a single tracker refresher instance.
@@ -35,9 +34,9 @@ public class TrackerRefresher implements Runnable {
 	 * @return
 	 */
 	public static TrackerRefresher getInstance(
-			TorrentInfo ti, String[] peers, List<Peer> peerList/*, this.interval */) {
+			TorrentInfo ti, String[] peers, List<Peer> peerList, int interval) {
 		if(TrackerRefresher.instance == null) {
-			TrackerRefresher.instance = new TrackerRefresher(ti, peers, peerList/*, interval */);
+			TrackerRefresher.instance = new TrackerRefresher(ti, peers, peerList, interval);
 		}
 		return TrackerRefresher.instance;
 	}
@@ -60,45 +59,23 @@ public class TrackerRefresher implements Runnable {
 	 * @param peerList
 	 */
 	private TrackerRefresher(
-			TorrentInfo ti, String[] peers, List<Peer> peerList/*, this.interval */) {
+			TorrentInfo ti, String[] peers, List<Peer> peerList, int interval) {
 		this.torrentInfo = ti;
 		Thread thread = new Thread(this);
 		thread.start();
 	}
 	
-	  public void run() {
-			int refresh = getInterval();
-			int tr_interval = -1;
-			int tr_min_interval = -1;
-			while(this.refresh) {
-				try {
-//					tr_interval = 10; // THIS SHOULD BE REMOVED //
-					Thread.sleep(refresh*1000);
-					String[] recentList = this.getPeerList();
-					try {
-						tr_interval = this.getInterval();
-					} catch (Exception e) {}
-					try {
-						tr_min_interval = this.getMinInterval();
-					} catch (Exception e) {}
-					if (tr_min_interval > tr_interval){
-						// min_interval and interval are at odds with one another
-						refresh = 2*tr_min_interval;
-					}
-					else {
-						refresh = tr_interval;
-					}
-					if ((refresh > 180) || (refresh < 0))
-						refresh = 180;
-					if(recentList != null) {
-						UserInterface.getInstance().receiveEvent(
-								"min_interval = "+ tr_min_interval +
-								", interval = "+ tr_interval +
-								"\nUpdating tracker every "+ refresh +" seconds...");
-					}
+	public void run() {
+		while(this.refresh) {
+			try {
+				Thread.sleep(180*1000);
+				String[] recentList = this.getPeerList();
+				if(recentList != null) {
+					UserInterface.getInstance().receiveEvent("Updating peer list...");
+				}
 			} catch (Exception e) { /* this should never happen */ }
-			}
 		}
+	}
 	
 	/**
 	 * Refreshes the peers list.
@@ -136,8 +113,6 @@ public class TrackerRefresher implements Runnable {
 			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
 			newList = Utilities.decodeCompressedPeers(trackerResponse);
 			this.interval = Utilities.decodeInterval(trackerResponse);
-			this.min_interval = Utilities.decodeMinInterval(trackerResponse);
-			
 			// close streams
 			fromServer.close();
 			return newList;
@@ -150,14 +125,6 @@ public class TrackerRefresher implements Runnable {
 	 */
 	private int getInterval() {
 		return this.interval;
-	}
-	
-	/**
-	 * Returns the min_interval requested by the tracker
-	 * @return integer min_interval
-	 */
-	private int getMinInterval() {
-		return this.min_interval;
 	}
 	
 	/**

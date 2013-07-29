@@ -21,17 +21,7 @@ public class CommandParser {
 	public static void execute(String command) throws Exception {
 		switch(command) {
 		case "quit":
-			try {
-				Bittorrent.getInstance().notifyStoppedDownloading();
-			} catch (Exception e) { System.out.println(e.getMessage()); }
 			Utilities.callClose();
-			break;
-		case "pause":
-			// NEED TO IMPLEMENT TO PAUSE AND RESUME DOWNLOADS
-			break;
-		case "resume":
-			// NEED TO IMPLEMENT TO PAUSE AND RESUME DOWNLOADS
-			break;
 		case "help":
 			CommandParser.printHelp();
 			break;
@@ -70,13 +60,6 @@ public class CommandParser {
 				System.out.println("\tNo one.");
 			}
 			break;
-		case "event":
-			System.out.print("Event state: ");
-			try { 
-				System.out.println(Bittorrent.getInstance().getEvent());
-			} catch (Exception e) { System.out.println(e.getMessage()); 
-			}
-			break;
 		default:
 			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}
@@ -92,9 +75,6 @@ public class CommandParser {
 		System.out.println("connections - list all active TCP sessions");
 		System.out.println("printpeers - Print list of available peers");
 		System.out.println("serverstatus - server's bound status.");
-		System.out.println("event - outputs the event state.");
-		System.out.println("pause - pauses the client.");
-		System.out.println("resume - resumes the client.");
 		System.out.println("quit - terminates the client.");
 		System.out.println("--------------------------------\n");
 	}

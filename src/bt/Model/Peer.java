@@ -324,10 +324,8 @@ public class Peer implements Runnable {
 	}
 	
 	/**
-	 * This method will affirm that this client has successfully completed 
-	 * the reception of a piece of the file from some peer.  This client will therefore 
-	 * send a "have" message, for this piece, to the peer who uploaded it.  
-	 * The peer this object represents will therefore be able to remove this
+	 * This method will notify this client that we have successfully completed the transfer of a piece of
+	 * the file from some peer.  The peer this object represents will therefore be able to remove this
 	 * piece from the queue of interested pieces it is maintaining for this client. 
 	 * @param piece The piece of the file which has been completed.
 	 * @throws IOException 
@@ -428,12 +426,6 @@ public class Peer implements Runnable {
 			} catch (Exception e) {System.out.println(e.getMessage());}
 			try {
 				verifySHA(index);
-				// update parent.properties
-				this.parent.setState("left", 
-						Integer.toString(this.parent.updateLeft(1)));
-				this.parent.setState("downloaded", 
-						Integer.toString(this.parent.updateDownloaded(1)));
-				this.parent.saveState();
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 			}
@@ -760,9 +752,6 @@ public class Peer implements Runnable {
 						// Notify this peer that client now has piece
 						this.showFinished(index);
 						sent = true;
-						this.parent.updateDownloaded(1);
-						this.parent.updateLeft(1);
-
 					} catch (IOException e) {
 						try {
 							Thread.sleep(50);
@@ -775,19 +764,14 @@ public class Peer implements Runnable {
 					if(!this.parent.isFileCompleted()){
 						completed[index] = true;
 						if(this.parent.isFileCompleted()) {
-							this.parent.updateLeft(1);
-							this.parent.updateDownloaded(1);
 							this.parent.notifyFullyDownloaded(); // notifies tracker
 							this.parent.saveFile(); // create the downloaded file
 							UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
-							this.parent.notifyStoppedDownloading(); // notifies tracker
-							UserInterface.getInstance().receiveEvent(
-									"-- Tracker has been notified that downloading is stopped. --");
 						}
 					}
 				}
 			} else { // piece hash is incorrect
-				System.out.println("Index # " + index + " failed was not verified.");
+				// System.out.println("Index # " + index + " failed was not verified.");
 			}
 		} catch (NoSuchAlgorithmException e) {
 			System.err.println(e.getMessage());
