@@ -83,7 +83,7 @@ public class TrackerRefresher implements Runnable {
 					} catch (Exception e) {}
 					if (tr_min_interval > tr_interval){
 						// min_interval and interval are at odds with one another
-						refresh = tr_min_interval;
+						refresh = 2*tr_min_interval;
 					}
 					else {
 						refresh = tr_interval;
