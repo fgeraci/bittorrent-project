@@ -158,7 +158,7 @@ public class Utilities {
 		 try {
 			 min_interval = (int)map.get(ByteBuffer.wrap("min_interval".getBytes()));
 		 } catch (Exception e) {
-			 System.err.println("Tracker min_interval = -1, because not received.");
+			 //System.err.println("Tracker min_interval = -1, because not received.");
 		 }
 		 return min_interval;		 
 	 }
