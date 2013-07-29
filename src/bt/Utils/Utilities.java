@@ -3,6 +3,9 @@ package bt.Utils;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -291,5 +294,30 @@ public class Utilities {
 		 }
 		 return bitfield;
 		 
+	 }
+	 public static void saveState (int downloaded, int uploaded, int left, byte[][] fileHeap) throws IOException {
+		 File temp = new File("cs352.tmp");
+		 FileOutputStream tempOut = new FileOutputStream(temp);
+		 ByteBuffer intBuffer = ByteBuffer.allocate(12);
+		 intBuffer.putInt(downloaded).putInt(uploaded).putInt(left);
+		 byte[] ints = null;
+		 intBuffer.get(ints);
+		 tempOut.write(ints);
+		 for(int i = 0; i < fileHeap.length; ++i) {
+			 tempOut.write(fileHeap[i]);
+		 }
+	 }
+	 public static void loadState(int[] intArray, byte[][] fileHeap, int pieceLength, int pieces) throws IOException {
+		 File temp = new File("cs352.tmp");
+		 FileInputStream tempIn = new FileInputStream(temp);
+		 byte[] intByteArray = new byte[12];
+		 tempIn.read(intByteArray, 0, 12);
+		 ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);
+		 for (int i = 0; i < 3; i++) {
+			 intArray[i] = intBuffer.getInt();
+		 }
+		 for (int i = 0; i < pieces; ++i) {
+			 tempIn.read(fileHeap[pieces], pieces * pieceLength + 11, pieceLength);
+		 }
 	 }
 }
