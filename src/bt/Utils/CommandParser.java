@@ -60,6 +60,12 @@ public class CommandParser {
 				System.out.println("\tNo one.");
 			}
 			break;
+		case "event":
+			System.out.print("Event state: ");
+			try { 
+				System.out.println(Bittorrent.getInstance().getEvent());
+			} catch (Exception e) { System.out.println(e.getMessage()); }
+			break;
 		default:
 			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}

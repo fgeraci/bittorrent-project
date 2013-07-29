@@ -734,7 +734,7 @@ public class Bittorrent {
 	 * keeping state on number of served and pending requests.
 	 */
 	public void downloadAlgorithm() {
-		while(!isFileCompleted()) {
+		while((this.getEvent() == "stopped") || (!isFileCompleted())) {
 			if (--this.countdownToRequeue < 0) {
 				this.populateWeightedRequestQueue();
 				this.countdownToRequeue = 15;
@@ -874,7 +874,52 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			System.out.println("-- Tracker notified of download completion.");
+			System.out.println("-- Tracker has been notified of download completion.");
+			// close streams
+			fromServer.close();
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Notifies the tracker that the client has stopped downloading.
+	 */
+	void notifyStoppedDownloading() {
+		int port = -1;
+		while ((port=this.server.getPort()) == -1) {
+			System.err.println("Waiting for available port...");
+			if (port == -1) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					continue;
+				}
+			}
+		}
+		this.event = "stopped";
+		String response = null;
+		try {	
+			// create the tracker URL for the GET request
+			URL tracker = new URL(
+				this.torrentInfo.announce_url+
+				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
+				"&peer_id="+this.clientID+
+				"&port="+port+
+				"&uploaded="+ this.uploaded+
+				"&downloaded="+ this.torrentInfo.file_length+
+				"&left="+ 0+
+				"&event="+ this.event);
+			// open streams
+			InputStream fromServer = tracker.openStream();
+			byte[] responseInBytes = new byte[512];
+			// read all the response from the server
+			int b = -1;
+			int pos = 0;
+			while((b = fromServer.read()) != -1) {
+				responseInBytes[pos] = (byte)b;
+				++pos;
+			}
 			// close streams
 			fromServer.close();
 		} catch (Exception e) {

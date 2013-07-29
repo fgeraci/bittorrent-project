@@ -324,8 +324,10 @@ public class Peer implements Runnable {
 	}
 	
 	/**
-	 * This method will notify this client that we have successfully completed the transfer of a piece of
-	 * the file from some peer.  The peer this object represents will therefore be able to remove this
+	 * This method will affirm that this client has successfully completed 
+	 * the reception of a piece of the file from some peer.  This client will therefore 
+	 * send a "have" message, for this piece, to the peer who uploaded it.  
+	 * The peer this object represents will therefore be able to remove this
 	 * piece from the queue of interested pieces it is maintaining for this client. 
 	 * @param piece The piece of the file which has been completed.
 	 * @throws IOException 
@@ -767,6 +769,9 @@ public class Peer implements Runnable {
 							this.parent.notifyFullyDownloaded(); // notifies tracker
 							this.parent.saveFile(); // create the downloaded file
 							UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+							this.parent.notifyStoppedDownloading(); // notifies tracker
+							UserInterface.getInstance().receiveEvent(
+									"-- Tracker has been notified that downloading is stopped. --");
 						}
 					}
 				}
