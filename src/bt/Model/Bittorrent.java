@@ -297,6 +297,15 @@ public class Bittorrent {
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
 		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
+		try {
+			int[] intArray = new int[3];
+			Utilities.loadState(intArray, collection, this.pieceLength, this.pieces);
+		} catch (IOException e) {
+			System.err.println("Unable to load file pieces from previous session.");
+			for (int i = 0; i < completedPieces.length; ++i) {
+				completedPieces[i] = false;
+			}
+		}
 	}
 	
 	/**
@@ -983,5 +992,13 @@ public class Bittorrent {
 	 */
 	public void completedString() {
 		System.out.println(Arrays.toString(this.completedPieces));
+	}
+
+	public void saveHeap() {
+		try {
+			Utilities.saveState(downloaded, uploaded, left, collection);
+		} catch (IOException e) {
+			System.err.println("unable to open cs352.tmp for writing.");
+		}
 	}
 }
