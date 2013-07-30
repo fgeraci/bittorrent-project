@@ -13,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -180,11 +181,6 @@ public class Bittorrent {
 	 * Current list of peers.
 	 */
 	private List<Peer> peerList = null;
-	
-	/**
-	 * The tracker update interval in seconds for this torrent
-	 
-	private int interval; */
 
 	/**
 	 * Priority queue of requests to be made
@@ -949,5 +945,43 @@ public class Bittorrent {
 			linkedList.add(p);
 		}
 		return (LinkedList<Peer>)linkedList;
+	}
+	 
+	/**
+	 * Convert this.Bittorrent.completedPieces boolean array to a comma-separated string,
+	 * for saving file-download-state to prop.properties file 
+	 * @return converted string object
+	 */
+	public String saveCompletedPieces (){
+		 String btCompletedStr = "";
+		 for (int i = 0; i < this.completedPieces.length; i++) 
+			 btCompletedStr += (Boolean.toString(this.completedPieces[i]) + ",");
+		 return btCompletedStr;
+	 }
+	 
+	/**
+	 * Load string of comma-separated booleans into
+	 * this.Bittorrent.completedPieces boolean array, in order 
+	 * to restore the state of a torrent download after an interrupt.
+	 * @param btCompletedStr
+	 */
+	public void loadCompletedPieces (String btCompletedStr) {
+		String boolString = "true,false,true,false,true,";
+		//for (int i = 0; i < this.torrentInfo.file_length; i++)
+		int i = 0;
+		while (!boolString.isEmpty()) {
+			String bool = boolString.substring(0, boolString.indexOf(','));
+			boolString = boolString.substring(boolString.indexOf(',')+1, boolString.length());
+			this.completedPieces[i] = Boolean.valueOf(bool);
+			i++;
+		}
+		//System.out.println(Arrays.toString(this.completedPieces));
+	 }
+	
+	/**
+	 * Small routine to verify state of this.completedPieces boolean array
+	 */
+	public void completedString() {
+		System.out.println(Arrays.toString(this.completedPieces));
 	}
 }

@@ -1,5 +1,6 @@
 package bt.Utils;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 import bt.Model.Bittorrent;
@@ -59,10 +60,26 @@ public class CommandParser {
 			} else {
 				System.out.println("\tNo one.");
 			}
+			break;			
+		//////////////////////////////////////////////////////////////////////////////////////////////	
+		// 	TEST ROUTINES FOR SAVING AND LOADING this.Bittorrent.completedPieces TO AND FROM STRING //	
+		case "savecompleted": {
+			System.out.println(Bittorrent.getInstance().saveCompletedPieces());
 			break;
+		}
+		case "loadcompleted": {	
+			String boolString = "true,false,true,false,true,";
+			Bittorrent.getInstance().loadCompletedPieces(boolString);
+			break;
+		}
+		case "completedstring": {
+			Bittorrent.getInstance().completedString();
+			break;
+		}
 		default:
 			throw new IllegalArgumentException("Invalid command, input help for commands.");
 		}
+
 	}
 	
 	/**
