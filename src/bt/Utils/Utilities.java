@@ -147,6 +147,21 @@ public class Utilities {
 	 }
 	 
 	 /**
+	  * Returns the updated min_interval requested by tracker
+	  * @param map: the min_interval key
+	  * @return the integer value of min_interval
+	  */
+	 public static int decodeMinInterval(Map map) {
+		 int min_interval = -1;
+		 try {
+			 min_interval = (int)map.get(ByteBuffer.wrap("min_interval".getBytes()));
+		 } catch (Exception e) {
+			 //System.err.println("Tracker min_interval = -1, because not received.");
+		 }
+		 return min_interval;		 
+	 }
+	 
+	 /**
 	  * Terminates the client.
 	  */
 	 public static void callClose() {

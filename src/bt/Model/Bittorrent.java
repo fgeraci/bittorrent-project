@@ -183,8 +183,8 @@ public class Bittorrent {
 	
 	/**
 	 * The tracker update interval in seconds for this torrent
-	 */
-	private int interval;
+	 
+	private int interval; */
 
 	/**
 	 * Priority queue of requests to be made
@@ -206,14 +206,14 @@ public class Bittorrent {
 		    	this.clientID = Utilities.generateID();
 		    }
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
-			this.interval = 0;
+	/*		this.interval = 0; */
 			this.printTorrentInfoFields();
 			this.initClientState();
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
 			this.tr = TrackerRefresher.getInstance(
-					this.torrentInfo, this.peers, this.peerList, this.interval);
+					this.torrentInfo, this.peers, this.peerList/*, this.interval*/);
 			UserInterface ui = UserInterface.getInstance();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -451,7 +451,7 @@ public class Bittorrent {
 			}
 			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
 			this.peers = Utilities.decodeCompressedPeers(trackerResponse);
-			this.interval = Utilities.decodeInterval(trackerResponse);
+	/*		this.interval = Utilities.decodeInterval(trackerResponse); */
 			System.out.println("Peers List:");
 			this.printPeerList();
 			this.connections = new boolean[this.peers.length];
