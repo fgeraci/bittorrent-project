@@ -303,20 +303,21 @@ public class Utilities {
 		 tempOut.write(ints);  
 		 for(int i = 0; i < fileHeap.length; ++i) {  
           tempOut.write(fileHeap[i]);  
-		 }  
+		 }
+		 tempOut.close();
 	 }	  
 	 
 	 public static void loadState(int[] intArray, byte[][] fileHeap, int pieceLength, int pieces, File temp) throws IOException {  
-		
-		FileInputStream tempIn = new FileInputStream(temp);  
-		byte[] intByteArray = new byte[12];  
-		tempIn.read(intByteArray, 0, 12);  
-		ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
-		for (int i = 0; i < 3; i++) {  
-			 intArray[i] = intBuffer.getInt();  
-		}  
-		 for (int i = 0; i < pieces; ++i) {  
-			 tempIn.read(fileHeap[pieces], pieces * pieceLength + 11, pieceLength);  
-		}  
+		 	FileInputStream tempIn = new FileInputStream(temp);  
+		 	byte[] intByteArray = new byte[12];  
+		 	tempIn.read(intByteArray, 0, 12);  
+		 	ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
+		 	for (int i = 0; i < 3; i++) {  
+		 		intArray[i] = intBuffer.getInt();  
+		 	}  
+		 	for (int i = 0; i < pieces; ++i) {  
+		 		tempIn.read(fileHeap[pieces], pieces * pieceLength + 11, pieceLength);  
+		 	}
+		 	tempIn.close();
 	 }  
 }
