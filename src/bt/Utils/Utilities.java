@@ -169,7 +169,7 @@ public class Utilities {
 			 
 			 Bittorrent.getInstance().stopServer();
 			 Bittorrent.getInstance().disposePeers();
-			 Bittorrent.getInstance().saveHeap();
+			 Bittorrent.getInstance().saveHeap(); 				//NEW//
 			 System.out.println("\n -- Client Terminated -- ");
 			 System.out.println("\t> Peers disposed");
 			 System.out.println("\t> Tracker Notified");

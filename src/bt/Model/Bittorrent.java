@@ -188,6 +188,11 @@ public class Bittorrent {
 	private PriorityBlockingQueue<WeightedRequest> weightedRequestQueue = null;
 	
 	/**
+	 * Output file for interrupted state data
+	 */
+	private File tempFile;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile)	{	
@@ -202,9 +207,12 @@ public class Bittorrent {
 		    	this.clientID = Utilities.generateID();
 		    }
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
-	/*		this.interval = 0; */
 			this.printTorrentInfoFields();
+			
+			this.properties = new Properties();
+
 			this.initClientState();
+
 			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 			// request the tracker for peers
 			this.sendRequestToTracker();
@@ -246,6 +254,22 @@ public class Bittorrent {
 	public void updateLeft(int bytes) {
 		this.left -= bytes;
 	}
+
+ 	/**
+	 * Updates downloaded bytes.
+	 * @return updated int bytes downloaded
+	 */
+	public void updateDownloaded(int bytes) {
+		this.downloaded += bytes;
+	}	
+	
+	/**
+	 * Updates the this.uploaded state variable with
+	 * the number of bytes uploaded so far for this session
+	 */
+	public void updateUploaded(int bytes) {
+		this.uploaded += bytes;
+	}
 	
 	/**
 	 * public getter for info_hash byte array
@@ -279,33 +303,54 @@ public class Bittorrent {
 	 * @throws FileNotFoundException thrown if we cannot find the torrent file
 	 */
 	private void initClientState() throws FileNotFoundException, IOException {
+		this.tempFile = new File("cs352.tmp");
+		
 		double blocks = ((double)(this.torrentInfo.file_length)) / this.torrentInfo.piece_length;
 		this.pieces = (int)(Math.ceil(blocks));
 		this.pieceLength = this.torrentInfo.piece_length;
 		this.fileName = this.torrentInfo.file_name;
-		this.properties = new Properties();
-		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
-		this.event = this.properties.getProperty("event");
-		this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
-		this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
-		this.left = Integer.parseInt(this.properties.getProperty("left"));
-		this.downloadedByPiece = new int[this.pieces];
-		
-		// there are more than one call to create collection.
-		this.collection = new byte[pieces][this.pieceLength];
-		this.verificationArray = new byte[pieces][20];
 		this.completedPieces = new boolean[this.collection.length];
-		this.loadVerificationArray();
-		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
-		try {
-			int[] intArray = new int[3];
-			Utilities.loadState(intArray, collection, this.pieceLength, this.pieces);
-		} catch (IOException e) {
-			System.err.println("Unable to load file pieces from previous session.");
+		
+		if (this.tempFile.exists()) { 
+			// STATE FROM AN INTERRUPTED DOWNLOAD IS SAVED //
+			System.out.println("cs352.tmp exists: loading previous state...");
+			try {
+				int[] intArray = new int[3];
+				Utilities.loadState(intArray, collection, this.pieceLength, this.pieces);
+			} catch (Exception e) { //(IOException e) {
+				System.err.println("Unable to load file pieces from previous session.");
+				for (int i = 0; i < completedPieces.length; ++i) {
+					completedPieces[i] = false;
+				}
+			}
+		}
+		else {
+			//THESE PROPERTIES VALUES ARE DEFAULT, AND DO NOT REFLECT AN INTERRUPTED STATE//
+			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
+			this.event = this.properties.getProperty("event");
+			this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
+			this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
+			this.left = Integer.parseInt(this.properties.getProperty("left"));
+			this.downloadedByPiece = new int[this.pieces];
 			for (int i = 0; i < completedPieces.length; ++i) {
 				completedPieces[i] = false;
 			}
+			// there are more than one call to create collection.
+			this.collection = new byte[pieces][this.pieceLength];
+			this.verificationArray = new byte[pieces][20];
+	
+			this.loadVerificationArray();
+			this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
 		}
+//		try {
+//			int[] intArray = new int[3];
+//			Utilities.loadState(intArray, collection, this.pieceLength, this.pieces);
+//		} catch (IOException e) {
+//			System.err.println("Unable to load file pieces from previous session.");
+//			for (int i = 0; i < completedPieces.length; ++i) {
+//				completedPieces[i] = false;
+//			}
+//		}
 	}
 	
 	/**
@@ -886,8 +931,8 @@ public class Bittorrent {
 			// create the tracker URL for the GET request
 			URL tracker = new URL(
 				this.torrentInfo.announce_url+
-				"?info_hash="+Utilities.encodeInfoHashToURL(this.info_hash)+
-				"&peer_id="+this.clientID+
+				"?info_hash="+ Utilities.encodeInfoHashToURL(this.info_hash)+
+				"&peer_id="+ this.clientID+
 				"&port="+port+
 				"&uploaded="+ this.uploaded+
 				"&downloaded="+ this.torrentInfo.file_length+

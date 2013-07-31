@@ -382,7 +382,8 @@ public class Peer implements Runnable {
 		out.write(message);
 		out.flush();
 		System.out.println("Piece with index ("+ index +"), begin ("+ begin +
-				"), size ("+ payloadSize +") was sent to "+ this.toString() +".");		
+				"), size ("+ payloadSize +") was sent to "+ this.toString() +".");
+		parent.updateUploaded(payloadSize); // update uploaded state variable
 	}
 	
 	/**
@@ -752,6 +753,9 @@ public class Peer implements Runnable {
 						// Notify this peer that client now has piece
 						this.showFinished(index);
 						sent = true;
+						//UPDATE DOWNLOADED & LEFT STATE VARIABLES IN Bittorrent
+						parent.updateLeft(toDigest.length);
+						parent.updateDownloaded(toDigest.length);
 					} catch (IOException e) {
 						try {
 							Thread.sleep(50);
