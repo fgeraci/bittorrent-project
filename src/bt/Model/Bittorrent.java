@@ -193,6 +193,16 @@ public class Bittorrent {
 	private File tempFile;
 	
 	/**
+	 * InputStream for properties file
+	 */
+	FileInputStream propertiesInputStream;
+	
+	/**
+	 * OutputStream for properties file
+	 */
+	FileOutputStream propertiesOutputStream;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile)	{	
@@ -209,7 +219,7 @@ public class Bittorrent {
 			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
 			this.printTorrentInfoFields();
 			
-			this.properties = new Properties();
+//			this.properties = new Properties();
 
 			this.initClientState();
 
@@ -272,6 +282,25 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Update this.properties' "completedPieces" key
+	 */
+	public void updateCompletedPiecesProperty() {
+		this.properties.setProperty("completedPieces", this.saveCompletedPieces());
+		try {
+			this.propertiesOutputStream = 
+					new FileOutputStream(this.rscFileFolder+"prop2.properties");
+			this.properties.store(this.propertiesOutputStream, 
+					" properties resume file - CS352 - Bittorrent Project");
+		}
+		catch (FileNotFoundException e){ 
+			System.err.println("...prop2.properties output file not found.");
+		}
+		catch (IOException e) { 
+			System.err.println("...could not update prop2.properties output file");
+		}
+	}
+	
+	/**
 	 * public getter for info_hash byte array
 	 * @return Byte[] backing ByteBuffer
 	 */
@@ -303,45 +332,56 @@ public class Bittorrent {
 	 * @throws FileNotFoundException thrown if we cannot find the torrent file
 	 */
 	private void initClientState() throws FileNotFoundException, IOException {
-		this.tempFile = new File("cs352.tmp");
+		// FILE FOR SAVING/LOADING INTERRUPTED STATE
+		this.tempFile = new File("cs352.tmp"); 
 		
 		double blocks = ((double)(this.torrentInfo.file_length)) / this.torrentInfo.piece_length;
 		this.pieces = (int)(Math.ceil(blocks));
 		this.pieceLength = this.torrentInfo.piece_length;
 		this.fileName = this.torrentInfo.file_name;
+		this.properties = new Properties();
+		this.propertiesInputStream = 
+				new FileInputStream(this.rscFileFolder+"prop.properties");
+		// there are more than one call to create collection.
+		this.collection = new byte[pieces][this.pieceLength];
+		this.verificationArray = new byte[pieces][20];
+
+		this.loadVerificationArray();
+		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
 		this.completedPieces = new boolean[this.collection.length];
 		
 		if (this.tempFile.exists()) { 
-			// STATE FROM AN INTERRUPTED DOWNLOAD IS SAVED //
+			// STATE FROM AN INTERRUPTED DOWNLOAD IS LOADED //
 			System.out.println("cs352.tmp exists: loading previous state...");
 			try {
 				int[] intArray = new int[3];
 				Utilities.loadState(intArray, collection, this.pieceLength, this.pieces);
-			} catch (Exception e) { //(IOException e) {
+				return;
+			} catch (Exception e) { //(IOException e) 
 				System.err.println("Unable to load file pieces from previous session.");
-				for (int i = 0; i < completedPieces.length; ++i) {
-					completedPieces[i] = false;
-				}
 			}
+
 		}
-		else {
-			//THESE PROPERTIES VALUES ARE DEFAULT, AND DO NOT REFLECT AN INTERRUPTED STATE//
-			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
-			this.event = this.properties.getProperty("event");
-			this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
-			this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
-			this.left = Integer.parseInt(this.properties.getProperty("left"));
-			this.downloadedByPiece = new int[this.pieces];
-			for (int i = 0; i < completedPieces.length; ++i) {
-				completedPieces[i] = false;
-			}
-			// there are more than one call to create collection.
-			this.collection = new byte[pieces][this.pieceLength];
-			this.verificationArray = new byte[pieces][20];
-	
-			this.loadVerificationArray();
-			this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
+		//THESE PROPERTIES VALUES ARE DEFAULT, AND DO NOT REFLECT AN INTERRUPTED STATE//
+		this.properties.load(propertiesInputStream);
+		this.event = this.properties.getProperty("event");
+		this.uploaded = Integer.parseInt(this.properties.getProperty("uploaded"));
+		this.downloaded = Integer.parseInt(this.properties.getProperty("downloaded"));
+//			this.left = Integer.parseInt(this.properties.getProperty("left"));
+		this.left = this.torrentInfo.file_length;
+		this.downloadedByPiece = new int[this.pieces];
+		for (int i = 0; i < completedPieces.length; ++i) {
+			completedPieces[i] = false;
 		}
+		this.properties.setProperty("completedPieces", this.saveCompletedPieces());
+//		}
+//			// there are more than one call to create collection.
+//			this.collection = new byte[pieces][this.pieceLength];
+//			this.verificationArray = new byte[pieces][20];
+//	
+//			this.loadVerificationArray();
+//			this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
+
 //		try {
 //			int[] intArray = new int[3];
 //			Utilities.loadState(intArray, collection, this.pieceLength, this.pieces);
@@ -968,6 +1008,51 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Save download state of torrent to prop2.properties file
+	 */
+	public void saveState () throws IOException {
+		System.out.println("-- Saving state...");
+		FileOutputStream fileOut = new FileOutputStream(
+				this.rscFileFolder+"prop2.properties");
+		this.properties.store(fileOut, 
+				" properties resume file - CS352 - Bittorrent Project");
+	}
+	
+	/**
+	 * Set complete state in properties object
+	 */
+	public void setState() {
+		this.setState("uploaded", Integer.toString(this.getUploaded()));
+		this.setState("downloaded", Integer.toString(this.getDownloaded()));
+		this.setState("left", Integer.toString(this.getLeft()));
+		this.setState("event", this.getEvent());
+	}
+	
+	/**
+	 * Sets state in properties object field
+	 * @params string key/value pair
+	 */
+	public void setState(String key, String value) {
+		switch (key){
+			case "uploaded": case "downloaded": case "left": case "event":
+				this.properties.setProperty(key, value);
+		}
+	}
+	
+	/**
+	 * Resets properties object to initialized state
+	 */
+	private void resetState() {
+		this.setState("uploaded", Integer.toString(0));
+		this.setState("downloaded", Integer.toString(0));
+		this.setState("left", Integer.toString(this.torrentInfo.file_length));
+		this.setState("event", "started");
+		try {
+			this.saveState();
+		} catch (IOException e){};
+	}
+	
+	/**
 	 * It terminates gracefully a connection to a peer.
 	 * @param String peer
 	 */
@@ -1019,9 +1104,8 @@ public class Bittorrent {
 	 * to restore the state of a torrent download after an interrupt.
 	 * @param btCompletedStr
 	 */
-	public void loadCompletedPieces (String btCompletedStr) {
-		String boolString = "true,false,true,false,true,";
-		//for (int i = 0; i < this.torrentInfo.file_length; i++)
+	public void loadCompletedPieces (String boolString) {
+		//String boolString = "true,false,true,false,true,";
 		int i = 0;
 		while (!boolString.isEmpty()) {
 			String bool = boolString.substring(0, boolString.indexOf(','));
@@ -1035,8 +1119,8 @@ public class Bittorrent {
 	/**
 	 * Small routine to verify state of this.completedPieces boolean array
 	 */
-	public void completedString() {
-		System.out.println(Arrays.toString(this.completedPieces));
+	public String completedString() {
+		return Arrays.toString(this.completedPieces);
 	}
 
 	public void saveHeap() {

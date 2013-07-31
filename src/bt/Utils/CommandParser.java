@@ -73,7 +73,7 @@ public class CommandParser {
 			break;
 		}
 		case "completedstring": {
-			Bittorrent.getInstance().completedString();
+			System.out.println(Bittorrent.getInstance().completedString());
 			break;
 		}
 		default:

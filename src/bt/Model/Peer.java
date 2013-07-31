@@ -767,6 +767,9 @@ public class Peer implements Runnable {
 				synchronized(completed) {
 					if(!this.parent.isFileCompleted()){
 						completed[index] = true;
+						parent.updateCompletedPiecesProperty();
+						parent.setState();
+						parent.saveState();
 						if(this.parent.isFileCompleted()) {
 							this.parent.notifyFullyDownloaded(); // notifies tracker
 							this.parent.saveFile(); // create the downloaded file
