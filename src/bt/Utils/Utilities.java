@@ -6,9 +6,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import bt.Exceptions.UnknownBittorrentException;
 import bt.Model.Bittorrent;
 import bt.View.UserInterface;
 
@@ -294,12 +297,21 @@ public class Utilities {
 		 
 	 }
 	 
+	 /**
+	  * Saves the client state 
+	  * @param downloaded
+	  * @param uploaded
+	  * @param left
+	  * @param fileHeap
+	  * @param temp
+	  * @throws IOException
+	  */
 	 public static void saveState (int downloaded, int uploaded, int left, byte[][] fileHeap, File temp) throws IOException { 
 		 FileOutputStream tempOut = new FileOutputStream(temp);  
 		 ByteBuffer intBuffer = ByteBuffer.allocate(12);  
 		 intBuffer.putInt(downloaded).putInt(uploaded).putInt(left);  
-		 byte[] ints = null;  
-		 intBuffer.get(ints);  
+		 byte[] ints = intBuffer.array();  
+		 // intBuffer.get(ints);  
 		 tempOut.write(ints);  
 		 for(int i = 0; i < fileHeap.length; ++i) {  
           tempOut.write(fileHeap[i]);  
@@ -307,17 +319,108 @@ public class Utilities {
 		 tempOut.close();
 	 }	  
 	 
-	 public static void loadState(int[] intArray, byte[][] fileHeap, int pieceLength, int pieces, File temp) throws IOException {  
+	 /**
+	  * Loads previous client's state if file wasn't completed.
+	  * @param intArray
+	  * @param fileHeap
+	  * @param pieceLength
+	  * @param pieces
+	  * @param temp
+	  * @param completed
+	  * @param torrentInfo
+	  * @param verificationArray
+	  * @throws IOException
+	  * @throws NoSuchAlgorithmException
+	  * @throws UnknownBittorrentException
+	  */
+	 public static void loadState(int[] intArray, byte[][] fileHeap, 
+			 int pieceLength, 
+			 int pieces, 
+			 File temp, 
+			 boolean[] completed, 
+			 TorrentInfo torrentInfo,
+			 byte[][] verificationArray) throws IOException, 
+	 NoSuchAlgorithmException, UnknownBittorrentException {  
 		 	FileInputStream tempIn = new FileInputStream(temp);  
 		 	byte[] intByteArray = new byte[12];  
 		 	tempIn.read(intByteArray, 0, 12);  
 		 	ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
 		 	for (int i = 0; i < 3; i++) {  
 		 		intArray[i] = intBuffer.getInt();  
-		 	}  
+		 	} 
+		 	byte[] bytes = Utilities.getBytesFromFile(temp);
+		 	int offset = 12;
 		 	for (int i = 0; i < pieces; ++i) {  
-		 		tempIn.read(fileHeap[pieces], pieces * pieceLength + 11, pieceLength);  
+		 		// tempIn.read(fileHeap[i], (i * pieceLength) + 12, pieceLength);
+		 		for(int u = 0; u < pieceLength; u++) {
+		 			fileHeap[i][u] = bytes[offset];
+		 			++offset;
+		 		}
 		 	}
+		 	Utilities.verifyPiecesSHA(fileHeap, completed, torrentInfo, verificationArray);
 		 	tempIn.close();
-	 }  
+	 } 
+	 
+	 /**
+	  * Verify the pieces loaded from .tmp file to complete the client's state bitfield.
+	  * @param fileHeap
+	  * @param completed
+	  * @throws UnknownBittorrentException
+	  */
+	 private static void verifyPiecesSHA(byte[][] fileHeap, boolean[] completed, TorrentInfo ti, byte[][] verificationArray) throws UnknownBittorrentException {
+		 MessageDigest sha = null;
+		 try {
+			 sha = MessageDigest.getInstance("SHA-1");
+		 } catch (NoSuchAlgorithmException e) {
+			 // decide what to do
+		 }
+		 int pieceLength = ti.piece_length; 
+		 for( int i = 0; i < fileHeap.length; ++i) { // for each piece
+			 // verify
+			 byte[] toDigest = null;
+				if (i < fileHeap.length - 1) {
+					toDigest = new byte[pieceLength];
+					synchronized(fileHeap) {
+						// load full-sized piece to be hashed
+						for(int u = 0; u < toDigest.length; ++u) {
+							toDigest[u] = fileHeap[i][u];
+					}
+				}
+			} else {
+				toDigest = new byte[ti.file_length - ((fileHeap.length-1)*pieceLength)];
+				synchronized(fileHeap) {
+					// load possibly partial-sized piece to be hashed
+					for(int s = 0; s < toDigest.length; ++s) {
+						toDigest[s] = fileHeap[i][s];
+					}
+				}
+			}
+			byte[] test = sha.digest(toDigest);
+			if (sameArray(verificationArray[i], test)) {
+				completed[i] = true;
+			} else {
+				completed[i] = false;
+			}
+		 } 
+	 }
+	 
+	 /**
+	 * Checks if two byte arrays contain the same values at all positions.
+	 * @param first An operand to be tested.
+	 * @param second An operand to be tested.
+	 * @return returns true if first and second are equal in length and every byte they contain is
+	 * of equal value, and false otherwise.
+	 */
+	public static boolean sameArray (byte[] first, byte[] second) {
+		if (first.length != second.length){
+			return false;
+		} else {
+			for (int i = 0; i < first.length; ++i) {
+				if (first[i] != second[i]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 }

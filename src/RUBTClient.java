@@ -14,33 +14,7 @@ import bt.View.UserInterface;
  */
 
 public class RUBTClient {
-	/**
-	 * This method will be the main input loop for the text based controller.
-	 */
-	private static void clientLoop() {
-		@SuppressWarnings("resource")
-		Scanner sc = new Scanner(System.in);
-		while(true) {
-			try {
-				System.out.print("%> ");
-				CommandParser.execute(sc.nextLine());
-			} catch(NotifyPromptException ne) {
-				System.out.println(ne.getMessage());
-				System.out.print("%> ");
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-			}
-		}
-	}
 	
-	/**
-	 * Received a notification.
-	 * @param String message
-	 */
-	public static void receiveEvent(String message) {
-		System.out.println(message);
-		RUBTClient.clientLoop();
-	}
 	
 	/**
 	 * Client entry point.

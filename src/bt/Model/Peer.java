@@ -741,9 +741,13 @@ public class Peer implements Runnable {
 			// hash this piece 
 			byte[] test = sha.digest(toDigest);
 			// test the piece
-			if (sameArray(verifyHash[index], test)) { 
+			if (Utilities.sameArray(verifyHash[index], test)) { 
 				// piece hash is correct
 				System.out.println("We have completed piece: " + index);
+				// update downloaded
+				try {
+					Bittorrent.getInstance().updateDownloaded(toDigest.length);
+				} catch (Exception e) { /* shouldnt happen */ }
 				boolean sent = false;
 				// This is a bit complicated looking, but this block attempts to send a have message every
 				// 50 Milliseconds until it succeeds.
@@ -778,25 +782,6 @@ public class Peer implements Runnable {
 		}
 	}
 	
-	/**
-	 * Checks if two byte arrays contain the same values at all positions.
-	 * @param first An operand to be tested.
-	 * @param second An operand to be tested.
-	 * @return returns true if first and second are equal in length and every byte they contain is
-	 * of equal value, and false otherwise.
-	 */
-	private boolean sameArray (byte[] first, byte[] second) {
-		if (first.length != second.length){
-			return false;
-		} else {
-			for (int i = 0; i < first.length; ++i) {
-				if (first[i] != second[i]) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
 	
 	public int getPendingRequests() {
 		return this.pendingRequests;

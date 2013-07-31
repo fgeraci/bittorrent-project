@@ -12,6 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -217,6 +218,15 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Updates the downloaded int value.
+	 * @param int downloaded
+	 */
+	public void updateDownloaded(int downloaded) {
+		this.downloaded += downloaded;
+		this.left = this.torrentInfo.file_length - this.downloaded;
+	}
+	
+	/**
 	 * This method will be called and execute specific instructions from different projects.
 	 * For example, for Project 1, it will execute automatic connections to specific peers.
 	 */
@@ -224,7 +234,7 @@ public class Bittorrent {
 		
 		this.connectToPeer("128.6.171.3:6916");
 		this.connectToPeer("128.6.171.4:6929");
-		
+		/*
 		while(this.peersChoked()) {
 			System.out.println("-- Waiting for all peers to unchoke.");
 			try {
@@ -233,6 +243,7 @@ public class Bittorrent {
 				e.getMessage();
 			}
 		}
+		*/
 		int peerListSize = this.getPeerList().size();
 
 		// 3. start bitfields queue
@@ -301,7 +312,22 @@ public class Bittorrent {
 		if(temp.exists()){
 			try {
 				int[] intArray = new int[3];
-				Utilities.loadState(intArray, collection, this.pieceLength, this.pieces, temp);
+				try {
+					Utilities.loadState(intArray, collection, 
+							this.pieceLength, 
+							this.pieces, 
+							temp, 
+							this.completedPieces, 
+							this.torrentInfo, 
+							this.verificationArray);
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnknownBittorrentException e) {
+					System.out.println("FATAL: I am having and identity crisis.");
+					e.printStackTrace();
+					System.exit(-1);
+				}
 				this.downloaded = intArray[0];
 				this.uploaded = intArray[1];
 				this.left = intArray[2];
@@ -514,8 +540,16 @@ public class Bittorrent {
 	 * Total file length.
 	 * @return length The length of the file.
 	 */
-	int getFileLength() {
+	public int getFileLength() {
 		return this.torrentInfo.file_length;
+	}
+	
+	/**
+	 * Returns the verification array for the SHA.
+	 * @return byte[][] verification array.
+	 */
+	public byte[][] getVerifyHash() {
+		return this.verificationArray;
 	}
 	
 	/**
@@ -1010,10 +1044,12 @@ public class Bittorrent {
 
 	public void saveHeap() {
 		if (!this.isFileCompleted()) {
+			File temp = null;
 			try {
-				File temp = new File(TEMP_FILE);
+				temp = new File(TEMP_FILE);
 				Utilities.saveState(downloaded, uploaded, left, collection, temp);
 			} catch (IOException e) {
+				temp.delete();
 				System.err.println("unable to open cs352.tmp for writing.");
 			}
 		}
