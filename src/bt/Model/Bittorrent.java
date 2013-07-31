@@ -38,7 +38,7 @@ import bt.View.UserInterface;
 
 public class Bittorrent {
 	
-	private static final String TEMP_FILE = null;
+	private static final String TEMP_FILE = "./rsc/cs352.tmp";
 
 	/**
 	 * Will communicate with the tracker every N seconds.
@@ -297,7 +297,7 @@ public class Bittorrent {
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
 		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
-		File temp = new File("./rsc/cs352.tmp");
+		File temp = new File(TEMP_FILE);
 		if(temp.exists()){
 			try {
 				int[] intArray = new int[3];
@@ -1011,7 +1011,7 @@ public class Bittorrent {
 	public void saveHeap() {
 		if (!this.isFileCompleted()) {
 			try {
-				File temp = new File("./rsc/cs352.tmp");
+				File temp = new File(TEMP_FILE);
 				Utilities.saveState(downloaded, uploaded, left, collection, temp);
 			} catch (IOException e) {
 				System.err.println("unable to open cs352.tmp for writing.");
