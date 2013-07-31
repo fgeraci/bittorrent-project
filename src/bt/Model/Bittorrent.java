@@ -231,23 +231,19 @@ public class Bittorrent {
 	 * For example, for Project 1, it will execute automatic connections to specific peers.
 	 */
 	public void startExecuting() throws Exception {
-		
-		this.connectToPeer("128.6.171.3:6916");
-		this.connectToPeer("128.6.171.4:6929");
-		/*
-		while(this.peersChoked()) {
-			System.out.println("-- Waiting for all peers to unchoke.");
-			try {
-				Thread.sleep(1500);
-			} catch(Exception e) {
-				e.getMessage();
+		File torrentFile = new File(this.torrentInfo.file_name);
+		// if the file exists, just load it into memory for serving.
+		if(torrentFile.exists()) {
+			Utilities.initializeFileHeap(this.torrentInfo.file_name);
+			UserInterface.getInstance().receiveEvent("File successfully loaded in client's heap for uploading.");
+		} else {
+			this.connectToPeer("128.6.171.3:6916");
+			this.connectToPeer("128.6.171.4:6929");
+			for(int i = 0; i < this.completedPieces.length; i++) {
+				this.completedPieces[i] = false;
 			}
+			this.downloadAlgorithm();
 		}
-		*/
-		int peerListSize = this.getPeerList().size();
-
-		// 3. start bitfields queue
-		this.downloadAlgorithm();
 	}
 	
 	/**
@@ -347,6 +343,22 @@ public class Bittorrent {
 			this.uploaded = 0;
 			this.left = torrentInfo.file_length;
 		}
+	}
+	
+	/**
+	 * Returns the length of each piece.
+	 * @return int
+	 */
+	public int getPieceLength() {
+		return this.torrentInfo.piece_length;
+	}
+	
+	/**
+	 * Returns a reference to the client's file's heap.
+	 * @return byte[][]
+	 */
+	public byte[][] getFileHeap() {
+		return this.collection;
 	}
 	
 	/**

@@ -423,4 +423,31 @@ public class Utilities {
 		}
 		return true;
 	}
+	
+	/**
+	 * Loads the downloaded torrent file into the client's file heap.
+	 * @param fileName
+	 * @throws Exception
+	 */
+	public static void initializeFileHeap(String fileName) throws Exception {
+		Bittorrent bt = Bittorrent.getInstance();
+		int pieceLength = bt.getPieceLength();
+		File torrentFile = new File(fileName);
+		byte[] fileBytes = Utilities.getBytesFromFile(torrentFile);
+		byte[][] fileHeap = bt.getFileHeap();
+		int offset = 0;
+		mainLoop : for(int i = 0; i < fileHeap.length; ++i) {
+			for(int u = 0; u < pieceLength; u++) {
+				if(offset < bt.getFileLength()) {
+					fileHeap[i][u] = fileBytes[offset];
+					offset++;
+				} else {
+					break mainLoop;
+				}
+			}
+		}
+		System.out.println("");
+	}
+
+
 }
