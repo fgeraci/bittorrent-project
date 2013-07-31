@@ -193,7 +193,7 @@ public class Bittorrent {
 	 */
 	private Bittorrent(String torrentFile, String saveFile)	{	
 		// open the file
-		File file = new File((this.rscFileFolder+torrentFile));
+		File file = new File(torrentFile);
 		try {
 			// get file info
 			this.peerList = new ArrayList<Peer>();
