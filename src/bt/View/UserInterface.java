@@ -2,8 +2,6 @@ package bt.View;
 
 
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 import bt.Exceptions.NotifyPromptException;
@@ -21,6 +19,7 @@ public class UserInterface implements Runnable {
 	
 	private Bittorrent bittorrent;
 	private Peer peer=null;
+	private boolean running = true;
 	private static UserInterface instance = null;
 	
 	/**
@@ -68,7 +67,7 @@ public class UserInterface implements Runnable {
 	private void clientLoop() {
 		
 		Scanner sc = new Scanner(System.in);
-		while(true) {
+		while(running) {
 			try {
 				System.out.print("\n%> ");
 				String nextLine = sc.nextLine();
@@ -89,5 +88,8 @@ public class UserInterface implements Runnable {
 	public void receiveEvent(String message) {
 		System.out.println("\n"+message);
 		System.out.print("%> ");
+	}
+	public void stopUI() {
+		running = false;
 	}
 }

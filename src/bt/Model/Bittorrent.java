@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -22,7 +21,6 @@ import java.util.Properties;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import bt.Exceptions.DuplicatePeerException;
-import bt.Exceptions.NotifyPromptException;
 import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
@@ -40,6 +38,8 @@ import bt.View.UserInterface;
 
 public class Bittorrent {
 	
+	private static final String TEMP_FILE = null;
+
 	/**
 	 * Will communicate with the tracker every N seconds.
 	 */
@@ -218,7 +218,7 @@ public class Bittorrent {
 	
 	/**
 	 * This method will be called and execute specific instructions from different projects.
-	 * For example, for Porject 1, it will execute automatic connections to specific peers.
+	 * For example, for Project 1, it will execute automatic connections to specific peers.
 	 */
 	public void startExecuting() throws Exception {
 		
@@ -297,14 +297,29 @@ public class Bittorrent {
 		this.completedPieces = new boolean[this.collection.length];
 		this.loadVerificationArray();
 		this.weightedRequestQueue = new PriorityBlockingQueue<WeightedRequest>();
-		try {
-			int[] intArray = new int[3];
-			Utilities.loadState(intArray, collection, this.pieceLength, this.pieces);
-		} catch (IOException e) {
-			System.err.println("Unable to load file pieces from previous session.");
+		File temp = new File("./rsc/cs352.tmp");
+		if(temp.exists()){
+			try {
+				int[] intArray = new int[3];
+				Utilities.loadState(intArray, collection, this.pieceLength, this.pieces, temp);
+				this.downloaded = intArray[0];
+				this.uploaded = intArray[1];
+				this.left = intArray[2];
+			} catch (IOException e) {
+				System.err.println("Unable to load file pieces from previous session.");
+				for (int i = 0; i < completedPieces.length; ++i) {
+				}
+				this.downloaded = 0;
+				this.uploaded = 0;
+				this.left = torrentInfo.file_length;
+			}
+		} else {
 			for (int i = 0; i < completedPieces.length; ++i) {
 				completedPieces[i] = false;
 			}
+			this.downloaded = 0;
+			this.uploaded = 0;
+			this.left = torrentInfo.file_length;
 		}
 	}
 	
@@ -511,7 +526,7 @@ public class Bittorrent {
 	*/
 	private int initServer(int from, int to) {
 		int port = from;
-		while(true) {
+		while(port > 0) {
 			try {
 				ss = new ServerSocket(port);
 				// ss.close();
@@ -520,12 +535,7 @@ public class Bittorrent {
 				++port;
 				if(port > to) {
 					port = -1;
-					break;
 				}
-			} finally {
-				try {
-					// if(ss != null) ss.close(); // NOT NECESSARY
-				} catch (Exception e) { System.err.println(e.getMessage()); }
 			}
 		}
 		return port;
@@ -909,6 +919,10 @@ public class Bittorrent {
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
+		File temp = new File (TEMP_FILE);
+		if (temp.exists()) {
+			temp.delete();
+		}
 	}
 	
 	/**
@@ -995,10 +1009,13 @@ public class Bittorrent {
 	}
 
 	public void saveHeap() {
-		try {
-			Utilities.saveState(downloaded, uploaded, left, collection);
-		} catch (IOException e) {
-			System.err.println("unable to open cs352.tmp for writing.");
+		if (!this.isFileCompleted()) {
+			try {
+				File temp = new File("./rsc/cs352.tmp");
+				Utilities.saveState(downloaded, uploaded, left, collection, temp);
+			} catch (IOException e) {
+				System.err.println("unable to open cs352.tmp for writing.");
+			}
 		}
 	}
 }

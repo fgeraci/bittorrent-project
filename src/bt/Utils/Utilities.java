@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import bt.Model.Bittorrent;
+import bt.View.UserInterface;
 
 /**
  * A pure utilities class filled of static methods for specific tasks.
@@ -170,6 +171,7 @@ public class Utilities {
 			 Bittorrent.getInstance().stopServer();
 			 Bittorrent.getInstance().disposePeers();
 			 Bittorrent.getInstance().saveHeap();
+			 UserInterface.getInstance().stopUI();
 			 System.out.println("\n -- Client Terminated -- ");
 			 System.out.println("\t> Peers disposed");
 			 System.out.println("\t> Tracker Notified");
@@ -292,8 +294,7 @@ public class Utilities {
 		 
 	 }
 	 
-	 public static void saveState (int downloaded, int uploaded, int left, byte[][] fileHeap) throws IOException {  
-		 File temp = new File("cs352.tmp");  
+	 public static void saveState (int downloaded, int uploaded, int left, byte[][] fileHeap, File temp) throws IOException { 
 		 FileOutputStream tempOut = new FileOutputStream(temp);  
 		 ByteBuffer intBuffer = ByteBuffer.allocate(12);  
 		 intBuffer.putInt(downloaded).putInt(uploaded).putInt(left);  
@@ -305,18 +306,17 @@ public class Utilities {
 		 }  
 	 }	  
 	 
-	 public static void loadState(int[] intArray, byte[][] fileHeap, int pieceLength, int pieces) throws IOException {  
-		 File temp = new File("cs352.tmp");  
-		 FileInputStream tempIn = new FileInputStream(temp);  
-		 byte[] intByteArray = new byte[12];  
-		 tempIn.read(intByteArray, 0, 12);  
-		 ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
-		 for (int i = 0; i < 3; i++) {  
+	 public static void loadState(int[] intArray, byte[][] fileHeap, int pieceLength, int pieces, File temp) throws IOException {  
+		
+		FileInputStream tempIn = new FileInputStream(temp);  
+		byte[] intByteArray = new byte[12];  
+		tempIn.read(intByteArray, 0, 12);  
+		ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
+		for (int i = 0; i < 3; i++) {  
 			 intArray[i] = intBuffer.getInt();  
-		 }  
+		}  
 		 for (int i = 0; i < pieces; ++i) {  
 			 tempIn.read(fileHeap[pieces], pieces * pieceLength + 11, pieceLength);  
-		 }  
-      }  
-
+		}  
+	 }  
 }
