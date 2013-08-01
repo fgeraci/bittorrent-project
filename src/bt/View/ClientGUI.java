@@ -81,10 +81,9 @@ public class ClientGUI extends JFrame {
 	 * Created a dialog for prompting for torrent file.
 	 * @return
 	 */
-	private String loadTorrentFile() {
+	private void loadTorrentFile() {
 		// calls a custom file selection dialog before starting main window.
-		new FileSelectionDialog(this,true);
-		return null; 
+		new FileSelectionDialog(this,true); 
 	}
 	
 	/**

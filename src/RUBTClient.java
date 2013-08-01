@@ -1,5 +1,7 @@
 import java.util.Scanner;
 
+import javax.swing.UIManager;
+
 import bt.Exceptions.NotifyPromptException;
 import bt.Model.Bittorrent;
 import bt.Utils.CommandParser;
@@ -30,6 +32,11 @@ public class RUBTClient {
 		try {
 			if(args.length >= 2) {
 				bittorrent = Bittorrent.getInstance(args[0], args[1]);
+				
+				// GUI initialization
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (Exception e) {}
 				ClientGUI cGUI = ClientGUI.getInstance();
 				cGUI.startGUI();
 				// bittorrent.startExecuting();
