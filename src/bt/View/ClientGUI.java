@@ -12,8 +12,17 @@ import javax.swing.JFrame;
 import bt.Model.Bittorrent;
 import bt.Utils.Utilities;
 
+/**
+ * Client's graphic user interface.
+ * @author Fernando
+ *
+ */
+
 public class ClientGUI extends JFrame {
 	
+	/**
+	 * Static singleton instance.
+	 */
 	public static ClientGUI instance = null;
 	GridBagLayout gb = new GridBagLayout();
 	GridBagConstraints gc = new GridBagConstraints();
@@ -28,6 +37,9 @@ public class ClientGUI extends JFrame {
 		return ClientGUI.instance;
 	}
 	
+	/**
+	 * Constructs a ClientGUI object.
+	 */
 	private ClientGUI() {
 		try {
 			this.client = Bittorrent.getInstance();
@@ -50,18 +62,31 @@ public class ClientGUI extends JFrame {
 		
 	}
 	
+	/**
+	 * Created a dialog for prompting for torrent file.
+	 * @return
+	 */
 	private String loadTorrentFile() {
 		return null;
 	}
 	
+	/**
+	 * Initializes GUI layout.
+	 */
 	private void initLayout() {
 		
 	}
 	
+	/**
+	 * Initializes frames and panles decorations.
+	 */
 	private void initDecorations() {
 		
 	}
 	
+	/**
+	 * Initilizes components behaviors.
+	 */
 	private void initBehaviors() {
 		
 	}
