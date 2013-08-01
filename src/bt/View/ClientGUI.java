@@ -4,17 +4,16 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.swing.JFrame;
-
+import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
-import bt.Utils.Utilities;
 
 /**
  * Client's graphic user interface.
- * @author Fernando
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci.
  *
  */
 
@@ -29,7 +28,10 @@ public class ClientGUI extends JFrame {
 	Bittorrent client;
 	private Container container;
 	
-	
+	/**
+	 * Retrieves a single instance of ClientGUI
+	 * @return ClientGUI
+	 */
 	public static ClientGUI getInstance() {
 		if(ClientGUI.instance == null) {
 			ClientGUI.instance = new ClientGUI();
@@ -43,7 +45,12 @@ public class ClientGUI extends JFrame {
 	private ClientGUI() {
 		try {
 			this.client = Bittorrent.getInstance();
-			this.setMinimumSize(new Dimension(750,480));
+			// windows size
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			int xPanel = (int)(dim.getWidth()*.8); // 80% of total length
+			int yPanel = (int)(dim.getHeight()*.9); // 90 % of total height
+			this.setMinimumSize(new Dimension(xPanel, yPanel));
+			
 			this.container = this.getContentPane();
 			this.setLayout(this.gb);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,7 +62,7 @@ public class ClientGUI extends JFrame {
 				}
 			});
 			this.setLocationRelativeTo(null);
-			this.setVisible(true);
+			
 		} catch(Exception e) {
 			System.out.println(" << GUI initialization error >> ");
 		}
@@ -63,11 +70,21 @@ public class ClientGUI extends JFrame {
 	}
 	
 	/**
+	 * Fires GUI up.
+	 */
+	public void startGUI() {
+		this.loadTorrentFile();
+		this.setVisible(true);
+	}
+	
+	/**
 	 * Created a dialog for prompting for torrent file.
 	 * @return
 	 */
 	private String loadTorrentFile() {
-		return null;
+		// calls a custom file selection dialog before starting main window.
+		new FileSelectionDialog(this,true);
+		return null; 
 	}
 	
 	/**
@@ -78,14 +95,14 @@ public class ClientGUI extends JFrame {
 	}
 	
 	/**
-	 * Initializes frames and panles decorations.
+	 * Initializes frames and panels decorations.
 	 */
 	private void initDecorations() {
 		
 	}
 	
 	/**
-	 * Initilizes components behaviors.
+	 * Initializes components behaviors.
 	 */
 	private void initBehaviors() {
 		
