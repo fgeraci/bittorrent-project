@@ -3,6 +3,7 @@ import java.util.Scanner;
 import bt.Exceptions.NotifyPromptException;
 import bt.Model.Bittorrent;
 import bt.Utils.CommandParser;
+import bt.View.ClientGUI;
 import bt.View.UserInterface;
 
 /**
@@ -29,7 +30,8 @@ public class RUBTClient {
 		try {
 			if(args.length >= 2) {
 				bittorrent = Bittorrent.getInstance(args[0], args[1]);
-				bittorrent.startExecuting();
+				ClientGUI cGUI = ClientGUI.getInstance();
+				// bittorrent.startExecuting();
 			} else {
 				System.err.println("ERROR: Insufficient arguments");
 				System.out.println("usage: RUBTClient <torrent filename> <output filename>");
