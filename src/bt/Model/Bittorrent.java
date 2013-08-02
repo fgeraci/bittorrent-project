@@ -227,6 +227,14 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Returns the name of the torrent file.
+	 * @return
+	 */
+	public String getFileName() {
+		return this.torrentInfo.file_name;
+	}
+	
+	/**
 	 * This method will be called and execute specific instructions from different projects.
 	 * For example, for Project 1, it will execute automatic connections to specific peers.
 	 */

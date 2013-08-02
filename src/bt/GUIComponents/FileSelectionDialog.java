@@ -150,7 +150,7 @@ public class FileSelectionDialog extends JDialog {
 				String saveTorrentFile = saveFileField.getText().toString();
 				try {
 					if(torrentFile.length() > 0 && saveTorrentFile.length() > 0){
-						Bittorrent bittorrent = Bittorrent.getInstance(torrentFile,saveTorrentFile);
+						Bittorrent.getInstance(torrentFile,saveTorrentFile);
 						FileSelectionDialog.this.dispose();
 					}
 				} catch (Exception exception) {
