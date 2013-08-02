@@ -64,7 +64,7 @@ public class FileSelectionDialog extends JDialog {
 		// init components
 		this.titleLabel = new JLabel(" CS352 - Bittorrent Project ");
 		this.torrentFileLabel = new JLabel("Type or browse .torrent file");
-		this.textField = new JTextField(25);
+		this.textField = new JTextField(28);
 		this.browseButton = new JButton(" ... ");
 		this.cancelButton = new JButton(" Exit ");
 		this.continueButton = new JButton(" Start Client ");
@@ -104,7 +104,7 @@ public class FileSelectionDialog extends JDialog {
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
-		gc.anchor = GridBagConstraints.CENTER;
+		gc.anchor = GridBagConstraints.WEST;
 		this.mainPanel.add(this.saveFileField, gc);
 		
 		gc = new GridBagConstraints();
@@ -137,6 +137,9 @@ public class FileSelectionDialog extends JDialog {
 				fc.setAcceptAllFileFilterUsed(false);
 				fc.addChoosableFileFilter(new TorrentFileFilter());
 				int rVal = fc.showOpenDialog(FileSelectionDialog.this);
+				if(rVal == JFileChooser.APPROVE_OPTION) {
+					textField.setText(fc.getSelectedFile().getAbsolutePath());
+				}
 			}
 		});
 		
@@ -146,8 +149,10 @@ public class FileSelectionDialog extends JDialog {
 				String torrentFile = textField.getText().toString();
 				String saveTorrentFile = saveFileField.getText().toString();
 				try {
-					Bittorrent bittorrent = Bittorrent.getInstance(torrentFile,saveTorrentFile);
-					FileSelectionDialog.this.dispose();
+					if(torrentFile.length() > 0 && saveTorrentFile.length() > 0){
+						Bittorrent bittorrent = Bittorrent.getInstance(torrentFile,saveTorrentFile);
+						FileSelectionDialog.this.dispose();
+					}
 				} catch (Exception exception) {
 					textField.setText("");
 					saveFileField.setText("");
