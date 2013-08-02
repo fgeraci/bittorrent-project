@@ -44,7 +44,6 @@ public class ClientGUI extends JFrame {
 	 */
 	private ClientGUI() {
 		try {
-			this.client = Bittorrent.getInstance();
 			// windows size
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 			int xPanel = (int)(dim.getWidth()*.8); // 80% of total length

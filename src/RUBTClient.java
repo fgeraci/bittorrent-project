@@ -31,8 +31,6 @@ public class RUBTClient {
 		UserInterface ui = null;
 		try {
 			if(args.length >= 2) {
-				bittorrent = Bittorrent.getInstance(args[0], args[1]);
-				
 				// GUI initialization
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

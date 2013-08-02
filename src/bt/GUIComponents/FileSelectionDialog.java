@@ -15,6 +15,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import bt.Model.Bittorrent;
+
+/**
+ * First GUI component presented to user for torrent file set up.
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
+ *
+ */
+
 @SuppressWarnings("serial")
 public class FileSelectionDialog extends JDialog {
 
@@ -24,8 +32,16 @@ public class FileSelectionDialog extends JDialog {
 	private JButton continueButton;
 	private JButton cancelButton;
 	private JLabel titleLabel;
+	private JLabel torrentFileLabel;
+	private JLabel fileNameLabel;
+	private JTextField saveFileField;
+	private JLabel errorLabel;
 	
-	
+	/**
+	 * Constructs a FileSelectionDialog object.
+	 * @param parent
+	 * @param modal
+	 */
 	public FileSelectionDialog(JFrame parent, boolean modal) {
 		super(parent, modal);		
 		this.initLayout();
@@ -38,6 +54,9 @@ public class FileSelectionDialog extends JDialog {
 		this.setVisible(true);
 	}
 	
+	/**
+	 * Initializes this frame's layout.
+	 */
 	private void initLayout() {
 		GridBagLayout gb = new GridBagLayout();
 		GridBagConstraints gc;
@@ -45,16 +64,26 @@ public class FileSelectionDialog extends JDialog {
 		
 		// init components
 		this.titleLabel = new JLabel(" CS352 - Bittorrent Project ");
+		this.torrentFileLabel = new JLabel("Type or browse .torrent file");
 		this.textField = new JTextField(25);
 		this.browseButton = new JButton(" ... ");
 		this.cancelButton = new JButton(" Exit ");
 		this.continueButton = new JButton(" Start Client ");
+		this.fileNameLabel = new JLabel("File to save torrent");
+		this.saveFileField = new JTextField(40);
+		this.errorLabel = new JLabel(" ");
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(10,5,10,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.CENTER;
 		this.mainPanel.add(this.titleLabel, gc);
+		
+		gc = new GridBagConstraints();
+		gc.insets = new Insets(5,5,2,5);
+		gc.gridwidth = GridBagConstraints.REMAINDER;
+		gc.anchor = GridBagConstraints.WEST;
+		this.mainPanel.add(this.torrentFileLabel, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,10,5);
@@ -69,6 +98,25 @@ public class FileSelectionDialog extends JDialog {
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
+		gc.gridwidth = GridBagConstraints.REMAINDER;
+		gc.anchor = GridBagConstraints.WEST;
+		this.mainPanel.add(this.fileNameLabel, gc);
+		
+		gc = new GridBagConstraints();
+		gc.insets = new Insets(5,5,5,5);
+		gc.gridwidth = GridBagConstraints.REMAINDER;
+		gc.anchor = GridBagConstraints.CENTER;
+		this.mainPanel.add(this.saveFileField, gc);
+		
+		gc = new GridBagConstraints();
+		gc.insets = new Insets(5,5,5,5);
+		gc.gridwidth = GridBagConstraints.REMAINDER;
+		gc.anchor = GridBagConstraints.CENTER;
+		this.mainPanel.add(this.errorLabel, gc);
+		
+		
+		gc = new GridBagConstraints();
+		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.RELATIVE;
 		gc.anchor = GridBagConstraints.WEST;
 		this.mainPanel.add(this.cancelButton, gc);
@@ -80,6 +128,9 @@ public class FileSelectionDialog extends JDialog {
 		
 	}
 	
+	/**
+	 * Initializes this frame's behaviors.
+	 */
 	private void initBehaviors() {
 		this.browseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -90,7 +141,16 @@ public class FileSelectionDialog extends JDialog {
 		this.continueButton.addActionListener(new ActionListener() {		
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// attempt to load torrent file and fire client up.
+				String torrentFile = textField.getText().toString();
+				String saveTorrentFile = saveFileField.getText().toString();
+				try {
+					Bittorrent bittorrent = Bittorrent.getInstance(torrentFile,saveTorrentFile);
+					FileSelectionDialog.this.dispose();
+				} catch (Exception exception) {
+					textField.setText("");
+					saveFileField.setText("");
+					errorLabel.setText("Invalid parameters, please try again");
+				}
 			}
 		});
 		
@@ -102,8 +162,12 @@ public class FileSelectionDialog extends JDialog {
 		});
 	}
 	
+	/**
+	 * Initializes this frames decorations.
+	 */
 	private void initDecorations() {
 		this.mainPanel.setBorder(BorderFactory.createRaisedBevelBorder());
 		this.titleLabel.setFont(new Font("Courrier", Font.BOLD, 14));
+		this.errorLabel.setFont(new Font("Courrier", Font.ITALIC, 12));
 	}
 }
