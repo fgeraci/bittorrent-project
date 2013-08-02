@@ -6,15 +6,14 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
 import bt.Model.Bittorrent;
 
 /**
@@ -134,7 +133,10 @@ public class FileSelectionDialog extends JDialog {
 	private void initBehaviors() {
 		this.browseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				// open JBrowser
+				JFileChooser fc = new JFileChooser();
+				fc.setAcceptAllFileFilterUsed(false);
+				fc.addChoosableFileFilter(new TorrentFileFilter());
+				int rVal = fc.showOpenDialog(FileSelectionDialog.this);
 			}
 		});
 		
