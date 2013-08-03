@@ -13,7 +13,10 @@ import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
 import bt.GUIComponents.FileSelectionDialog;
@@ -50,6 +53,13 @@ public class ClientGUI extends JFrame {
 	private JLabel labelTorrentFileSize = new JLabel(" ");
 	private JLabel labelClientEventTitle = new JLabel(" Client Event ");
 	private JLabel labelClientEvent = new JLabel(" ");	
+	
+	// central panel components
+	private JSplitPane centerPanel;
+	private JScrollPane panelListHolder;
+	private JScrollPane panelLogHolder;
+	private JList listPeers;
+	private JTextField textFieldLog;
 	
 	/**
 	 * Retrieves a single instance of ClientGUI
