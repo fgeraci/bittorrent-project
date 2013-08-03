@@ -1,11 +1,14 @@
 package bt.GUIComponents;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -14,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import bt.Model.Bittorrent;
 
 /**
@@ -26,6 +30,7 @@ import bt.Model.Bittorrent;
 public class FileSelectionDialog extends JDialog {
 
 	private JPanel mainPanel;
+	private JPanel middleContainer;
 	private JTextField textField;
 	private JButton browseButton;
 	private JButton continueButton;
@@ -60,6 +65,8 @@ public class FileSelectionDialog extends JDialog {
 		GridBagLayout gb = new GridBagLayout();
 		GridBagConstraints gc;
 		this.mainPanel = new JPanel(gb);
+		this.middleContainer = new JPanel(new GridBagLayout());
+		
 		
 		// init components
 		this.titleLabel = new JLabel(" CS352 - Bittorrent Project ");
@@ -75,43 +82,50 @@ public class FileSelectionDialog extends JDialog {
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(10,5,10,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
+		gc.fill = GridBagConstraints.HORIZONTAL;
+		gc.weightx = 1;
 		gc.anchor = GridBagConstraints.CENTER;
 		this.mainPanel.add(this.titleLabel, gc);
+		
+		gc = new GridBagConstraints();
+		gc.gridwidth = GridBagConstraints.REMAINDER;
+		gc.fill = GridBagConstraints.HORIZONTAL;
+		this.mainPanel.add(this.middleContainer, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,2,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.WEST;
-		this.mainPanel.add(this.torrentFileLabel, gc);
+		this.middleContainer.add(this.torrentFileLabel, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,10,5);
 		gc.gridwidth = GridBagConstraints.RELATIVE;
-		this.mainPanel.add(this.textField,gc);
+		this.middleContainer.add(this.textField,gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,10,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.EAST;
-		this.mainPanel.add(this.browseButton, gc);
+		this.middleContainer.add(this.browseButton, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.WEST;
-		this.mainPanel.add(this.fileNameLabel, gc);
+		this.middleContainer.add(this.fileNameLabel, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.WEST;
-		this.mainPanel.add(this.saveFileField, gc);
+		this.middleContainer.add(this.saveFileField, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.CENTER;
-		this.mainPanel.add(this.errorLabel, gc);
+		this.middleContainer.add(this.errorLabel, gc);
 		
 		
 		gc = new GridBagConstraints();
@@ -124,6 +138,7 @@ public class FileSelectionDialog extends JDialog {
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		this.mainPanel.add(this.continueButton, gc);
+		
 		
 	}
 	
@@ -175,6 +190,8 @@ public class FileSelectionDialog extends JDialog {
 	private void initDecorations() {
 		this.mainPanel.setBorder(BorderFactory.createRaisedBevelBorder());
 		this.titleLabel.setFont(new Font("Courrier", Font.BOLD, 14));
+		this.titleLabel.setBorder(BorderFactory.createEtchedBorder());
+		this.titleLabel.setHorizontalAlignment(JLabel.CENTER);
 		this.errorLabel.setFont(new Font("Courrier", Font.ITALIC, 12));
 	}
 }

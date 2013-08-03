@@ -26,6 +26,7 @@ import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
+import bt.View.ClientGUI;
 import bt.View.UserInterface;
 
 /**
@@ -188,6 +189,8 @@ public class Bittorrent {
 	 */
 	private PriorityBlockingQueue<WeightedRequest> weightedRequestQueue = null;
 	
+	private ClientGUI cGUI;
+	
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
@@ -212,6 +215,7 @@ public class Bittorrent {
 			this.tr = TrackerRefresher.getInstance(
 					this.torrentInfo, this.peers, this.peerList/*, this.interval*/);
 			UserInterface ui = UserInterface.getInstance();
+			this.cGUI = ClientGUI.getInstance();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
@@ -535,14 +539,15 @@ public class Bittorrent {
 	 */
 	private void printTorrentInfoFields() {
 		this.info_hash = Utilities.getStringFromByteBuffer(this.torrentInfo.info_hash);
-		System.out.println("\nTRACKER INFO (Successfully Decoded):");
-		System.out.println("-----------------------------------");
-		System.out.println("Announce: "+this.torrentInfo.announce_url);
-		System.out.println("Info Hash: "+this.info_hash);
-		System.out.println("Info Hash URL Encoded: "+Utilities.encodeInfoHashToURL(this.info_hash));
-		System.out.println("File Name: "+this.torrentInfo.file_name);
-		System.out.println("File Length: "+this.torrentInfo.file_length);
-		System.out.println("Piece Size: "+this.torrentInfo.piece_length);
+		
+		ClientGUI.getInstance().publishEvent("TRACKER INFO (Successfully Decoded):");
+		ClientGUI.getInstance().publishEvent("-----------------------------------");
+		ClientGUI.getInstance().publishEvent("Announce: "+this.torrentInfo.announce_url);
+		ClientGUI.getInstance().publishEvent("Info Hash: "+this.info_hash);
+		ClientGUI.getInstance().publishEvent("Info Hash URL Encoded: "+Utilities.encodeInfoHashToURL(this.info_hash));
+		ClientGUI.getInstance().publishEvent("File Name: "+this.torrentInfo.file_name);
+		ClientGUI.getInstance().publishEvent("File Length: "+this.torrentInfo.file_length);
+		ClientGUI.getInstance().publishEvent("Piece Size: "+this.torrentInfo.piece_length);
 	}
 	
 	/**

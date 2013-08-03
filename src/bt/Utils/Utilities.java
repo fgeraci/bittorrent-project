@@ -13,6 +13,7 @@ import java.util.Map;
 
 import bt.Exceptions.UnknownBittorrentException;
 import bt.Model.Bittorrent;
+import bt.View.ClientGUI;
 import bt.View.UserInterface;
 
 /**
@@ -109,7 +110,7 @@ public class Utilities {
 			nextChar = (char)(65 + (int)(Math.random()*25));
 			generatedID.append(nextChar);
 		}
-		System.out.println("Random ID is (in bytes): "+generatedID.toString());
+		ClientGUI.getInstance().publishEvent("Random ID is (in bytes): "+generatedID.toString());
 		
 		return generatedID.toString();
 	}

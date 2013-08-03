@@ -52,7 +52,7 @@ public class ClientGUI extends JFrame {
 	private JLabel labelUserID = new JLabel(" ");
 	private JLabel labelTorrentFileName = new JLabel(" ");
 	private JLabel labelTorrentFileSize = new JLabel(" ");
-	private JLabel labelClientEventTitle = new JLabel(" Client Event ");
+	private JLabel labelClientEventTitle = new JLabel(" Current Event ");
 	private JLabel labelClientEvent = new JLabel(" ");	
 	
 	// central panel components
@@ -147,6 +147,9 @@ public class ClientGUI extends JFrame {
 		this.container.add(this.centerPanel, this.gc);
 	}
 	
+	/**
+	 * Initializes main body
+	 */
 	private void initCentralPanel() {
 		
 		this.listPeers = new JList<Peer>();
@@ -160,8 +163,15 @@ public class ClientGUI extends JFrame {
 		this.centerPanel.setDividerSize(5);
 	}
 	
+	/**
+	 * Logs and event in the log area.
+	 * @param message
+	 */
 	public void publishEvent(String message) {
-		this.textFieldLog.append(message);
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("\n");
+		stringBuilder.append(message);
+		this.textFieldLog.append(stringBuilder.toString());
 	}
 	
 	/**
