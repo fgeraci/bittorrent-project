@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Queue;
 
 import bt.Utils.Utilities;
+import bt.View.ClientGUI;
 import bt.View.UserInterface;
 
 /**
@@ -462,7 +463,7 @@ public class Peer implements Runnable {
 		updateTimeout();
 		if (length > Utilities.MAX_PIECE_LENGTH) {
 			// may drop connection
-			System.err.println("Dropping connection, because requested length ("+ length +
+			ClientGUI.getInstance().publishEvent("Dropping connection, because requested length ("+ length +
 					") is greater than maximum-piece-length"+ Utilities.MAX_PIECE_LENGTH + ".");
 			this.parent.terminatePeer(this.toString());
 		} 
@@ -494,7 +495,7 @@ public class Peer implements Runnable {
 	 */
 	void haveReceived (int index) {
 		if ((index >= bitField.length) || (index < 0)) {
-			System.err.println("haveReceived index ("+ index +") is out-of-range.");
+			ClientGUI.getInstance().publishEvent("haveReceived index ("+ index +") is out-of-range.");
 			return;
 		}
 		updateTimeout();
@@ -664,7 +665,7 @@ public class Peer implements Runnable {
 			this.out.write(handShakeBA);
 			this.out.flush();
 		} catch (Exception e) { 
-			System.err.println("Error in handshake");
+			ClientGUI.getInstance().publishEvent("Error in handshake");
 			/* hope this never happens */ 
 		}		
 	}
@@ -743,7 +744,7 @@ public class Peer implements Runnable {
 			// test the piece
 			if (Utilities.sameArray(verifyHash[index], test)) { 
 				// piece hash is correct
-				System.out.println("We have completed piece: " + index);
+				ClientGUI.getInstance().publishEvent("We have completed piece: " + index);
 				// update downloaded
 				try {
 					Bittorrent.getInstance().updateDownloaded(toDigest.length);
@@ -770,7 +771,7 @@ public class Peer implements Runnable {
 						if(this.parent.isFileCompleted()) {
 							this.parent.notifyFullyDownloaded(); // notifies tracker
 							this.parent.saveFile(); // create the downloaded file
-							UserInterface.getInstance().receiveEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
+							ClientGUI.getInstance().publishEvent("\n-- FILE SUCCESSFULLY DOWNLOADED --");
 						}
 					}
 				}
@@ -778,7 +779,7 @@ public class Peer implements Runnable {
 				// System.out.println("Index # " + index + " failed was not verified.");
 			}
 		} catch (NoSuchAlgorithmException e) {
-			System.err.println(e.getMessage());
+			ClientGUI.getInstance().publishEvent(e.getMessage());
 		}
 	}
 	

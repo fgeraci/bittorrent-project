@@ -15,12 +15,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.text.Document;
 
+import bt.Exceptions.UnknownBittorrentException;
 import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
 import bt.Model.Peer;
@@ -115,7 +115,16 @@ public class ClientGUI extends JFrame {
 		this.loadTorrentFile();
 		this.updateDataPanel();
 		this.pack();
-		this.setVisible(true);		
+		this.setVisible(true);
+		try {
+			Bittorrent.getInstance().startExecuting();
+		} catch (UnknownBittorrentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -175,6 +184,8 @@ public class ClientGUI extends JFrame {
 		stringBuilder.append("\n");
 		stringBuilder.append(message);
 		this.textFieldLog.append(stringBuilder.toString());
+		// Document d = this.textFieldLog.getDocument();
+		// this.textFieldLog.setCaretPosition(this.textFieldLog.getCaretPosition()+d.getLength());
 	}
 	
 	/**

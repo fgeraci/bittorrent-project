@@ -29,7 +29,7 @@ public class UserInterface implements Runnable {
 	private UserInterface() {
 		
 		// Program's loop
-		System.out.println("Connection Successful, welcome");
+		
 		System.out.println("Input help for commands");
 		Thread UIThread = new Thread(this);
 		UIThread.start();

@@ -216,6 +216,7 @@ public class Bittorrent {
 					this.torrentInfo, this.peers, this.peerList/*, this.interval*/);
 			UserInterface ui = UserInterface.getInstance();
 			this.cGUI = ClientGUI.getInstance();
+			cGUI.publishEvent("Connection Successful, welcome");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}

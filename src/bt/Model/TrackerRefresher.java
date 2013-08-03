@@ -10,6 +10,7 @@ import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Bencoder2;
 import bt.Utils.TorrentInfo;
 import bt.Utils.Utilities;
+import bt.View.ClientGUI;
 import bt.View.UserInterface;
 
 
@@ -90,7 +91,7 @@ public class TrackerRefresher implements Runnable {
 					if ((refresh > 180) || (refresh < 0))
 						refresh = 180;
 					if(recentList != null) {
-						UserInterface.getInstance().receiveEvent(
+						ClientGUI.getInstance().publishEvent(
 								"min_interval = "+ tr_min_interval +
 								", interval = "+ tr_interval +
 								"\nUpdating tracker every "+ refresh +" seconds...");

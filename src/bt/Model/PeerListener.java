@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Utilities;
+import bt.View.ClientGUI;
 import bt.View.UserInterface;
 
 /**
@@ -55,7 +57,14 @@ class PeerListener implements Runnable {
 						break;
 					} catch (Exception ex) { /* why whould this happen? */ }
 				} catch (Exception e) {
+					try {
+						Bittorrent.getInstance().terminatePeer(parent.toString());
+					} catch (UnknownBittorrentException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					e.printStackTrace();
+					break;
 				}
 			}
 		}
@@ -70,8 +79,8 @@ class PeerListener implements Runnable {
 		byte[] tcpArray = new byte[68];
 		try {
 			this.in.read(tcpArray);
-			System.out.println("<<< Data received, processing...");
-			System.out.println(">>> Listening from Peer : "+this.parent+"...");
+			ClientGUI.getInstance().publishEvent("<<< Data received, processing...");
+			ClientGUI.getInstance().publishEvent(">>> Listening from Peer : "+this.parent+"...");
 			this.parent.validateInfoHash(tcpArray);
 			if(parent.isIncoming()) {
 				try {
@@ -81,16 +90,16 @@ class PeerListener implements Runnable {
 					Thread.sleep(100);
 					parent.unChoke();
 					unchockedPeer = true;
-				} catch (Exception e) { System.out.println(e.getMessage()); }
+				} catch (Exception e) { ClientGUI.getInstance().publishEvent(e.getMessage()); }
 			}
-			System.out.println("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
+			ClientGUI.getInstance().publishEvent("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
 			// this is optional if client has no pieces
 			try {
 				if (!Bittorrent.getInstance().noPieces()) {
 					this.parent.sendBitfield(); 
 				}
 			} catch (Exception e) {
-				System.err.println(e.getMessage());}
+				ClientGUI.getInstance().publishEvent(e.getMessage());}
 			// initiate an open communication with the parent peer of this listener
 			this.parent.showInterested();
 			if(!unchockedPeer) {
@@ -102,7 +111,7 @@ class PeerListener implements Runnable {
 				// This just means we are ahead slightly with our timing.
 			} 
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
+			ClientGUI.getInstance().publishEvent(e.getMessage());
 		}
 	}
 	
@@ -136,7 +145,7 @@ class PeerListener implements Runnable {
 				break;
 			case 1: // remote-peer is unchoked, start requesting
 				parent.setChoke(false);
-				System.out.println(">>> Peer "+parent+" just unchoked me");
+				ClientGUI.getInstance().publishEvent(">>> Peer "+parent+" just unchoked me");
 				break; // message was received and processed.
 			case 2:	// interested
 				parent.setInterested(true);
@@ -157,7 +166,7 @@ class PeerListener implements Runnable {
 				int requestindex = tcpInput.getInt();
 				int requestbegin = tcpInput.getInt();
 				int requestlength = tcpInput.getInt();
-				UserInterface.getInstance().receiveEvent("<<< Receiving request for index: "+requestindex
+				ClientGUI.getInstance().publishEvent("<<< Receiving request for index: "+requestindex
 													+" begin: "+requestbegin+
 													" length: "+requestlength);
 				parent.requestReceived(requestindex, requestbegin, requestlength);
@@ -168,7 +177,7 @@ class PeerListener implements Runnable {
 					isCompleted = Bittorrent.getInstance().isFileCompleted();
 				} catch (Exception e) {}
 				if(!isCompleted) {
-					System.out.println("-- Piece received from: "+parent+", analyzing...");
+					ClientGUI.getInstance().publishEvent("-- Piece received from: "+parent+", analyzing...");
 					byte[] payload = new byte[length - 9];
 					tcpInput.position(1);
 					int index = tcpInput.getInt();
@@ -176,7 +185,7 @@ class PeerListener implements Runnable {
 					for(int i = 0; i < payload.length; ++i) {
 						payload[i] = tcpInput.get();
 					}
-					System.out.println("Index: "+index+" - Begin: "+begin);
+					ClientGUI.getInstance().publishEvent("Index: "+index+" - Begin: "+begin);
 					try {
 						parent.getPiece(index, begin, payload);
 					} catch (Exception e) {e.printStackTrace();}
@@ -187,7 +196,7 @@ class PeerListener implements Runnable {
 						tcpInput.getInt(9),
 						tcpInput.getInt(13));
 			default:
-				System.err.println("Invalid message was received: " + tcpInput);
+				ClientGUI.getInstance().publishEvent("Invalid message was received: " + tcpInput);
 				break;
 			}
 		}
