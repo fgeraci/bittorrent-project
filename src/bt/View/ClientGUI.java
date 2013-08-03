@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
@@ -86,7 +87,7 @@ public class ClientGUI extends JFrame {
 			
 			this.container = this.getContentPane();
 			this.container.setLayout(this.gb);
-			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);this.setResizable(false);
 			
 			// initialize all layout components
 			this.initLayout();
@@ -154,9 +155,11 @@ public class ClientGUI extends JFrame {
 		
 		this.listPeers = new JList<Peer>();
 		this.panelListHolder = new JScrollPane(this.listPeers);
+		this.panelListHolder.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.textFieldLog = new JTextArea();
 		this.textFieldLog.setEditable(false);
 		this.panelLogHolder = new JScrollPane(this.textFieldLog);
+		this.panelLogHolder.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.centerPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.panelListHolder, this.panelLogHolder);
 		this.centerPanel.setOneTouchExpandable(true);
 		this.centerPanel.setDividerLocation(175);

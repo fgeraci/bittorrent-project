@@ -522,7 +522,7 @@ public class Bittorrent {
 			Map trackerResponse = (Map)Bencoder2.decode(responseInBytes);
 			this.peers = Utilities.decodeCompressedPeers(trackerResponse);
 	/*		this.interval = Utilities.decodeInterval(trackerResponse); */
-			System.out.println("Peers List:");
+			ClientGUI.getInstance().publishEvent("Peers List:");
 			this.printPeerList();
 			this.connections = new boolean[this.peers.length];
 			// close streams
@@ -631,14 +631,14 @@ public class Bittorrent {
 	 */
 	public void printPeerList() {
 		int number = 1;
-		System.out.println("-----------------------------------");
+		ClientGUI.getInstance().publishEvent("-----------------------------------");
 		synchronized (this.peers) {
 			for(String s: this.peers) {
-				System.out.println(number+". "+s);
+				ClientGUI.getInstance().publishEvent(number+". "+s);
 				++number;
 			}
 		}
-		System.out.println("-----------------------------------");
+		ClientGUI.getInstance().publishEvent("-----------------------------------");
 	}
 	
 	/**

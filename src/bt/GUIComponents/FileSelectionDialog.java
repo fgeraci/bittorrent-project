@@ -65,7 +65,6 @@ public class FileSelectionDialog extends JDialog {
 		GridBagLayout gb = new GridBagLayout();
 		GridBagConstraints gc;
 		this.mainPanel = new JPanel(gb);
-		this.middleContainer = new JPanel(new GridBagLayout());
 		
 		
 		// init components
@@ -88,44 +87,39 @@ public class FileSelectionDialog extends JDialog {
 		this.mainPanel.add(this.titleLabel, gc);
 		
 		gc = new GridBagConstraints();
-		gc.gridwidth = GridBagConstraints.REMAINDER;
-		gc.fill = GridBagConstraints.HORIZONTAL;
-		this.mainPanel.add(this.middleContainer, gc);
-		
-		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,2,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.WEST;
-		this.middleContainer.add(this.torrentFileLabel, gc);
+		this.mainPanel.add(this.torrentFileLabel, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,10,5);
 		gc.gridwidth = GridBagConstraints.RELATIVE;
-		this.middleContainer.add(this.textField,gc);
+		this.mainPanel.add(this.textField,gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,10,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.EAST;
-		this.middleContainer.add(this.browseButton, gc);
+		this.mainPanel.add(this.browseButton, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.WEST;
-		this.middleContainer.add(this.fileNameLabel, gc);
+		this.mainPanel.add(this.fileNameLabel, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.WEST;
-		this.middleContainer.add(this.saveFileField, gc);
+		this.mainPanel.add(this.saveFileField, gc);
 		
 		gc = new GridBagConstraints();
 		gc.insets = new Insets(5,5,5,5);
 		gc.gridwidth = GridBagConstraints.REMAINDER;
 		gc.anchor = GridBagConstraints.CENTER;
-		this.middleContainer.add(this.errorLabel, gc);
+		this.mainPanel.add(this.errorLabel, gc);
 		
 		
 		gc = new GridBagConstraints();
