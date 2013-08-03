@@ -2,6 +2,7 @@ package bt.View;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -25,6 +26,7 @@ import bt.Utils.TorrentInfo;
  *
  */
 
+@SuppressWarnings("serial")
 public class ClientGUI extends JFrame {
 	
 	/**
@@ -37,15 +39,16 @@ public class ClientGUI extends JFrame {
 	Bittorrent client;
 	private Container container;
 	private JPanel dataPanel;
+	private JPanel centralPanel;
 	
 	// data panel members
-	private JLabel labelUserIDTitle = new JLabel("My Peer ID ");
-	private JLabel labeltorrentFileTitle = new JLabel("Torrent File ");
-	private JLabel labelTorrentFileSizeTitle = new JLabel("File Size ");
+	private JLabel labelUserIDTitle = new JLabel(" My Peer ID ");
+	private JLabel labeltorrentFileTitle = new JLabel(" Torrent File ");
+	private JLabel labelTorrentFileSizeTitle = new JLabel(" File Size ");
 	private JLabel labelUserID = new JLabel(" ");
 	private JLabel labelTorrentFileName = new JLabel(" ");
 	private JLabel labelTorrentFileSize = new JLabel(" ");
-	private JLabel labelClientEventTitle = new JLabel("Client Event ");
+	private JLabel labelClientEventTitle = new JLabel(" Client Event ");
 	private JLabel labelClientEvent = new JLabel(" ");	
 	
 	/**
@@ -125,6 +128,12 @@ public class ClientGUI extends JFrame {
 		this.gc.gridwidth = GridBagConstraints.REMAINDER;
 		this.gc.fill = GridBagConstraints.HORIZONTAL;
 		this.container.add(this.dataPanel, this.gc);
+		// central panel
+		this.initCentralPanel();
+	}
+	
+	private void initCentralPanel() {
+		
 	}
 	
 	/**
@@ -170,10 +179,10 @@ public class ClientGUI extends JFrame {
 		try {
 			if(Bittorrent.getInstance() != null) {
 				Bittorrent bt = Bittorrent.getInstance();
-				this.labelUserID.setText(bt.getPeerId());
-				this.labelTorrentFileName.setText(bt.getFileName());
-				this.labelTorrentFileSize.setText(bt.getFileLength()+" bytes");
-				this.labelClientEvent.setText(bt.getEvent().toUpperCase());
+				this.labelUserID.setText(" "+bt.getPeerId());
+				this.labelTorrentFileName.setText(" "+bt.getFileName());
+				this.labelTorrentFileSize.setText(" "+bt.getFileLength()+" bytes");
+				this.labelClientEvent.setText(" "+bt.getEvent().toUpperCase());
 			}
 		} catch (Exception e) {}
 	}
@@ -185,6 +194,14 @@ public class ClientGUI extends JFrame {
 	private void initDecorations() {
 		this.dataPanel.setBorder(BorderFactory.createTitledBorder("Torrent & Tracker Data"));
 		this.labelTorrentFileSizeTitle.setHorizontalAlignment(JLabel.LEFT);
+		this.labelUserID.setBorder(BorderFactory.createLoweredBevelBorder());
+		this.labelUserID.setFont(new Font("Courrier", Font.ITALIC, 14));
+		this.labelTorrentFileName.setBorder(BorderFactory.createLoweredBevelBorder());
+		this.labelTorrentFileName.setFont(new Font("Courrier", Font.ITALIC, 14));
+		this.labelTorrentFileSize.setBorder(BorderFactory.createLoweredBevelBorder());
+		this.labelTorrentFileSize.setFont(new Font("Courrier", Font.ITALIC, 14));
+		this.labelClientEvent.setBorder(BorderFactory.createLoweredBevelBorder());
+		this.labelClientEvent.setFont(new Font("Courrier", Font.ITALIC, 14));
 	}
 	
 	/**
