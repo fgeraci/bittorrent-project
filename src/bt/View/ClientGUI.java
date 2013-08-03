@@ -17,11 +17,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
-import bt.Utils.TorrentInfo;
+import bt.Model.Peer;
 
 /**
  * Client's graphic user interface.
@@ -58,8 +59,8 @@ public class ClientGUI extends JFrame {
 	private JSplitPane centerPanel;
 	private JScrollPane panelListHolder;
 	private JScrollPane panelLogHolder;
-	private JList listPeers;
-	private JTextField textFieldLog;
+	private JList<Peer> listPeers;
+	private JTextArea textFieldLog;
 	
 	/**
 	 * Retrieves a single instance of ClientGUI
@@ -132,18 +133,35 @@ public class ClientGUI extends JFrame {
 		// data panel
 		this.initDataPanel();
 		this.gc = new GridBagConstraints();
-		this.gc.insets = new Insets(10, 5, 5, 5);
-		this.gc.weightx = 1;
-		this.gc.weighty = .3;
-		this.gc.gridwidth = GridBagConstraints.REMAINDER;
+		this.gc.insets = new Insets(5, 5, 5, 5);
 		this.gc.fill = GridBagConstraints.HORIZONTAL;
+		this.gc.gridwidth = GridBagConstraints.REMAINDER;
+		this.gc.weightx = 1;
 		this.container.add(this.dataPanel, this.gc);
 		// central panel
 		this.initCentralPanel();
+		this.gc = new GridBagConstraints();
+		this.gc.insets = new Insets(5, 5, 5, 5);
+		this.gc.weighty = 1;
+		this.gc.fill = GridBagConstraints.BOTH;
+		this.container.add(this.centerPanel, this.gc);
 	}
 	
 	private void initCentralPanel() {
 		
+		this.listPeers = new JList<Peer>();
+		this.panelListHolder = new JScrollPane(this.listPeers);
+		this.textFieldLog = new JTextArea();
+		this.textFieldLog.setEditable(false);
+		this.panelLogHolder = new JScrollPane(this.textFieldLog);
+		this.centerPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.panelListHolder, this.panelLogHolder);
+		this.centerPanel.setOneTouchExpandable(true);
+		this.centerPanel.setDividerLocation(175);
+		this.centerPanel.setDividerSize(5);
+	}
+	
+	public void publishEvent(String message) {
+		this.textFieldLog.append(message);
 	}
 	
 	/**
@@ -212,6 +230,7 @@ public class ClientGUI extends JFrame {
 		this.labelTorrentFileSize.setFont(new Font("Courrier", Font.ITALIC, 14));
 		this.labelClientEvent.setBorder(BorderFactory.createLoweredBevelBorder());
 		this.labelClientEvent.setFont(new Font("Courrier", Font.ITALIC, 14));
+		this.centerPanel.setBorder(BorderFactory.createRaisedBevelBorder());
 	}
 	
 	/**
