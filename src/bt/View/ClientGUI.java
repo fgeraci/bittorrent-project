@@ -1,5 +1,6 @@
 package bt.View;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -61,6 +62,8 @@ public class ClientGUI extends JFrame {
 	private JMenuItem saveLogToFile;
 	private JMenuItem about;
 	
+	private JPanel mainContainer;
+	
 	// data panel members
 	private JLabel labelUserIDTitle = new JLabel(" My Peer ID ");
 	private JLabel labeltorrentFileTitle = new JLabel(" Torrent File ");
@@ -82,7 +85,8 @@ public class ClientGUI extends JFrame {
 	private JTextArea textFieldLog;
 	
 	//bottom console
-	private JPanel bottomPanel;
+	private JPanel bottomContainer;
+	private JScrollPane bottomPanel;
 	private JTable tableConnectios;
 	private DefaultTableModel tableModel;
 	
@@ -104,13 +108,12 @@ public class ClientGUI extends JFrame {
 		try {
 			// windows size
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-			int xPanel = (int)(dim.getWidth()*.7); // 80% of total length
-			int yPanel = (int)(dim.getHeight()*.8); // 90 % of total height
+			int xPanel = (int)(dim.getWidth()*.8); // 80% of total width
+			int yPanel = (int)(dim.getHeight()*.9); // 90 % of total height
 			this.setMinimumSize(new Dimension(xPanel, yPanel));
-			
 			this.container = this.getContentPane();
-			this.container.setLayout(this.gb);
-			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);this.setResizable(false);
+			// this.container.setLayout(this.gb);
+			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
 			// initialize all layout components
 			this.initLayout();
@@ -162,13 +165,16 @@ public class ClientGUI extends JFrame {
 	 * Initializes GUI layout.
 	 */
 	private void initLayout() {
+		this.container.setLayout(new BorderLayout());
+		this.mainContainer = new JPanel(this.gb);
+		
 		// menu bar
 		this.initMenuBar();
-		this.gc = new GridBagConstraints();
-		this.gc.fill = GridBagConstraints.BOTH;
-		this.gc.gridwidth = GridBagConstraints.REMAINDER;
-		this.gc.weightx = 1;
-		this.container.add(this.menuBar, this.gc);
+		//this.gc = new GridBagConstraints();
+		//this.gc.fill = GridBagConstraints.BOTH;
+		//this.gc.gridwidth = GridBagConstraints.REMAINDER;
+		//this.gc.weightx = 1;
+		this.container.add(this.menuBar, BorderLayout.NORTH);
 		// data panel
 		this.initDataPanel();
 		this.gc = new GridBagConstraints();
@@ -176,32 +182,38 @@ public class ClientGUI extends JFrame {
 		this.gc.fill = GridBagConstraints.HORIZONTAL;
 		this.gc.gridwidth = GridBagConstraints.REMAINDER;
 		this.gc.weightx = 1;
-		this.container.add(this.dataPanel, this.gc);
+		this.mainContainer.add(this.dataPanel, this.gc);
 		// central panel
 		this.initCentralPanel();
 		this.gc = new GridBagConstraints();
 		this.gc.insets = new Insets(5, 5, 5, 5);
-		this.gc.weighty = 1;
+		this.gc.weighty = .5;
 		this.gc.fill = GridBagConstraints.BOTH;
 		this.gc.gridwidth = GridBagConstraints.REMAINDER;
-		this.container.add(this.centerPanel, this.gc);
-		/*
+		this.mainContainer.add(this.centerPanel, this.gc);
 		//bottom section
 		this.initBottomPanel();
 		this.gc = new GridBagConstraints();
 		this.gc.insets = new Insets(5, 5, 5, 5);
-		this.gc.weighty = 1;
 		this.gc.fill = GridBagConstraints.BOTH;
-		this.container.add(this.bottomPanel, this.gc);
-		*/
+		this.gc.weighty = .1;
+		this.gc.weightx = 1;
+		this.mainContainer.add(this.bottomPanel, this.gc);
+		
+		this.container.add(this.mainContainer, BorderLayout.CENTER);
+		
 	}
 	
 	private void initBottomPanel() {
-		this.bottomPanel = new JPanel();
 		Object[] tableColumns = {"Connected to...", "State", "Downloaded", "Uploaded"};
-		this.tableConnectios = new JTable(null, tableColumns);
-		this.tableModel = (DefaultTableModel)this.tableConnectios.getModel();
-		this.bottomPanel.add(this.tableConnectios);
+		this.tableConnectios = new JTable();
+		this.tableModel = new DefaultTableModel();
+		for(int i = 0 ; i < tableColumns.length; ++i) {
+			this.tableModel.addColumn(tableColumns[i]);
+		}
+		this.tableConnectios.setModel(this.tableModel);
+		this.tableConnectios.setFillsViewportHeight(true);
+		this.bottomPanel = new JScrollPane(this.tableConnectios);
 	}
 	
 	/**
