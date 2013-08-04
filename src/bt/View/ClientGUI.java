@@ -1,5 +1,6 @@
 package bt.View;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -63,6 +64,8 @@ public class ClientGUI extends JFrame {
 	private JLabel labelTorrentFileSize = new JLabel(" ");
 	private JLabel labelClientEventTitle = new JLabel(" Current Event ");
 	private JLabel labelClientEvent = new JLabel(" ");
+	private JLabel labelConnectedPeers = new JLabel("Connected Peers");
+	private JPanel panelListContainer;
 	private DefaultListModel<String> peerListModel;
 	
 	// central panel components
@@ -190,15 +193,23 @@ public class ClientGUI extends JFrame {
 	 * Initializes main body
 	 */
 	private void initCentralPanel() {
-		
+		this.panelListContainer = new JPanel(new GridBagLayout());
 		this.listPeers = new JList<String>();
 		this.panelListHolder = new JScrollPane(this.listPeers);
 		this.panelListHolder.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		GridBagConstraints gc = new GridBagConstraints();
+		gc.fill = GridBagConstraints.HORIZONTAL;
+		gc.gridwidth = GridBagConstraints.REMAINDER;
+		this.panelListContainer.add(this.labelConnectedPeers, gc);
+		gc.fill = GridBagConstraints.BOTH;
+		gc.weighty = 1;
+		gc.weightx = 1;
+		this.panelListContainer.add(this.panelListHolder, gc);
 		this.textFieldLog = new JTextArea();
 		this.textFieldLog.setEditable(false);
 		this.panelLogHolder = new JScrollPane(this.textFieldLog);
 		this.panelLogHolder.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		this.centerPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.panelListHolder, this.panelLogHolder);
+		this.centerPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.panelListContainer, this.panelLogHolder);
 		this.centerPanel.setOneTouchExpandable(true);
 		this.centerPanel.setDividerLocation(175);
 		this.centerPanel.setDividerSize(5);
@@ -284,7 +295,7 @@ public class ClientGUI extends JFrame {
 				this.peerListModel.add(i, peers[i]);
 			}
 			this.listPeers.setModel(this.peerListModel);
-		} catch (Exception e) { /* it will not happen */ }
+		} catch (Exception e) { System.out.println(e.getMessage()); }
 	}
 	
 	
@@ -303,6 +314,7 @@ public class ClientGUI extends JFrame {
 		this.labelClientEvent.setBorder(BorderFactory.createLoweredBevelBorder());
 		this.labelClientEvent.setFont(new Font("Courrier", Font.ITALIC, 14));
 		this.centerPanel.setBorder(BorderFactory.createRaisedBevelBorder());
+		this.labelConnectedPeers.setBorder(BorderFactory.createLoweredSoftBevelBorder());
 	}
 	
 	/**
