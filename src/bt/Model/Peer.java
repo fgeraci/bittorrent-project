@@ -382,7 +382,7 @@ public class Peer implements Runnable {
 		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
-		System.out.println("Piece with index ("+ index +"), begin ("+ begin +
+		ClientGUI.getInstance().publishEvent("Piece with index ("+ index +"), begin ("+ begin +
 				"), size ("+ payloadSize +") was sent to "+ this.toString() +".");		
 	}
 	
@@ -424,7 +424,7 @@ public class Peer implements Runnable {
 			}
 			try {
 				this.parent.addBytesToPiece(index, offset);
-			} catch (Exception e) {System.out.println(e.getMessage());}
+			} catch (Exception e) {ClientGUI.getInstance().publishEvent(e.getMessage());}
 			try {
 				verifySHA(index);
 			} catch (Exception e) {
@@ -451,7 +451,7 @@ public class Peer implements Runnable {
 		out.write(message);
 		out.flush();
 		this.pendingRequests++;
-		System.out.println("-- Piece: "+request.getIndex()+" From: "+request.getBegin()+" Bytes:  "+request.getLength()+" requested from " + this);
+		ClientGUI.getInstance().publishEvent("-- Piece: "+request.getIndex()+" From: "+request.getBegin()+" Bytes:  "+request.getLength()+" requested from " + this);
 	}
 	
 	/**
@@ -802,7 +802,7 @@ public class Peer implements Runnable {
 				this.peerAccepted = true;
 				return this.peerAccepted;
 			} else {
-				System.out.println("ERROR: info_hash doesn't match, connection terminated.");
+				ClientGUI.getInstance().publishEvent("ERROR: info_hash doesn't match, connection terminated.");
 			}
 		}
 		return false;

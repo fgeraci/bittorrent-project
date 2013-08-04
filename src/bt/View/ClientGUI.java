@@ -9,17 +9,17 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.text.Document;
-
 import bt.Exceptions.UnknownBittorrentException;
 import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
@@ -45,6 +45,11 @@ public class ClientGUI extends JFrame {
 	private Container container;
 	private JPanel dataPanel;
 	private JPanel centralPanel;
+	private JMenuBar menuBar;
+	private JMenu fileOptions;
+	private JMenu helpOptions;
+	private JMenuItem exitMenu;
+	private JMenuItem about;
 	
 	// data panel members
 	private JLabel labelUserIDTitle = new JLabel(" My Peer ID ");
@@ -81,8 +86,8 @@ public class ClientGUI extends JFrame {
 		try {
 			// windows size
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-			int xPanel = (int)(dim.getWidth()*.6); // 80% of total length
-			int yPanel = (int)(dim.getHeight()*.7); // 90 % of total height
+			int xPanel = (int)(dim.getWidth()*.7); // 80% of total length
+			int yPanel = (int)(dim.getHeight()*.8); // 90 % of total height
 			this.setMinimumSize(new Dimension(xPanel, yPanel));
 			
 			this.container = this.getContentPane();
@@ -140,6 +145,14 @@ public class ClientGUI extends JFrame {
 	 * Initializes GUI layout.
 	 */
 	private void initLayout() {
+		// menu bar
+		this.initMenuBar();
+		this.gc = new GridBagConstraints();
+		this.gc.fill = GridBagConstraints.BOTH;
+		this.gc.gridwidth = GridBagConstraints.REMAINDER;
+		this.gc.weightx = 1;
+		this.gc.weighty = .2;
+		this.container.add(this.menuBar, this.gc);
 		// data panel
 		this.initDataPanel();
 		this.gc = new GridBagConstraints();
@@ -155,6 +168,18 @@ public class ClientGUI extends JFrame {
 		this.gc.weighty = 1;
 		this.gc.fill = GridBagConstraints.BOTH;
 		this.container.add(this.centerPanel, this.gc);
+	}
+	
+	private void initMenuBar() {
+		this.menuBar = new JMenuBar();
+		this.fileOptions = new JMenu("File");
+		this.helpOptions = new JMenu("Help");
+		this.exitMenu = new JMenuItem("Exit and Save");
+		this.about = new JMenuItem("About...");
+		this.fileOptions.add(this.exitMenu);
+		this.helpOptions.add(this.about);
+		this.menuBar.add(fileOptions);
+		this.menuBar.add(helpOptions);
 	}
 	
 	/**
@@ -180,10 +205,13 @@ public class ClientGUI extends JFrame {
 	 * @param message
 	 */
 	public void publishEvent(String message) {
+		int currentCaret = this.textFieldLog.getCaretPosition();
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("\n");
 		stringBuilder.append(message);
 		this.textFieldLog.append(stringBuilder.toString());
+		int caretPosition = currentCaret + (stringBuilder.length()-1);
+		this.textFieldLog.setCaretPosition(caretPosition);
 		// Document d = this.textFieldLog.getDocument();
 		// this.textFieldLog.setCaretPosition(this.textFieldLog.getCaretPosition()+d.getLength());
 	}
