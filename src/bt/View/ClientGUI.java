@@ -1,6 +1,5 @@
 package bt.View;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -8,8 +7,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileOutputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -22,12 +25,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.table.DefaultTableModel;
 
 import bt.Exceptions.UnknownBittorrentException;
 import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
-import bt.Model.Peer;
+import bt.Utils.Utilities;
 
 /**
  * Client's graphic user interface.
@@ -53,6 +58,7 @@ public class ClientGUI extends JFrame {
 	private JMenu fileOptions;
 	private JMenu helpOptions;
 	private JMenuItem exitMenu;
+	private JMenuItem saveLogToFile;
 	private JMenuItem about;
 	
 	// data panel members
@@ -74,6 +80,11 @@ public class ClientGUI extends JFrame {
 	private JScrollPane panelLogHolder;
 	private JList<String> listPeers;
 	private JTextArea textFieldLog;
+	
+	//bottom console
+	private JPanel bottomPanel;
+	private JTable tableConnectios;
+	private DefaultTableModel tableModel;
 	
 	/**
 	 * Retrieves a single instance of ClientGUI
@@ -112,8 +123,6 @@ public class ClientGUI extends JFrame {
 					// Utilities.callClose();
 				}
 			});
-			this.setLocationRelativeTo(null);
-			
 		} catch(Exception e) {
 			System.out.println(" << GUI initialization error >> ");
 		}
@@ -127,15 +136,15 @@ public class ClientGUI extends JFrame {
 		this.loadTorrentFile();
 		this.updateDataPanel();
 		this.updatePeerModel();
+		this.initBehaviors();
 		this.pack();
+		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		try {
 			Bittorrent.getInstance().startExecuting();
 		} catch (UnknownBittorrentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -174,15 +183,38 @@ public class ClientGUI extends JFrame {
 		this.gc.insets = new Insets(5, 5, 5, 5);
 		this.gc.weighty = 1;
 		this.gc.fill = GridBagConstraints.BOTH;
+		this.gc.gridwidth = GridBagConstraints.REMAINDER;
 		this.container.add(this.centerPanel, this.gc);
+		/*
+		//bottom section
+		this.initBottomPanel();
+		this.gc = new GridBagConstraints();
+		this.gc.insets = new Insets(5, 5, 5, 5);
+		this.gc.weighty = 1;
+		this.gc.fill = GridBagConstraints.BOTH;
+		this.container.add(this.bottomPanel, this.gc);
+		*/
 	}
 	
+	private void initBottomPanel() {
+		this.bottomPanel = new JPanel();
+		Object[] tableColumns = {"Connected to...", "State", "Downloaded", "Uploaded"};
+		this.tableConnectios = new JTable(null, tableColumns);
+		this.tableModel = (DefaultTableModel)this.tableConnectios.getModel();
+		this.bottomPanel.add(this.tableConnectios);
+	}
+	
+	/**
+	 * Initializes the menu bar.
+	 */
 	private void initMenuBar() {
 		this.menuBar = new JMenuBar();
 		this.fileOptions = new JMenu("File");
 		this.helpOptions = new JMenu("Help");
-		this.exitMenu = new JMenuItem("Exit and Save");
+		this.saveLogToFile = new JMenuItem("Save Log To File");
+		this.exitMenu = new JMenuItem("Exit");
 		this.about = new JMenuItem("About...");
+		this.fileOptions.add(this.saveLogToFile);
 		this.fileOptions.add(this.exitMenu);
 		this.helpOptions.add(this.about);
 		this.menuBar.add(fileOptions);
@@ -321,7 +353,33 @@ public class ClientGUI extends JFrame {
 	 * Initializes components behaviors.
 	 */
 	private void initBehaviors() {
-		
+		this.saveLogToFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File logFile = new File("log.txt");
+				if(logFile.exists()) {
+					try {
+						logFile.delete();
+					} catch (Exception ex) {
+						System.out.println(ex.getMessage());
+					}
+				}
+				String log = textFieldLog.getText();
+				byte[] bytes = log.getBytes();
+				try {
+					FileOutputStream fileOut = new FileOutputStream(logFile);
+					for(int i = 0; i < bytes.length; ++i) {
+						fileOut.write(bytes[i]);
+					}
+					fileOut.close();
+				} catch (Exception ex) { System.out.println(ex.getMessage());}
+				
+			}
+		});
+		this.exitMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Utilities.callClose();
+			}
+		});
 	}
 
 }

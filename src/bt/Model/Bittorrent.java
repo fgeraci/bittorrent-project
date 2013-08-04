@@ -194,32 +194,28 @@ public class Bittorrent {
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
-	private Bittorrent(String torrentFile, String saveFile)	{	
+	private Bittorrent(String torrentFile, String saveFile) throws Exception	{	
 		// open the file
 		File file = new File(torrentFile);
-		try {
-			// get file info
-			this.peerList = new ArrayList<Peer>();
-			this.clientID = Utilities.generateID();
-			// make sure clientID is not illegal  
-		    while (this.clientID.substring(0,4).equals("RUBT")) {  
-		    	this.clientID = Utilities.generateID();
-		    }
-			this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
-	/*		this.interval = 0; */
-			this.printTorrentInfoFields();
-			this.initClientState();
-			this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
-			// request the tracker for peers
-			this.sendRequestToTracker();
-			this.tr = TrackerRefresher.getInstance(
-					this.torrentInfo, this.peers, this.peerList/*, this.interval*/);
-			UserInterface ui = UserInterface.getInstance();
-			this.cGUI = ClientGUI.getInstance();
-			cGUI.publishEvent("Connection Successful, welcome");
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
+		// get file info
+		this.peerList = new ArrayList<Peer>();
+		this.clientID = Utilities.generateID();
+		// make sure clientID is not illegal  
+	    while (this.clientID.substring(0,4).equals("RUBT")) {  
+	    	this.clientID = Utilities.generateID();
+	    }
+		this.torrentInfo = new TorrentInfo(Utilities.getBytesFromFile(file));
+/*		this.interval = 0; */
+		this.printTorrentInfoFields();
+		this.initClientState();
+		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
+		// request the tracker for peers
+		this.sendRequestToTracker();
+		this.tr = TrackerRefresher.getInstance(
+				this.torrentInfo, this.peers, this.peerList/*, this.interval*/);
+		UserInterface ui = UserInterface.getInstance();
+		this.cGUI = ClientGUI.getInstance();
+		cGUI.publishEvent("Connection Successful, welcome");
 	}
 	
 	/**
@@ -404,7 +400,7 @@ public class Bittorrent {
 	 * Returns a singleton instance of the Bittorrent main client.
 	 * @return Bittorrent instance
 	 */
-	public static Bittorrent getInstance(String torrentFile, String saveFile) {
+	public static Bittorrent getInstance(String torrentFile, String saveFile) throws Exception {
 		if(Bittorrent.instance == null) {
 			Bittorrent.instance = new Bittorrent(torrentFile, saveFile);
 		}
