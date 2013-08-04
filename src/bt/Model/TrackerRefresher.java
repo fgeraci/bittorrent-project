@@ -75,6 +75,7 @@ public class TrackerRefresher implements Runnable {
 				try {
 					Thread.sleep(refresh*1000);
 					String[] recentList = this.getPeerList();
+					Bittorrent.getInstance().setPeersArray(recentList);
 					try {
 						tr_interval = this.getInterval();
 					} catch (Exception e) {}

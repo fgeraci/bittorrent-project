@@ -260,6 +260,14 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Returns the entire list of peers from the server.
+	 * @return
+	 */
+	public String[] getPeersArray() {
+		return this.peers;
+	}
+	
+	/**
 	 * Updates the value in left bytes for the file.
 	 * @param bytes bytes
 	 */
@@ -291,6 +299,15 @@ public class Bittorrent {
 	 */
 	public byte[][] getVerificationArray() {
 		return this.verificationArray;
+	}
+	
+	/**
+	 * Update the current list of peers from the tracker.
+	 * @param updatedList
+	 */
+	public void setPeersArray(String[] updatedList) {
+		this.peers = updatedList;
+		this.cGUI.updatePeerModel();
 	}
 	
 	/**

@@ -9,7 +9,9 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -20,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+
 import bt.Exceptions.UnknownBittorrentException;
 import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
@@ -59,13 +62,14 @@ public class ClientGUI extends JFrame {
 	private JLabel labelTorrentFileName = new JLabel(" ");
 	private JLabel labelTorrentFileSize = new JLabel(" ");
 	private JLabel labelClientEventTitle = new JLabel(" Current Event ");
-	private JLabel labelClientEvent = new JLabel(" ");	
+	private JLabel labelClientEvent = new JLabel(" ");
+	private DefaultListModel<String> peerListModel;
 	
 	// central panel components
 	private JSplitPane centerPanel;
 	private JScrollPane panelListHolder;
 	private JScrollPane panelLogHolder;
-	private JList<Peer> listPeers;
+	private JList<String> listPeers;
 	private JTextArea textFieldLog;
 	
 	/**
@@ -119,6 +123,7 @@ public class ClientGUI extends JFrame {
 	public void startGUI() {
 		this.loadTorrentFile();
 		this.updateDataPanel();
+		this.updatePeerModel();
 		this.pack();
 		this.setVisible(true);
 		try {
@@ -151,7 +156,6 @@ public class ClientGUI extends JFrame {
 		this.gc.fill = GridBagConstraints.BOTH;
 		this.gc.gridwidth = GridBagConstraints.REMAINDER;
 		this.gc.weightx = 1;
-		this.gc.weighty = .2;
 		this.container.add(this.menuBar, this.gc);
 		// data panel
 		this.initDataPanel();
@@ -187,7 +191,7 @@ public class ClientGUI extends JFrame {
 	 */
 	private void initCentralPanel() {
 		
-		this.listPeers = new JList<Peer>();
+		this.listPeers = new JList<String>();
 		this.panelListHolder = new JScrollPane(this.listPeers);
 		this.panelListHolder.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.textFieldLog = new JTextArea();
@@ -210,10 +214,8 @@ public class ClientGUI extends JFrame {
 		stringBuilder.append("\n");
 		stringBuilder.append(message);
 		this.textFieldLog.append(stringBuilder.toString());
-		int caretPosition = currentCaret + (stringBuilder.length()-1);
+		int caretPosition = currentCaret + (stringBuilder.length());
 		this.textFieldLog.setCaretPosition(caretPosition);
-		// Document d = this.textFieldLog.getDocument();
-		// this.textFieldLog.setCaretPosition(this.textFieldLog.getCaretPosition()+d.getLength());
 	}
 	
 	/**
@@ -265,6 +267,24 @@ public class ClientGUI extends JFrame {
 				this.labelClientEvent.setText(" "+bt.getEvent().toUpperCase());
 			}
 		} catch (Exception e) {}
+	}
+	
+	/**
+	 * Updates the peers list. It will also be called by the refresher every 180 seconds.
+	 */
+	public void updatePeerModel() {
+		if(this.peerListModel == null) { // initialize
+			this.peerListModel = new DefaultListModel<String>();
+		} else { // update
+			this.peerListModel.clear();
+		}
+		try {
+			String[] peers = Bittorrent.getInstance().getPeersArray();
+			for(int i = 0; i < peers.length; ++i) {
+				this.peerListModel.add(i, peers[i]);
+			}
+			this.listPeers.setModel(this.peerListModel);
+		} catch (Exception e) { /* it will not happen */ }
 	}
 	
 	
