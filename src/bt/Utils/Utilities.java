@@ -130,7 +130,10 @@ public class Utilities {
 	                    peers.get() & 0xff,
 	                    peers.get() & 0xff,
 	                    peers.get() & 0xff);
-	                int port = peers.get() * 256 + peers.get();
+	                int firstByte = (0x000000FF & ((int)peers.get()));
+	                int secondByte = (0x000000FF & ((int)peers.get()));
+	                int port  = (firstByte << 8 | secondByte);
+	                // int port = peers.get() * 256 + peers.get();
 	                peerURLs.add(ip + ":" + port);
 	            }
 	        } catch (Exception e) {
