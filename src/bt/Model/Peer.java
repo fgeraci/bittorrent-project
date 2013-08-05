@@ -839,6 +839,7 @@ public class Peer implements Runnable {
 				return this.peerAccepted;
 			} else {
 				ClientGUI.getInstance().publishEvent("ERROR: info_hash doesn't match, connection terminated.");
+				parent.terminatePeer(this.toString());
 			}
 		}
 		return false;

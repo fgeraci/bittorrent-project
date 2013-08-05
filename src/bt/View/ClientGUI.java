@@ -54,6 +54,10 @@ public class ClientGUI extends JFrame {
 	public static ClientGUI instance = null;
 	private Bittorrent bt;
 	
+	public static int STATUS_UPDATE = 1;
+	public static int DOWNLOADED_UPDATE = 2;
+	public static int UPLOADED_UPDATE = 3;
+	
 	GridBagLayout gb = new GridBagLayout();
 	GridBagConstraints gc;
 	Bittorrent client;
@@ -465,6 +469,35 @@ public class ClientGUI extends JFrame {
 			this.labelClientEvent.setForeground(Color.DARK_GRAY);
 		}
 		this.labelClientEvent.setText(" "+state.toUpperCase());
+	}
+	
+	public void updatePeerInTable(Peer peer, int valueCode) {
+		int row = this.getRowNumberOfPeer(peer.toString());
+		switch(valueCode) {
+		case 1: // choke status
+			boolean choked = peer.isChoked();
+			String isChoked = choked ? "Choked" : "Unchocked";
+			this.tableConnectios.setValueAt(isChoked, row, valueCode);
+			break;
+		case 2: // downloaded
+			this.tableConnectios.setValueAt(peer.getDownloaded()+"", row, valueCode);
+			break;
+		case 3: // uploaded
+			this.tableConnectios.setValueAt(peer.getUploaded()+"", row, valueCode);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private int getRowNumberOfPeer(String peer) {
+		int rows = this.tableConnectios.getRowCount();
+		for(int i = 0; i < rows; ++i) {
+			if(peer.equals(this.tableConnectios.getValueAt(i, 0))) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }
