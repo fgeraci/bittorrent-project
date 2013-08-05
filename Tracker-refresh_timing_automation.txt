@@ -1,0 +1,20 @@
+// from TrackerRefresher.java
+
+  public void run() {
+		int trackInterval = 10;
+		while(this.refresh) {
+			try {
+//				trackInterval = 10; // THIS SHOULD BE REMOVED //
+				Thread.sleep(trackInterval*1000);
+				String[] recentList = this.getPeerList();
+				trackInterval = this.getInterval();
+				if (trackInterval > 180)
+					trackInterval = 180;
+				if(recentList != null) {
+					UserInterface.getInstance().receiveEvent(
+							"Updating peer list every "+ trackInterval +" seconds...");
+				}
+			} catch (Exception e) { /* this should never happen */ }
+		}
+	}
+  

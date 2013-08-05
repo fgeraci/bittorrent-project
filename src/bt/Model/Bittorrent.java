@@ -668,6 +668,7 @@ public class Bittorrent {
 	 */
 	public void connectToPeer(int peer) throws UnknownHostException, IOException, DuplicatePeerException {
 		// create peer, attempt connection, feed arguments.
+		
 		if(peer < 0 || peer >= this.peers.length) {
 			throw new IllegalArgumentException("Invalid peer number, out of range.");
 		} else if(this.connections[peer]) {
@@ -736,8 +737,9 @@ public class Bittorrent {
 	public void connectToPeer(String peer)throws IllegalArgumentException, UnknownHostException, IOException, DuplicatePeerException {
 		boolean connected = false;
 		synchronized(peers) {
-			for(int i = 0; i < this.peers.length; ++i) {
-				if(peer.equals(this.peers[i])) {
+			String[] peers = this.getPeersArray();
+			for(int i = 0; i < peers.length; ++i) {
+				if(peer.equals(peers[i])) {
 					connected = true;
 					this.connectToPeer(i);
 				}

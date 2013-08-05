@@ -138,12 +138,14 @@ public class ClientGUI extends JFrame {
 	 */
 	public void startGUI() {
 		this.loadTorrentFile();
-		this.updateDataPanel();
 		this.updatePeerModel();
+		this.updateDataPanel();
 		this.initBehaviors();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		try {
+			this.publishEvent("Initializing client...");
+			Thread.sleep(1000);
 			while(Bittorrent.getInstance() == null) {
 				this.publishEvent("Initializing client...");
 				Thread.sleep(1000);

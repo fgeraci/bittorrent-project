@@ -1,2 +1,63 @@
 
-Random ID is (in bytes): VYEDIIPFCPHLHEXKPMNH
+Random ID is (in bytes): KMNGSOOXXLVHLVOCQJFK
+TRACKER INFO (Successfully Decoded):
+-----------------------------------
+Announce: http://128.6.171.2:6969/announce
+Info Hash: \x2a\xba\x03\x9f\xfe\x8f\xf2\xaf\x3f\x89\x92\x37\xbc\xe4\xe3\x69\x80\xb8\xec\x85
+Info Hash URL Encoded: %2a%ba%03%9f%fe%8f%f2%af%3f%89%92%37%bc%e4%e3%69%80%b8%ec%85
+File Name: cs352.png
+File Length: 151709
+Piece Size: 32768
+Peers List:
+-----------------------------------
+1. 74.95.182.13:0
+2. 74.95.182.13:6625
+3. 128.6.171.5:6986
+4. 128.6.171.4:6929
+5. 128.6.171.3:6916
+6. 98.221.152.14:2744
+7. 68.193.97.208:6986
+-----------------------------------
+Connection Successful, welcome
+Updating tracker every 180 seconds...
+<<< Data received, processing...
+>>> Listening from Peer : 128.6.171.3:6916...
+-- HANDSHAKE VALIDATED !!! w/ peer 128.6.171.3:6916 -
+<<< Data received, processing...
+>>> Listening from Peer : 128.6.171.4:6929...
+-- HANDSHAKE VALIDATED !!! w/ peer 128.6.171.4:6929 -
+-- Piece: 0 From: 0 Bytes:  16384 requested from 128.6.171.3:6916
+-- Piece: 0 From: 16384 Bytes:  16384 requested from 128.6.171.3:6916
+-- Piece: 1 From: 0 Bytes:  16384 requested from 128.6.171.3:6916
+-- Piece: 1 From: 16384 Bytes:  16384 requested from 128.6.171.4:6929
+-- Piece: 2 From: 0 Bytes:  16384 requested from 128.6.171.4:6929
+-- Piece: 2 From: 16384 Bytes:  16384 requested from 128.6.171.4:6929
+>>> Peer 128.6.171.3:6916 just unchoked me
+>>> Peer 128.6.171.4:6929 just unchoked me
+-- Piece received from: 128.6.171.3:6916, analyzing...
+Index: 0 - Begin: 0
+-- Piece received from: 128.6.171.4:6929, analyzing...
+We have completed piece: 0
+Index: 1 - Begin: 16384
+We have completed piece: 1
+-- Piece: 3 From: 0 Bytes:  16384 requested from 128.6.171.3:6916
+-- Piece: 4 From: 16384 Bytes:  4253 requested from 128.6.171.4:6929
+-- Piece received from: 128.6.171.3:6916, analyzing...
+Index: 0 - Begin: 16384
+-- Piece received from: 128.6.171.4:6929, analyzing...
+Index: 2 - Begin: 0
+We have completed piece: 2
+-- Piece: 4 From: 0 Bytes:  16384 requested from 128.6.171.3:6916
+-- Piece: 3 From: 16384 Bytes:  16384 requested from 128.6.171.4:6929
+-- Piece received from: 128.6.171.3:6916, analyzing...
+Index: 1 - Begin: 0
+-- Piece received from: 128.6.171.4:6929, analyzing...
+Index: 2 - Begin: 16384
+-- Piece received from: 128.6.171.3:6916, analyzing...
+Index: 3 - Begin: 0
+We have completed piece: 3
+-- Piece received from: 128.6.171.4:6929, analyzing...
+Index: 4 - Begin: 16384
+We have completed piece: 4
+
+-- FILE SUCCESSFULLY DOWNLOADED --
