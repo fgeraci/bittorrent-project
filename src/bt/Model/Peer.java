@@ -69,6 +69,8 @@ public class Peer implements Runnable {
 	private int port;
 	private Date timeout;
 	MessageDigest sha;
+	private int downloaded = 0;
+	private int uploaded = 0;
 	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
@@ -486,6 +488,40 @@ public class Peer implements Runnable {
 	 */
 	public boolean isChoked() {
 		return this.choked;
+	}
+	
+	/**
+	 * Returns bytes downloaded so far from this peer.
+	 * @return
+	 */
+	public int getDownloaded() {
+		return this.downloaded;
+	}
+	
+	/**
+	 * Updates value.
+	 * @param bytes
+	 */
+	public void updateDownloaded(int bytes) {
+		this.downloaded += bytes;
+		// this should trigger a table refresh.
+	}
+	
+	/**
+	 * Returns bytes downloaded so far from this peer.
+	 * @return
+	 */
+	public int getUploaded() {
+		return this.uploaded;
+	}
+	
+	/**
+	 * Updates value.
+	 * @param bytes
+	 */
+	public void updateUploaded(int bytes) {
+		this.uploaded += bytes;
+		// this should trigger a table refresh.
 	}
 	
 	/**

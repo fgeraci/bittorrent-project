@@ -146,6 +146,12 @@ class PeerListener implements Runnable {
 			case 1: // remote-peer is unchoked, start requesting
 				parent.setChoke(false);
 				ClientGUI.getInstance().publishEvent(">>> Peer "+parent+" just unchoked me");
+				try {
+					Bittorrent.getInstance().updateGUIState();
+				} catch (UnknownBittorrentException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				break; // message was received and processed.
 			case 2:	// interested
 				parent.setInterested(true);
@@ -170,6 +176,7 @@ class PeerListener implements Runnable {
 													+" begin: "+requestbegin+
 													" length: "+requestlength);
 				parent.requestReceived(requestindex, requestbegin, requestlength);
+				parent.updateUploaded(requestlength);
 				break;
 			case 7:	// piece
 				boolean isCompleted = false;
@@ -188,6 +195,7 @@ class PeerListener implements Runnable {
 					ClientGUI.getInstance().publishEvent("Index: "+index+" - Begin: "+begin);
 					try {
 						parent.getPiece(index, begin, payload);
+						parent.updateDownloaded(payload.length);
 					} catch (Exception e) {e.printStackTrace();}
 					break;
 				} else break;

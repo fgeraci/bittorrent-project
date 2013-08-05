@@ -30,19 +30,12 @@ public class RUBTClient {
 		@SuppressWarnings("unused")
 		UserInterface ui = null;
 		try {
-			if(args.length >= 2) {
-				// GUI initialization
-				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				} catch (Exception e) {}
-				ClientGUI cGUI = ClientGUI.getInstance();
-				cGUI.startGUI();
-				// bittorrent.startExecuting();
-			} else {
-				System.err.println("ERROR: Insufficient arguments");
-				System.out.println("usage: RUBTClient <torrent filename> <output filename>");
-				System.exit(-1);
-			}
+			// GUI initialization
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (Exception e) {}
+			ClientGUI cGUI = ClientGUI.getInstance();
+			cGUI.startGUI();
 		} catch (Exception e) {}
 	}
 }

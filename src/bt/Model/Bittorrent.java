@@ -213,7 +213,7 @@ public class Bittorrent {
 		this.sendRequestToTracker();
 		this.tr = TrackerRefresher.getInstance(
 				this.torrentInfo, this.peers, this.peerList/*, this.interval*/);
-		UserInterface ui = UserInterface.getInstance();
+		// UserInterface ui = UserInterface.getInstance();
 		this.cGUI = ClientGUI.getInstance();
 		cGUI.publishEvent("Connection Successful, welcome");
 	}
@@ -255,12 +255,16 @@ public class Bittorrent {
 		}
 	}
 	
+	public void updateGUIState() {
+		this.cGUI.updateTableModel();
+	}
+	
 	/**
 	 * Returns the entire list of peers from the server.
 	 * @return
 	 */
 	public String[] getPeersArray() {
-		return this.peers;
+			return this.peers.clone();
 	}
 	
 	/**
@@ -437,7 +441,7 @@ public class Bittorrent {
 	 * @throws UnknownBittorrentException thrown if the client was never initialized.
 	 */
 	public static Bittorrent getInstance() throws UnknownBittorrentException  {
-		if(Bittorrent.instance == null) throw new UnknownBittorrentException("Client was never initialized");
+		if(Bittorrent.instance == null) return null;
 		return Bittorrent.instance;
 	}
 	
@@ -672,7 +676,6 @@ public class Bittorrent {
 			// get info
 			String ip = Utilities.getIPFromString(this.peers[peer]);
 			int port = Utilities.getPortFromString(this.peers[peer]);
-			System.out.println();
 			// attempt peer
 			Peer p = new Peer(	ip,
 								port,
@@ -686,6 +689,7 @@ public class Bittorrent {
 			synchronized(peerList) {
 				synchronized(connections) {
 					this.peerList.add(p);
+					ClientGUI.getInstance().updateTableModel();
 					// mark the connection as boolean connected in this.connectios
 					this.connections[peer] = true;
 				}

@@ -14,7 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
-
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -29,10 +29,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
-
 import bt.Exceptions.UnknownBittorrentException;
 import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
+import bt.Model.Peer;
 import bt.Utils.Utilities;
 
 /**
@@ -109,14 +109,15 @@ public class ClientGUI extends JFrame {
 			// windows size
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 			int xPanel = (int)(dim.getWidth()*.8); // 80% of total width
-			int yPanel = (int)(dim.getHeight()*.9); // 90 % of total height
-			this.setMinimumSize(new Dimension(xPanel, yPanel));
+			int yPanel = (int)(dim.getHeight()*.6); // 90 % of total height
+			this.setMinimumSize(new Dimension((int)(xPanel*.8), (int)(yPanel*.8)));
 			this.container = this.getContentPane();
 			// this.container.setLayout(this.gb);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
 			// initialize all layout components
 			this.initLayout();
+			this.pack();
 			// initialize components' decorations.
 			this.initDecorations();
 			
@@ -140,10 +141,13 @@ public class ClientGUI extends JFrame {
 		this.updateDataPanel();
 		this.updatePeerModel();
 		this.initBehaviors();
-		this.pack();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		try {
+			while(Bittorrent.getInstance() == null) {
+				this.publishEvent("Initializing client...");
+				Thread.sleep(1000);
+			}
 			Bittorrent.getInstance().startExecuting();
 		} catch (UnknownBittorrentException e) {
 			e.printStackTrace();
@@ -165,20 +169,18 @@ public class ClientGUI extends JFrame {
 	 * Initializes GUI layout.
 	 */
 	private void initLayout() {
+		
 		this.container.setLayout(new BorderLayout());
 		this.mainContainer = new JPanel(this.gb);
 		
 		// menu bar
 		this.initMenuBar();
-		//this.gc = new GridBagConstraints();
-		//this.gc.fill = GridBagConstraints.BOTH;
-		//this.gc.gridwidth = GridBagConstraints.REMAINDER;
-		//this.gc.weightx = 1;
+		
 		this.container.add(this.menuBar, BorderLayout.NORTH);
 		// data panel
 		this.initDataPanel();
 		this.gc = new GridBagConstraints();
-		this.gc.insets = new Insets(5, 5, 5, 5);
+		this.gc.insets = new Insets(2, 5, 2, 5);
 		this.gc.fill = GridBagConstraints.HORIZONTAL;
 		this.gc.gridwidth = GridBagConstraints.REMAINDER;
 		this.gc.weightx = 1;
@@ -186,27 +188,28 @@ public class ClientGUI extends JFrame {
 		// central panel
 		this.initCentralPanel();
 		this.gc = new GridBagConstraints();
-		this.gc.insets = new Insets(5, 5, 5, 5);
-		this.gc.weighty = .5;
+		this.gc.insets = new Insets(2, 5, 2, 5);
+		this.gc.weighty = .4;
 		this.gc.fill = GridBagConstraints.BOTH;
 		this.gc.gridwidth = GridBagConstraints.REMAINDER;
 		this.mainContainer.add(this.centerPanel, this.gc);
 		//bottom section
 		this.initBottomPanel();
 		this.gc = new GridBagConstraints();
-		this.gc.insets = new Insets(5, 5, 5, 5);
+		this.gc.insets = new Insets(2, 5, 2, 5);
 		this.gc.fill = GridBagConstraints.BOTH;
 		this.gc.weighty = .1;
 		this.gc.weightx = 1;
 		this.mainContainer.add(this.bottomPanel, this.gc);
 		
-		this.container.add(this.mainContainer, BorderLayout.CENTER);
+		this.container.add(this.mainContainer);
 		
 	}
 	
 	private void initBottomPanel() {
 		Object[] tableColumns = {"Connected to...", "State", "Downloaded", "Uploaded"};
 		this.tableConnectios = new JTable();
+		this.tableConnectios.setDefaultRenderer(String.class, new bt.GUIComponents.TableCellRenderer());
 		this.tableModel = new DefaultTableModel();
 		for(int i = 0 ; i < tableColumns.length; ++i) {
 			this.tableModel.addColumn(tableColumns[i]);
@@ -322,6 +325,31 @@ public class ClientGUI extends JFrame {
 				this.labelClientEvent.setText(" "+bt.getEvent().toUpperCase());
 			}
 		} catch (Exception e) {}
+	}
+	
+	/**
+	 * Updates the status of the current connections.
+	 */
+	public synchronized void updateTableModel() {
+		try {
+			int rows = this.tableModel.getRowCount();
+			for(int i = 0; i < rows; ++i) {
+				this.tableModel.removeRow(i);
+			}
+			List<Peer> currentList = Bittorrent.getInstance().getPeerList();
+			for(Peer p : currentList) {
+				Peer temp = p;
+				Object[] columns = new String[4];
+				columns[0] = p.toString();
+				columns[1] = p.isChoked()+"";
+				columns[2] = p.getDownloaded()+"";
+				columns[3] = p.getUploaded()+"";
+				this.tableModel.addRow(columns);
+			}
+		} catch(Exception e) {
+			System.out.println("Error updating table model.");
+		}
+		
 	}
 	
 	/**

@@ -30,7 +30,6 @@ import bt.Model.Bittorrent;
 public class FileSelectionDialog extends JDialog {
 
 	private JPanel mainPanel;
-	private JPanel middleContainer;
 	private JTextField textField;
 	private JButton browseButton;
 	private JButton continueButton;

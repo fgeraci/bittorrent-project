@@ -92,10 +92,7 @@ public class TrackerRefresher implements Runnable {
 					if ((refresh > 180) || (refresh < 0))
 						refresh = 180;
 					if(recentList != null) {
-						ClientGUI.getInstance().publishEvent(
-								"min_interval = "+ tr_min_interval +
-								", interval = "+ tr_interval +
-								"\nUpdating tracker every "+ refresh +" seconds...");
+						ClientGUI.getInstance().publishEvent("Updating tracker every "+ refresh +" seconds...");
 					}
 			} catch (Exception e) { /* this should never happen */ }
 			}
