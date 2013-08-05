@@ -1,6 +1,7 @@
 package bt.View;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -15,8 +16,10 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -29,6 +32,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
+
 import bt.Exceptions.UnknownBittorrentException;
 import bt.GUIComponents.FileSelectionDialog;
 import bt.Model.Bittorrent;
@@ -48,13 +52,13 @@ public class ClientGUI extends JFrame {
 	 * Static singleton instance.
 	 */
 	public static ClientGUI instance = null;
+	private Bittorrent bt;
 	
 	GridBagLayout gb = new GridBagLayout();
 	GridBagConstraints gc;
 	Bittorrent client;
 	private Container container;
 	private JPanel dataPanel;
-	private JPanel centralPanel;
 	private JMenuBar menuBar;
 	private JMenu fileOptions;
 	private JMenu helpOptions;
@@ -84,11 +88,17 @@ public class ClientGUI extends JFrame {
 	private JList<String> listPeers;
 	private JTextArea textFieldLog;
 	
-	//bottom console
-	private JPanel bottomContainer;
+	
+	// connections table
 	private JScrollPane bottomPanel;
 	private JTable tableConnectios;
 	private DefaultTableModel tableModel;
+	
+	//bottom console
+	private JPanel bottomContainer;
+	private JButton buttonConnectToPeer;
+	private JButton buttonDownloadController;
+	private JButton chockePeer;
 	
 	/**
 	 * Retrieves a single instance of ClientGUI
@@ -109,12 +119,11 @@ public class ClientGUI extends JFrame {
 			// windows size
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 			int xPanel = (int)(dim.getWidth()*.8); // 80% of total width
-			int yPanel = (int)(dim.getHeight()*.6); // 90 % of total height
+			int yPanel = (int)(dim.getHeight()*.9); // 90 % of total height
 			this.setMinimumSize(new Dimension((int)(xPanel*.8), (int)(yPanel*.8)));
 			this.container = this.getContentPane();
 			// this.container.setLayout(this.gb);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			
 			// initialize all layout components
 			this.initLayout();
 			this.pack();
@@ -144,13 +153,13 @@ public class ClientGUI extends JFrame {
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		try {
-			this.publishEvent("Initializing client...");
 			Thread.sleep(1000);
-			while(Bittorrent.getInstance() == null) {
+			this.bt = Bittorrent.getInstance();
+			while(this.bt == null) {
 				this.publishEvent("Initializing client...");
 				Thread.sleep(1000);
 			}
-			Bittorrent.getInstance().startExecuting();
+			this.bt.startExecuting();
 		} catch (UnknownBittorrentException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -171,14 +180,17 @@ public class ClientGUI extends JFrame {
 	 * Initializes GUI layout.
 	 */
 	private void initLayout() {
-		
 		this.container.setLayout(new BorderLayout());
 		this.mainContainer = new JPanel(this.gb);
-		
-		// menu bar
 		this.initMenuBar();
-		
 		this.container.add(this.menuBar, BorderLayout.NORTH);
+		this.initMainBodyContainer();
+		this.container.add(this.mainContainer, BorderLayout.CENTER);
+		//this.initBottomConsole();
+		//this.container.add(this.bottomContainer, BorderLayout.SOUTH);
+	}
+	
+	private void initMainBodyContainer() {
 		// data panel
 		this.initDataPanel();
 		this.gc = new GridBagConstraints();
@@ -203,11 +215,22 @@ public class ClientGUI extends JFrame {
 		this.gc.weighty = .1;
 		this.gc.weightx = 1;
 		this.mainContainer.add(this.bottomPanel, this.gc);
-		
-		this.container.add(this.mainContainer);
-		
 	}
 	
+	/**
+	 * Initializes the command buttons.
+	 */
+	private void initBottomConsole() {
+		this.bottomContainer = new JPanel();
+		this.buttonConnectToPeer = new JButton("Connect To Peer");
+		this.buttonDownloadController = new JButton("Pause Download");
+		this.bottomContainer.add(this.buttonConnectToPeer);
+		this.bottomContainer.add(this.buttonDownloadController);
+	}
+	
+	/**
+	 * Initializes the table sections of the GUI
+	 */
 	private void initBottomPanel() {
 		Object[] tableColumns = {"Connected to...", "State", "Downloaded", "Uploaded"};
 		this.tableConnectios = new JTable();
@@ -324,7 +347,7 @@ public class ClientGUI extends JFrame {
 				this.labelUserID.setText(" "+bt.getPeerId());
 				this.labelTorrentFileName.setText(" "+bt.getFileName());
 				this.labelTorrentFileSize.setText(" "+bt.getFileLength()+" bytes");
-				this.labelClientEvent.setText(" "+bt.getEvent().toUpperCase());
+				this.updateClientEvent();
 			}
 		} catch (Exception e) {}
 	}
@@ -343,7 +366,9 @@ public class ClientGUI extends JFrame {
 				Peer temp = p;
 				Object[] columns = new String[4];
 				columns[0] = p.toString();
-				columns[1] = p.isChoked()+"";
+				boolean chocked = p.isChoked();
+				String isChoked = chocked ? "Choked" : "Unchocked";
+				columns[1] = isChoked;
 				columns[2] = p.getDownloaded()+"";
 				columns[3] = p.getUploaded()+"";
 				this.tableModel.addRow(columns);
@@ -422,6 +447,24 @@ public class ClientGUI extends JFrame {
 				Utilities.callClose();
 			}
 		});
+	}
+	
+	/**
+	 * Updates the current event label status.
+	 */
+	public void updateClientEvent() {
+		String state = "";
+		try {
+			state = Bittorrent.getInstance().getEvent();
+		} catch (Exception e) { }
+		if(state.equalsIgnoreCase("STARTED")) {
+			this.labelClientEvent.setForeground(Color.ORANGE);
+		} else if(state.equalsIgnoreCase("completed")) {
+			this.labelClientEvent.setForeground(Color.GREEN);
+		} else {
+			this.labelClientEvent.setForeground(Color.DARK_GRAY);
+		}
+		this.labelClientEvent.setText(" "+state.toUpperCase());
 	}
 
 }

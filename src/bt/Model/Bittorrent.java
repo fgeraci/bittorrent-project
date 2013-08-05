@@ -969,7 +969,7 @@ public class Bittorrent {
 				}
 			}
 		}
-		this.event = "completed";
+		this.setEvent("completed");
 		String response = null;
 		try {	
 			// create the tracker URL for the GET request
@@ -1012,6 +1012,7 @@ public class Bittorrent {
 		switch(event) {
 		case "started": case "stopped": case "completed":
 			this.event = event;
+			this.cGUI.updateClientEvent();
 		}
 	}
 	
