@@ -27,6 +27,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -53,6 +54,7 @@ public class ClientGUI extends JFrame {
 	 */
 	public static ClientGUI instance = null;
 	private Bittorrent bt;
+	private JProgressBar progressBar;
 	
 	public static int ADDPEER_UPDATE = 0;
 	public static int STATUS_UPDATE = 1;
@@ -75,7 +77,7 @@ public class ClientGUI extends JFrame {
 	private JPanel mainContainer;
 	
 	// data panel members
-	private JLabel labelUserIDTitle = new JLabel(" My Peer ID ");
+	private JLabel labelDownloadProgress = new JLabel(" Progress ");
 	private JLabel labeltorrentFileTitle = new JLabel(" Torrent File ");
 	private JLabel labelTorrentFileSizeTitle = new JLabel(" File Size ");
 	private JLabel labelUserID = new JLabel(" ");
@@ -156,6 +158,7 @@ public class ClientGUI extends JFrame {
 		this.updatePeerModel();
 		this.updateDataPanel();
 		this.initBehaviors();
+		this.initProgressBar();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		try {
@@ -171,6 +174,29 @@ public class ClientGUI extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Initializes the progress bar.
+	 */
+	private void initProgressBar() {
+		this.progressBar.setMinimum(0);
+		try {
+			this.progressBar.setMaximum(Bittorrent.getInstance().getFileLength());
+		} catch (UnknownBittorrentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.progressBar.setStringPainted(true);
+	}
+	
+	/**
+	 * Updates the UI progress bar.
+	 * @param downloaded
+	 */
+	public void updateProgressBar(int downloaded) {
+		int progress = this.progressBar.getValue() + downloaded;
+		this.progressBar.setValue(progress);
 	}
 	
 	/**
@@ -313,15 +339,12 @@ public class ClientGUI extends JFrame {
 	private void initDataPanel() {
 		this.dataPanel = new JPanel();
 		this.dataPanel.setLayout(new GridBagLayout());
+		this.progressBar = new JProgressBar();
 		GridBagConstraints gcL = new GridBagConstraints();
-		gcL.insets = new Insets(2,5,5,5);
-		gcL.fill = GridBagConstraints.HORIZONTAL;
-		gcL.weightx = 1;
-		this.dataPanel.add(this.labelUserIDTitle);
-		gcL.gridwidth = GridBagConstraints.REMAINDER;
-		this.dataPanel.add(this.labelUserID, gcL);
+		
 		gcL = new GridBagConstraints();
 		gcL.insets = new Insets(2,5,5,5);
+		
 		this.dataPanel.add(this.labeltorrentFileTitle);
 		gcL.gridwidth = GridBagConstraints.REMAINDER;
 		gcL.fill = GridBagConstraints.HORIZONTAL;
@@ -341,6 +364,12 @@ public class ClientGUI extends JFrame {
 		gcL.fill = GridBagConstraints.HORIZONTAL;
 		gcL.weightx = 1;
 		this.dataPanel.add(this.labelClientEvent, gcL);
+		gcL.insets = new Insets(2,5,5,5);
+		gcL.fill = GridBagConstraints.HORIZONTAL;
+		gcL.weightx = 1;
+		this.dataPanel.add(this.labelDownloadProgress);
+		gcL.gridwidth = GridBagConstraints.REMAINDER;
+		this.dataPanel.add(this.progressBar, gcL);
 	}
 	
 	/**

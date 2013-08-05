@@ -781,6 +781,7 @@ public class Peer implements Runnable {
 			if (Utilities.sameArray(verifyHash[index], test)) { 
 				// piece hash is correct
 				ClientGUI.getInstance().publishEvent("We have completed piece: " + index);
+				ClientGUI.getInstance().updateProgressBar(toDigest.length);
 				// update downloaded
 				try {
 					Bittorrent.getInstance().updateDownloaded(toDigest.length);
