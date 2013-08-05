@@ -690,7 +690,7 @@ public class Bittorrent {
 			synchronized(peerList) {
 				synchronized(connections) {
 					this.peerList.add(p);
-					ClientGUI.getInstance().updateTableModel();
+					ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.ADDPEER_UPDATE);
 					// mark the connection as boolean connected in this.connectios
 					this.connections[peer] = true;
 				}

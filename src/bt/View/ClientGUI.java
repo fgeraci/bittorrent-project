@@ -54,9 +54,11 @@ public class ClientGUI extends JFrame {
 	public static ClientGUI instance = null;
 	private Bittorrent bt;
 	
+	public static int ADDPEER_UPDATE = 0;
 	public static int STATUS_UPDATE = 1;
 	public static int DOWNLOADED_UPDATE = 2;
 	public static int UPLOADED_UPDATE = 3;
+	
 	
 	GridBagLayout gb = new GridBagLayout();
 	GridBagConstraints gc;
@@ -350,7 +352,19 @@ public class ClientGUI extends JFrame {
 				Bittorrent bt = Bittorrent.getInstance();
 				this.labelUserID.setText(" "+bt.getPeerId());
 				this.labelTorrentFileName.setText(" "+bt.getFileName());
-				this.labelTorrentFileSize.setText(" "+bt.getFileLength()+" bytes");
+				double bytes = (double) bt.getFileLength();
+				String type;
+				if(bytes > 1048576) {
+					bytes = bytes / 1000000;
+					type = " MB";
+				} else if(bytes > 1024) { 
+					bytes = bytes / 1000;
+					type = " KB";
+				} else {
+					bytes = (int) bytes;
+					type = " Bytes";
+				}
+				this.labelTorrentFileSize.setText(" "+bytes+type);
 				this.updateClientEvent();
 			}
 		} catch (Exception e) {}
@@ -471,9 +485,24 @@ public class ClientGUI extends JFrame {
 		this.labelClientEvent.setText(" "+state.toUpperCase());
 	}
 	
+	/**
+	 * Updates table data.
+	 * @param peer
+	 * @param valueCode
+	 */
 	public void updatePeerInTable(Peer peer, int valueCode) {
 		int row = this.getRowNumberOfPeer(peer.toString());
 		switch(valueCode) {
+		case 0: // add the peer
+			Object[] columns = new String[4];
+			columns[0] = peer.toString();
+			boolean chocked = peer.isChoked();
+			String isChokedString = chocked ? "Choked" : "Unchocked";
+			columns[1] = isChokedString;
+			columns[2] = peer.getDownloaded()+"";
+			columns[3] = peer.getUploaded()+"";
+			this.tableModel.addRow(columns);
+			break;
 		case 1: // choke status
 			boolean choked = peer.isChoked();
 			String isChoked = choked ? "Choked" : "Unchocked";
@@ -484,6 +513,9 @@ public class ClientGUI extends JFrame {
 			break;
 		case 3: // uploaded
 			this.tableConnectios.setValueAt(peer.getUploaded()+"", row, valueCode);
+			break;
+		case 4: // delete peer from table
+			this.tableConnectios.remove(row);
 			break;
 		default:
 			break;
