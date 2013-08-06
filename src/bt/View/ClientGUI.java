@@ -3,6 +3,7 @@ package bt.View;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -76,6 +77,7 @@ public class ClientGUI extends JFrame {
 	private JMenuItem about;
 	private JMenuItem pauseResume;
 	
+	// main body container
 	private JPanel mainContainer;
 	
 	// data panel members
@@ -165,7 +167,9 @@ public class ClientGUI extends JFrame {
 		this.setVisible(true);
 		try {
 			Thread.sleep(1000);
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			this.bt = Bittorrent.getInstance();
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			while(this.bt == null) {
 				this.publishEvent("Initializing client...");
 				Thread.sleep(1000);

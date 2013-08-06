@@ -2,6 +2,7 @@ package bt.GUIComponents;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -158,7 +159,10 @@ public class FileSelectionDialog extends JDialog {
 				String saveTorrentFile = saveFileField.getText().toString();
 				try {
 					if(torrentFile.length() > 0 && saveTorrentFile.length() > 0){
+						errorLabel.setText("Loading... ");
+						setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						Bittorrent.getInstance(torrentFile,saveTorrentFile);
+						setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 						FileSelectionDialog.this.dispose();
 					}
 				} catch (Exception exception) {
