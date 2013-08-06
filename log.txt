@@ -1,5 +1,5 @@
 
-Random ID is (in bytes): OLFXYIFELREOSILKEXEC
+Random ID is (in bytes): WPJAWJHMIHSDAHXHXMBT
 TRACKER INFO (Successfully Decoded):
 -----------------------------------
 Announce: http://128.6.171.2:6969/announce
@@ -8,17 +8,27 @@ Info Hash URL Encoded: %a6%69%31%c1%cc%1e%fb%79%81%e1%0f%6e%ad%2a%4f%4f%81%9b%1d
 File Name: 352SU2013FinalAnswers.mov
 File Length: 14285814
 Piece Size: 32768
+Server listening for incoming connections...
 Peers List:
 -----------------------------------
 1. 172.31.157.71:0
-2. 172.31.159.164:2744
-3. 172.31.134.150:2744
-4. 128.6.171.8:6927
-5. 128.6.171.7:6632
-6. 128.6.171.6:6928
-7. 128.6.171.5:6972
-8. 128.6.171.4:6988
-9. 128.6.171.3:6650
+2. 172.31.157.71:6881
+3. 172.31.159.164:3000
+4. 172.31.134.150:3000
+5. 128.6.171.8:6927
+6. 128.6.171.7:6888
+7. 128.6.171.6:6928
+8. 128.6.171.5:6972
+9. 128.6.171.4:6988
+10. 128.6.171.3:6906
 -----------------------------------
 Connection Successful, welcome
 Updating tracker every 180 seconds...
+Loading FILE into Heap for Downloading, please wait... 
+<<< Data received, processing...
+>>> Listening from Peer : 128.6.171.8:44387...
+-- HANDSHAKE VALIDATED !!! w/ peer 128.6.171.8:44387 -
+<<< Data received, processing...
+>>> Listening from Peer : 128.6.171.5:46465...
+-- HANDSHAKE VALIDATED !!! w/ peer 128.6.171.5:46465 -
+File successfully loaded in client's heap for uploading.

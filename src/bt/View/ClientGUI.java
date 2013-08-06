@@ -70,9 +70,11 @@ public class ClientGUI extends JFrame {
 	private JMenuBar menuBar;
 	private JMenu fileOptions;
 	private JMenu helpOptions;
+	private JMenu menuActions;
 	private JMenuItem exitMenu;
 	private JMenuItem saveLogToFile;
 	private JMenuItem about;
+	private JMenuItem pauseResume;
 	
 	private JPanel mainContainer;
 	
@@ -250,6 +252,20 @@ public class ClientGUI extends JFrame {
 	}
 	
 	/**
+	 * Disable Actions menu.
+	 */
+	public void disableAction() {
+		this.menuActions.setEnabled(false);
+	}
+	
+	/**
+	 * Enables Actions menu.
+	 */
+	public void enableActions() {
+		this.menuActions.setEnabled(true);
+	}
+	
+	/**
 	 * Initializes the command buttons.
 	 */
 	private void initBottomConsole() {
@@ -283,14 +299,18 @@ public class ClientGUI extends JFrame {
 		this.menuBar = new JMenuBar();
 		this.fileOptions = new JMenu("File");
 		this.helpOptions = new JMenu("Help");
+		this.menuActions = new JMenu("Actions...");
 		this.saveLogToFile = new JMenuItem("Save Log To File");
 		this.exitMenu = new JMenuItem("Exit");
 		this.about = new JMenuItem("About...");
+		this.pauseResume = new JMenuItem("Pause Execution");
 		this.fileOptions.add(this.saveLogToFile);
 		this.fileOptions.add(this.exitMenu);
+		this.menuActions.add(this.pauseResume);
 		this.helpOptions.add(this.about);
-		this.menuBar.add(fileOptions);
-		this.menuBar.add(helpOptions);
+		this.menuBar.add(this.fileOptions);
+		this.menuBar.add(this.menuActions);
+		this.menuBar.add(this.helpOptions);
 	}
 	
 	/**
@@ -492,6 +512,23 @@ public class ClientGUI extends JFrame {
 		this.exitMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Utilities.callClose();
+			}
+		});
+		this.pauseResume.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					boolean onPause = Bittorrent.getInstance().isPaused();
+					if(onPause) {
+						Bittorrent.getInstance().resumeActivity();
+						ClientGUI.this.publishEvent("Client is RESUMING activities...");
+						pauseResume.setText("Pause Download");
+					} else {
+						Bittorrent.getInstance().pauseActivity();
+						ClientGUI.this.publishEvent("Client is currently PAUSED.");
+						pauseResume.setText("Resume Download");
+					}
+				} catch (Exception e) {}
 			}
 		});
 	}

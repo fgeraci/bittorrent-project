@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import bt.View.ClientGUI;
+
 /**
  * This class will initiate a new thread as the server side of the
  * Bittorrent client.
@@ -68,6 +70,12 @@ public class Server implements Runnable {
 	*/
 	private void initServer(int from, int to) {
 		int port = from;
+		try {
+			while(!Bittorrent.getInstance().readyForUpload()) {
+				
+			}
+		} catch (Exception e) { }
+		ClientGUI.getInstance().publishEvent("Server listening for incoming connections...");
 		while(true) {
 			try {
 				this.serverSocket = new ServerSocket(port);

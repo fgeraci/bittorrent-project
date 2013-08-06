@@ -177,7 +177,9 @@ public class Utilities {
 			 
 			 Bittorrent.getInstance().stopServer();
 			 Bittorrent.getInstance().disposePeers();
-			 Bittorrent.getInstance().saveHeap();
+			 if(!Bittorrent.getInstance().isFileCompleted()) {
+				 Bittorrent.getInstance().saveHeap();
+			 }
 			 UserInterface.getInstance().stopUI();
 			 System.out.println("\n -- Client Terminated -- ");
 			 System.out.println("\t> Peers disposed");
@@ -351,7 +353,7 @@ public class Utilities {
 		 	ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
 		 	for (int i = 0; i < 3; i++) {  
 		 		intArray[i] = intBuffer.getInt();  
-		 	} 
+		 	}
 		 	byte[] bytes = Utilities.getBytesFromFile(temp);
 		 	int offset = 12;
 		 	for (int i = 0; i < pieces; ++i) {  

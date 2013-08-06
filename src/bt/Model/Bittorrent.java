@@ -192,6 +192,16 @@ public class Bittorrent {
 	private ClientGUI cGUI;
 	
 	/**
+	 * Whether the client is in PAUSED state or not.
+	 */
+	private boolean isPaused = false;
+	
+	/**
+	 * Determines client's readiness.
+	 */
+	private boolean isReadyForUpload = false;
+	
+	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
 	private Bittorrent(String torrentFile, String saveFile) throws Exception	{	
@@ -228,6 +238,32 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Pauses client activity after receiving pending blocks.
+	 */
+	public void pauseActivity() {
+		if(!this.isPaused) {
+			this.isPaused = true;
+		}
+	}
+	
+	/**
+	 * Returns the current execution state.
+	 * @return
+	 */
+	public boolean isPaused() {
+		return this.isPaused;
+	}
+	
+	/**
+	 * Resumes client's activity.
+	 */
+	public void resumeActivity() {
+		if(this.isPaused && (!this.isFileCompleted())) {
+			this.isPaused = false;
+		}
+	}
+	
+	/**
 	 * Returns the name of the torrent file.
 	 * @return
 	 */
@@ -243,9 +279,14 @@ public class Bittorrent {
 		File torrentFile = new File(this.torrentInfo.file_name);
 		// if the file exists, just load it into memory for serving.
 		if(torrentFile.exists()) {
+			this.cGUI.disableAction();
+			this.cGUI.publishEvent("Loading FILE into Heap for Downloading, please wait... ");
+			this.cGUI.updateProgressBar(this.torrentInfo.file_length);
 			Utilities.initializeFileHeap(this.torrentInfo.file_name);
-			UserInterface.getInstance().receiveEvent("File successfully loaded in client's heap for uploading.");
+			this.cGUI.publishEvent("File successfully loaded in client's heap for uploading.");
+			this.setReadyForUpload(true);
 		} else {
+			this.cGUI.updateProgressBar(this.downloaded);
 			this.connectToPeer("128.6.171.8:6927");
 			this.connectToPeer("128.6.171.7:6888");
 			this.connectToPeer("128.6.171.6:6928");
@@ -255,6 +296,7 @@ public class Bittorrent {
 			for(int i = 0; i < this.completedPieces.length; i++) {
 				this.completedPieces[i] = false;
 			}
+			this.setReadyForUpload(true);
 			this.downloadAlgorithm();
 		}
 	}
@@ -269,6 +311,22 @@ public class Bittorrent {
 	 */
 	public String[] getPeersArray() {
 			return this.peers.clone();
+	}
+	
+	/**
+	 * File successfully loaded on Heap for uploading.
+	 * @return
+	 */
+	public boolean readyForUpload() {
+		return this.isReadyForUpload;
+	}
+	
+	/**
+	 * Set readiness level.
+	 * @param ready
+	 */
+	public void setReadyForUpload(boolean ready) {
+		this.isReadyForUpload= ready;
 	}
 	
 	/**
@@ -949,7 +1007,7 @@ public class Bittorrent {
 	/**
 	 * It will check if the file is completed for then closing it and save it.
 	 */
-	boolean isFileCompleted() {
+	public boolean isFileCompleted() {
 		synchronized(completedPieces) {
 			for(int i = 0; i < this.completedPieces.length; ++i) {
 				if(!this.completedPieces[i]) return false;
