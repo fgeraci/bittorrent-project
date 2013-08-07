@@ -221,6 +221,7 @@ public class Bittorrent {
 /*		this.interval = 0; */
 		this.printTorrentInfoFields();
 		this.initClientState();
+		this.fileName = saveFile;
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 		// request the tracker for peers
 		this.sendRequestToTracker();
@@ -280,8 +281,9 @@ public class Bittorrent {
 	 */
 	public void startExecuting() throws Exception {
 		File torrentFile = new File(this.torrentInfo.file_name);
+		File altTorrentFile = new File(this.fileName);
 		// if the file exists, just load it into memory for serving.
-		if(torrentFile.exists()) {
+		if(torrentFile.exists() || altTorrentFile.exists()) {
 			this.cGUI.disableAction();
 			this.cGUI.publishEvent("Loading FILE into Heap for Downloading, please wait... ");
 			this.cGUI.updateProgressBar(this.torrentInfo.file_length);
@@ -381,7 +383,6 @@ public class Bittorrent {
 		double blocks = ((double)(this.torrentInfo.file_length)) / this.torrentInfo.piece_length;
 		this.pieces = (int)(Math.ceil(blocks));
 		this.pieceLength = this.torrentInfo.piece_length;
-		this.fileName = this.torrentInfo.file_name;
 		this.properties = new Properties();
 		this.properties.load(new FileInputStream(this.rscFileFolder+"prop.properties"));
 		this.event = this.properties.getProperty("event");
@@ -830,7 +831,6 @@ public class Bittorrent {
 	 * It creates a queue for delivery pieces as per their priority.
 	 */
 	private void populateWeightedRequestQueue() {
-		System.out.println(" << POPULATING REQUEST QUEUE >>");
 		synchronized (weightedRequestQueue) {
 			for (int piece = 0; piece < collection.length - 1; ++piece) {
 				if (!this.completedPieces[piece]) {
@@ -920,12 +920,10 @@ public class Bittorrent {
 	 */
 	public void downloadAlgorithm() {
 		while(!isFileCompleted()) {
-			System.out.println("Download algorithm working.");
 			if (this.countdownToRequeue <= 0) {
 				this.populateWeightedRequestQueue();
 				this.countdownToRequeue = 15;
 			}
-			System.out.println(this.countdownToRequeue);
 			--this.countdownToRequeue;
 			updateWeights();
 			boolean requested = false;
@@ -1009,7 +1007,7 @@ public class Bittorrent {
 	 * @throws IOException
 	 */
 	public void saveFile () throws IOException {
-		System.out.println("-- Saving file...");
+		this.cGUI.publishEvent(" -- Saving file... --");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
 		synchronized(collection) {
@@ -1017,7 +1015,7 @@ public class Bittorrent {
 				fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
 			}
 		}
-		System.out.println("-- All file bytes completed");
+		this.cGUI.publishEvent(" -- File successfully saved -- ");
 		fileOut.write(fileArray);
 		fileOut.close();
 	}

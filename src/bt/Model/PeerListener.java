@@ -46,7 +46,7 @@ class PeerListener implements Runnable {
 				try { // ...reading InputStream to this instance
 					this.readLine();
 					try {
-						Thread.sleep(1200);
+						Thread.sleep(900);
 					} catch (InterruptedException e) {
 						continue;
 						}
