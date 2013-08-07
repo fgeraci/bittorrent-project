@@ -13,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -294,9 +296,6 @@ public class Bittorrent {
 			this.connectToPeer("128.6.171.5:6972");
 			this.connectToPeer("128.6.171.4:6988");
 			this.connectToPeer("128.6.171.3:6906");
-			for(int i = 0; i < this.completedPieces.length; i++) {
-				this.completedPieces[i] = false;
-			}
 			this.setReadyForUpload(true);
 			this.downloadAlgorithm();
 		}
@@ -402,7 +401,7 @@ public class Bittorrent {
 			try {
 				int[] intArray = new int[3];
 				try {
-					Utilities.loadState(intArray, collection, 
+					this.loadState(intArray, collection, 
 							this.pieceLength, 
 							this.pieces, 
 							temp, 
@@ -976,6 +975,15 @@ public class Bittorrent {
 	}
 	
 	/**
+	 * Returns the value of the completed pieces structure.
+	 * @param piece
+	 * @return
+	 */
+	private boolean isPieceCompleted(int piece) {
+		return this.completedPieces[piece];
+	}
+	
+	/**
 	 * Updates the requests' weights in the queue.
 	 */
 	private void updateWeights() {
@@ -1172,4 +1180,92 @@ public class Bittorrent {
 			}
 		}
 	}
+	
+	 /**
+	  * Loads previous client's state if file wasn't completed.
+	  * @param intArray
+	  * @param fileHeap
+	  * @param pieceLength
+	  * @param pieces
+	  * @param temp
+	  * @param completed
+	  * @param torrentInfo
+	  * @param verificationArray
+	  * @throws IOException
+	  * @throws NoSuchAlgorithmException
+	  * @throws UnknownBittorrentException
+	  */
+	 public void loadState(int[] intArray, byte[][] fileHeap, 
+			 int pieceLength, 
+			 int pieces, 
+			 File temp, 
+			 boolean[] completed, 
+			 TorrentInfo torrentInfo,
+			 byte[][] verificationArray) throws IOException, 
+	 NoSuchAlgorithmException, UnknownBittorrentException {  
+		 	FileInputStream tempIn = new FileInputStream(temp);  
+		 	byte[] intByteArray = new byte[12];  
+		 	tempIn.read(intByteArray, 0, 12);  
+		 	ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
+		 	for (int i = 0; i < 3; i++) {  
+		 		intArray[i] = intBuffer.getInt();  
+		 	}
+		 	byte[] bytes = null;
+		 	try {
+		 		bytes = Utilities.getBytesFromFile(temp);
+		 	} catch (Exception e) { System.out.println(e.getMessage()); }
+		 	int offset = 12;
+		 	for (int i = 0; i < pieces; ++i) {  
+		 		// tempIn.read(fileHeap[i], (i * pieceLength) + 12, pieceLength);
+		 		for(int u = 0; u < pieceLength; u++) {
+		 			fileHeap[i][u] = bytes[offset];
+		 			++offset;
+		 		}
+		 	}
+		 	this.verifyPiecesSHA(fileHeap, completed, torrentInfo, verificationArray);
+		 	tempIn.close();
+	 } 
+	 
+	 /**
+	  * Verify the pieces loaded from .tmp file to complete the client's state bitfield.
+	  * @param fileHeap
+	  * @param completed
+	  * @throws UnknownBittorrentException
+	  */
+	 private void verifyPiecesSHA(byte[][] fileHeap, boolean[] completed, TorrentInfo ti, byte[][] verificationArray) throws UnknownBittorrentException {
+		 MessageDigest sha = null;
+		 try {
+			 sha = MessageDigest.getInstance("SHA-1");
+		 } catch (NoSuchAlgorithmException e) {
+			 // decide what to do
+		 }
+		 int pieceLength = ti.piece_length; 
+		 for( int i = 0; i < fileHeap.length; ++i) { // for each piece
+			 // verify
+			 byte[] toDigest = null;
+				if (i < fileHeap.length - 1) {
+					toDigest = new byte[pieceLength];
+					synchronized(fileHeap) {
+						// load full-sized piece to be hashed
+						for(int u = 0; u < toDigest.length; ++u) {
+							toDigest[u] = fileHeap[i][u];
+					}
+				}
+			} else {
+				toDigest = new byte[ti.file_length - ((fileHeap.length-1)*pieceLength)];
+				synchronized(fileHeap) {
+					// load possibly partial-sized piece to be hashed
+					for(int s = 0; s < toDigest.length; ++s) {
+						toDigest[s] = fileHeap[i][s];
+					}
+				}
+			}
+			byte[] test = sha.digest(toDigest);
+			if (Utilities.sameArray(verificationArray[i], test)) {
+				this.completedPieces[i] = true;
+			} else {
+				this.completedPieces[i] = false;
+			}
+		 } 
+	 }
 }

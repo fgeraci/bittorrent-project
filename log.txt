@@ -1,4 +1,4 @@
-Random ID is (in bytes): VHFBMGKNNYFDIHMALQXX
+Random ID is (in bytes): ACQLMGRITBDJSVSIUUWR
 TRACKER INFO (Successfully Decoded):
 -----------------------------------
 Announce: http://128.6.171.2:6969/announce
@@ -10,16 +10,16 @@ Piece Size: 32768
 Server listening for incoming connections...
 Peers List:
 -----------------------------------
-1. 69.118.124.51:6883
-2. 76.117.89.150:0
-3. 76.117.89.150:6881
-4. 128.6.29.2:58884
-5. 128.6.171.8:6927
-6. 128.6.171.7:6888
-7. 128.6.171.6:6928
-8. 128.6.171.5:6972
-9. 128.6.171.4:6988
-10. 128.6.171.3:6906
+1. 76.117.89.150:0
+2. 76.117.89.150:6881
+3. 128.6.29.2:58883
+4. 128.6.171.8:6927
+5. 128.6.171.7:6888
+6. 128.6.171.6:6928
+7. 128.6.171.5:6972
+8. 128.6.171.4:6988
+9. 128.6.171.3:6906
+10. 69.118.124.51:6883
 -----------------------------------
 Connection Successful, welcome
 Updating tracker every 180 seconds...
@@ -41,3 +41,232 @@ Updating tracker every 180 seconds...
 <<< Data received, processing...
 >>> Listening from Peer : 128.6.171.3:6906...
 -- HANDSHAKE VALIDATED !!! w/ peer 128.6.171.3:6906 -
+-1
+-- Piece: 0 From: 0 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 0 From: 16384 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 1 From: 0 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 1 From: 16384 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 2 From: 0 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 2 From: 16384 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 3 From: 0 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 3 From: 16384 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 4 From: 0 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 4 From: 16384 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 5 From: 0 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 5 From: 16384 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 6 From: 0 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 6 From: 16384 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 7 From: 0 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 7 From: 16384 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece: 8 From: 0 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece: 8 From: 16384 Bytes:  16384 requested from 128.6.171.3:6906
+>>> Peer 128.6.171.8:6927 just unchoked me
+>>> Peer 128.6.171.7:6888 just unchoked me
+>>> Peer 128.6.171.6:6928 just unchoked me
+>>> Peer 128.6.171.5:6972 just unchoked me
+>>> Peer 128.6.171.4:6988 just unchoked me
+>>> Peer 128.6.171.3:6906 just unchoked me
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 0 - Begin: 0
+We have completed piece: 0
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 1 - Begin: 16384
+We have completed piece: 1
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 3 - Begin: 0
+We have completed piece: 3
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 4 - Begin: 16384
+We have completed piece: 4
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 6 - Begin: 0
+We have completed piece: 6
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 7 - Begin: 16384
+We have completed piece: 7
+-- Piece: 9 From: 0 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 435 From: 16384 Bytes:  15350 requested from 128.6.171.7:6888
+-- Piece: 435 From: 0 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 434 From: 16384 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 434 From: 0 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 433 From: 16384 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 0 - Begin: 16384
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 2 - Begin: 0
+We have completed piece: 2
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 3 - Begin: 16384
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 5 - Begin: 0
+We have completed piece: 5
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 6 - Begin: 16384
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 8 - Begin: 0
+We have completed piece: 8
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 1 - Begin: 0
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 2 - Begin: 16384
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 4 - Begin: 0
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 5 - Begin: 16384
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 7 - Begin: 0
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 8 - Begin: 16384
+-- Piece: 433 From: 0 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 9 From: 16384 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 10 From: 0 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 10 From: 16384 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 11 From: 0 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 11 From: 16384 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 12 From: 0 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 12 From: 16384 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 13 From: 0 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 13 From: 16384 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 14 From: 0 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece: 14 From: 16384 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 9 - Begin: 0
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 435 - Begin: 16384
+We have completed piece: 435
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 435 - Begin: 0
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 434 - Begin: 16384
+We have completed piece: 434
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 434 - Begin: 0
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 433 - Begin: 16384
+-- Piece: 15 From: 0 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 432 From: 16384 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 432 From: 0 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 431 From: 16384 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 431 From: 0 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 430 From: 16384 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 433 - Begin: 0
+We have completed piece: 433
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 10 - Begin: 0
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 11 - Begin: 0
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 12 - Begin: 0
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 14 - Begin: 0
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 9 - Begin: 16384
+We have completed piece: 9
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 10 - Begin: 16384
+We have completed piece: 10
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 11 - Begin: 16384
+We have completed piece: 11
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 12 - Begin: 16384
+We have completed piece: 12
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 13 - Begin: 0
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 14 - Begin: 16384
+We have completed piece: 14
+-- Piece: 430 From: 0 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 15 From: 16384 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 16 From: 0 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 16 From: 16384 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 17 From: 0 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 17 From: 16384 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 18 From: 0 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 18 From: 16384 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 19 From: 0 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 19 From: 16384 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece: 20 From: 0 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 15 - Begin: 0
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 432 - Begin: 16384
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 432 - Begin: 0
+We have completed piece: 432
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 431 - Begin: 16384
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 13 - Begin: 16384
+We have completed piece: 13
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 430 - Begin: 16384
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 430 - Begin: 0
+We have completed piece: 430
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 16 - Begin: 0
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 17 - Begin: 0
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 18 - Begin: 0
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 431 - Begin: 0
+We have completed piece: 431
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 19 - Begin: 16384
+-- Piece: 20 From: 16384 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 429 From: 16384 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 429 From: 0 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 428 From: 16384 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 428 From: 0 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 427 From: 16384 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 427 From: 0 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 426 From: 16384 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 426 From: 0 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 425 From: 16384 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 425 From: 0 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece: 424 From: 16384 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 15 - Begin: 16384
+We have completed piece: 15
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 16 - Begin: 16384
+We have completed piece: 16
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 17 - Begin: 16384
+We have completed piece: 17
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 18 - Begin: 16384
+We have completed piece: 18
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 19 - Begin: 0
+We have completed piece: 19
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 20 - Begin: 0
+-- Piece: 424 From: 0 Bytes:  16384 requested from 128.6.171.8:6927
+-- Piece: 21 From: 0 Bytes:  16384 requested from 128.6.171.7:6888
+-- Piece: 21 From: 16384 Bytes:  16384 requested from 128.6.171.6:6928
+-- Piece: 22 From: 0 Bytes:  16384 requested from 128.6.171.5:6972
+-- Piece: 22 From: 16384 Bytes:  16384 requested from 128.6.171.4:6988
+-- Piece: 23 From: 0 Bytes:  16384 requested from 128.6.171.3:6906
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 20 - Begin: 16384
+We have completed piece: 20
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 429 - Begin: 0
+-- Piece received from: 128.6.171.6:6928, analyzing...
+Index: 428 - Begin: 0
+-- Piece received from: 128.6.171.5:6972, analyzing...
+Index: 427 - Begin: 0
+-- Piece received from: 128.6.171.4:6988, analyzing...
+Index: 426 - Begin: 0
+-- Piece received from: 128.6.171.3:6906, analyzing...
+Index: 425 - Begin: 0
+-- Piece received from: 128.6.171.8:6927, analyzing...
+Index: 429 - Begin: 16384
+We have completed piece: 429
+-- Piece received from: 128.6.171.7:6888, analyzing...
+Index: 428 - Begin: 16384
+We have completed piece: 428

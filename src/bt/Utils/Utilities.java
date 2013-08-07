@@ -4,8 +4,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,7 +36,19 @@ public class Utilities {
 	 * @param file
 	 * @return byte[] File Bytes
 	 */
-	public static byte[] getBytesFromFile(File file) {
+	public static byte[] getBytesFromFile(File file) throws Exception {
+		byte[] bytes = null;
+		try {
+			RandomAccessFile raf = new RandomAccessFile(file, "r");
+			bytes = new byte[(int)raf.length()];
+			raf.read(bytes);
+			
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		return bytes;
+		/*
 		ArrayList<Byte> bytes = new ArrayList<Byte>();
 		DataInputStream dis;
 		try {
@@ -60,6 +74,7 @@ public class Utilities {
 		}
 
 		return bytesArray;
+		*/
 	}
 	
 	/**
@@ -327,90 +342,7 @@ public class Utilities {
 		 tempOut.close();
 	 }	  
 	 
-	 /**
-	  * Loads previous client's state if file wasn't completed.
-	  * @param intArray
-	  * @param fileHeap
-	  * @param pieceLength
-	  * @param pieces
-	  * @param temp
-	  * @param completed
-	  * @param torrentInfo
-	  * @param verificationArray
-	  * @throws IOException
-	  * @throws NoSuchAlgorithmException
-	  * @throws UnknownBittorrentException
-	  */
-	 public static void loadState(int[] intArray, byte[][] fileHeap, 
-			 int pieceLength, 
-			 int pieces, 
-			 File temp, 
-			 boolean[] completed, 
-			 TorrentInfo torrentInfo,
-			 byte[][] verificationArray) throws IOException, 
-	 NoSuchAlgorithmException, UnknownBittorrentException {  
-		 	FileInputStream tempIn = new FileInputStream(temp);  
-		 	byte[] intByteArray = new byte[12];  
-		 	tempIn.read(intByteArray, 0, 12);  
-		 	ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
-		 	for (int i = 0; i < 3; i++) {  
-		 		intArray[i] = intBuffer.getInt();  
-		 	}
-		 	byte[] bytes = Utilities.getBytesFromFile(temp);
-		 	int offset = 12;
-		 	for (int i = 0; i < pieces; ++i) {  
-		 		// tempIn.read(fileHeap[i], (i * pieceLength) + 12, pieceLength);
-		 		for(int u = 0; u < pieceLength; u++) {
-		 			fileHeap[i][u] = bytes[offset];
-		 			++offset;
-		 		}
-		 	}
-		 	Utilities.verifyPiecesSHA(fileHeap, completed, torrentInfo, verificationArray);
-		 	tempIn.close();
-	 } 
-	 
-	 /**
-	  * Verify the pieces loaded from .tmp file to complete the client's state bitfield.
-	  * @param fileHeap
-	  * @param completed
-	  * @throws UnknownBittorrentException
-	  */
-	 private static void verifyPiecesSHA(byte[][] fileHeap, boolean[] completed, TorrentInfo ti, byte[][] verificationArray) throws UnknownBittorrentException {
-		 MessageDigest sha = null;
-		 try {
-			 sha = MessageDigest.getInstance("SHA-1");
-		 } catch (NoSuchAlgorithmException e) {
-			 // decide what to do
-		 }
-		 int pieceLength = ti.piece_length; 
-		 for( int i = 0; i < fileHeap.length; ++i) { // for each piece
-			 // verify
-			 byte[] toDigest = null;
-				if (i < fileHeap.length - 1) {
-					toDigest = new byte[pieceLength];
-					synchronized(fileHeap) {
-						// load full-sized piece to be hashed
-						for(int u = 0; u < toDigest.length; ++u) {
-							toDigest[u] = fileHeap[i][u];
-					}
-				}
-			} else {
-				toDigest = new byte[ti.file_length - ((fileHeap.length-1)*pieceLength)];
-				synchronized(fileHeap) {
-					// load possibly partial-sized piece to be hashed
-					for(int s = 0; s < toDigest.length; ++s) {
-						toDigest[s] = fileHeap[i][s];
-					}
-				}
-			}
-			byte[] test = sha.digest(toDigest);
-			if (sameArray(verificationArray[i], test)) {
-				completed[i] = true;
-			} else {
-				completed[i] = false;
-			}
-		 } 
-	 }
+	
 	 
 	 /**
 	 * Checks if two byte arrays contain the same values at all positions.
