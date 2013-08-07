@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import bt.Exceptions.UnknownBittorrentException;
+import bt.Interfaces.Timed;
 import bt.Utils.Utilities;
 import bt.View.ClientGUI;
 import bt.View.UserInterface;
@@ -16,11 +17,14 @@ import bt.View.UserInterface;
  *
  */
 
-class PeerListener implements Runnable {
+class PeerListener implements Runnable, Timed {
 	
 	private InputStream in = null;
 	private Peer parent = null;
 	private boolean running = true;
+	private boolean busy = false;
+	private Timer<PeerListener> timer;
+	private long lastReceived;
 	
 	/**
 	 * This is the constructor for the PeerListener class.  There is no constructor without these
@@ -33,6 +37,7 @@ class PeerListener implements Runnable {
 	PeerListener (Peer parent, InputStream inStream) {
 		this.in = inStream;
 		this.parent = parent;
+		this.timer = new Timer<PeerListener>(60000*2,this);
 	}
 
 	/**
@@ -122,6 +127,8 @@ class PeerListener implements Runnable {
 	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
 		this.in.read(lengthArray, 0, 4);
+		this.lastReceived = System.currentTimeMillis();
+		this.busy = true;
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
 		int length = lengthBuffer.getInt();
 		if(length < 0 || length > 16394) {
@@ -213,6 +220,15 @@ class PeerListener implements Runnable {
 				break;
 			}
 		}
+		this.busy = false;
+	}
+	
+	/**
+	 * Inidicates if the current peer listener is busy reading from buffer or idle waiting on messages.
+	 * @return
+	 */
+	public boolean isBusy() {
+		return this.busy;
 	}
 	
 	/**
@@ -223,6 +239,23 @@ class PeerListener implements Runnable {
 		running = false;
 		this.in = null;
 		this.parent = null;
+	}
+
+	/**
+	 * Keep alive every 2 minutes.
+	 */
+	public void timeIsUp() {
+		try {
+			ClientGUI.getInstance().publishEvent(">>> Keep alive sent for Peer: "+this.parent);
+			long elapsed = System.currentTimeMillis() - this.lastReceived;
+			if(elapsed >= 60000*2) {
+				parent.keepalive();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 }
