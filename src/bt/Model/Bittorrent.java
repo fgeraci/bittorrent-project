@@ -191,6 +191,8 @@ public class Bittorrent {
 	
 	private ClientGUI cGUI;
 	
+	private boolean isPaused = false;
+	
 	/**
 	 * The constructor will initialize all the fields given by the .torrent file.
 	 */
@@ -268,6 +270,19 @@ public class Bittorrent {
 	 */
 	public String[] getPeersArray() {
 			return this.peers.clone();
+	}
+	
+	
+	public boolean isPaused() {
+		return this.isPaused;
+	}
+	
+	public void pauseActivity() {
+		this.isPaused = true;
+	}
+	
+	public void resumeActivity() {
+		this.isPaused = false;
 	}
 	
 	/**

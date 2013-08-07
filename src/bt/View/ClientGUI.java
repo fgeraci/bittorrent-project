@@ -68,8 +68,10 @@ public class ClientGUI extends JFrame {
 	private Container container;
 	private JPanel dataPanel;
 	private JMenuBar menuBar;
+	private JMenu actionMenu;
 	private JMenu fileOptions;
 	private JMenu helpOptions;
+	private JMenuItem pauseResumeMenu;
 	private JMenuItem exitMenu;
 	private JMenuItem saveLogToFile;
 	private JMenuItem about;
@@ -283,13 +285,17 @@ public class ClientGUI extends JFrame {
 		this.menuBar = new JMenuBar();
 		this.fileOptions = new JMenu("File");
 		this.helpOptions = new JMenu("Help");
+		this.actionMenu = new JMenu("Actions");
 		this.saveLogToFile = new JMenuItem("Save Log To File");
 		this.exitMenu = new JMenuItem("Exit");
 		this.about = new JMenuItem("About...");
+		this.pauseResumeMenu = new JMenuItem("Pause download");
 		this.fileOptions.add(this.saveLogToFile);
 		this.fileOptions.add(this.exitMenu);
 		this.helpOptions.add(this.about);
+		this.actionMenu.add(this.pauseResumeMenu);
 		this.menuBar.add(fileOptions);
+		this.menuBar.add(actionMenu);
 		this.menuBar.add(helpOptions);
 	}
 	
@@ -475,6 +481,20 @@ public class ClientGUI extends JFrame {
 		this.exitMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Utilities.callClose();
+			}
+		});
+		this.pauseResumeMenu.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(bt.isPaused()) {
+					bt.resumeActivity();
+					pauseResumeMenu.setText("Pause activity");
+				} else {
+					bt.pauseActivity();
+					pauseResumeMenu.setText("Resume activity");
+				}
+				
 			}
 		});
 	}
