@@ -46,7 +46,7 @@ class PeerListener implements Runnable {
 				try { // ...reading InputStream to this instance
 					this.readLine();
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(1200);
 					} catch (InterruptedException e) {
 						continue;
 						}
@@ -81,7 +81,10 @@ class PeerListener implements Runnable {
 			this.in.read(tcpArray);
 			ClientGUI.getInstance().publishEvent("<<< Data received, processing...");
 			ClientGUI.getInstance().publishEvent(">>> Listening from Peer : "+this.parent+"...");
-			this.parent.validateInfoHash(tcpArray);
+			boolean validated = this.parent.validateInfoHash(tcpArray);
+			if(!validated) {
+				parent.dispose();
+			}
 			if(parent.isIncoming()) {
 				try {
 					parent.handShake();
@@ -171,6 +174,7 @@ class PeerListener implements Runnable {
 				parent.receiveBitfield(bitfield);
 				break;
 			case 6:	// request
+				
 				byte b = tcpInput.get();
 				int requestindex = tcpInput.getInt();
 				int requestbegin = tcpInput.getInt();
@@ -201,9 +205,9 @@ class PeerListener implements Runnable {
 						parent.getPiece(index, begin, payload);
 						parent.updateDownloaded(payload.length);
 						ClientGUI.getInstance().updatePeerInTable(parent, ClientGUI.DOWNLOADED_UPDATE);
-					} catch (Exception e) {e.printStackTrace();}
-					break;
-				} else break;
+					} catch (Exception e) { e.printStackTrace(); }
+				}
+				break;
 			case 8:	// cancel
 				parent.cancelIndex(tcpInput.getInt(5),
 						tcpInput.getInt(9),

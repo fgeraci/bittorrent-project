@@ -409,6 +409,7 @@ public class ClientGUI extends JFrame {
 				String type;
 				if(bytes > 1048576) {
 					bytes = bytes / 1000000;
+					bytes = Math.round(((bytes*100)))/100;
 					type = " MB";
 				} else if(bytes > 1024) { 
 					bytes = bytes / 1000;
@@ -493,23 +494,7 @@ public class ClientGUI extends JFrame {
 	private void initBehaviors() {
 		this.saveLogToFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				File logFile = new File("log.txt");
-				if(logFile.exists()) {
-					try {
-						logFile.delete();
-					} catch (Exception ex) {
-						System.out.println(ex.getMessage());
-					}
-				}
-				String log = textFieldLog.getText();
-				byte[] bytes = log.getBytes();
-				try {
-					FileOutputStream fileOut = new FileOutputStream(logFile);
-					for(int i = 0; i < bytes.length; ++i) {
-						fileOut.write(bytes[i]);
-					}
-					fileOut.close();
-				} catch (Exception ex) { System.out.println(ex.getMessage());}
+				Utilities.saveLogToFile(textFieldLog.getText());
 				
 			}
 		});

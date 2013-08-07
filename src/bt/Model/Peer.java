@@ -260,7 +260,7 @@ public class Peer implements Runnable {
 	 * Sends a keep alive signal to the peer this object represents.
 	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
 	 */
-	void keepalive () throws IOException {
+	public void keepalive () throws IOException {
 		byte[] b = {(byte) 0};
 		out.write(b);
 		out.flush();
@@ -840,7 +840,6 @@ public class Peer implements Runnable {
 				return this.peerAccepted;
 			} else {
 				ClientGUI.getInstance().publishEvent("ERROR: info_hash doesn't match, connection terminated.");
-				parent.terminatePeer(this.toString());
 			}
 		}
 		return false;

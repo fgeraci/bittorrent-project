@@ -1,6 +1,7 @@
 package bt.Utils;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import bt.Exceptions.UnknownBittorrentException;
 import bt.Model.Bittorrent;
@@ -453,5 +455,27 @@ public class Utilities {
 			}
 		}
 		System.out.println("");
+	}
+	
+	public static void saveLogToFile(String log) {
+		File logFile = new File("log.txt");
+		if(logFile.exists()) {
+			try {
+				logFile.delete();
+			} catch (Exception ex) {
+				System.out.println(ex.getMessage());
+			}
+		}
+		// byte[] bytes = log.getBytes();
+		try {
+			FileOutputStream fos = new FileOutputStream(logFile);
+			DataOutputStream dos = new DataOutputStream(fos);
+			StringTokenizer st = new StringTokenizer(log, "\n");
+			while(st.hasMoreTokens()) {
+				dos.write(st.nextToken().getBytes());
+				dos.write(System.getProperties ().getProperty ("line.separator").getBytes());
+			}
+			fos.close();
+		} catch (Exception e) { }  
 	}
 }

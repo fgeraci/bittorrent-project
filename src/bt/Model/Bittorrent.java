@@ -737,26 +737,30 @@ public class Bittorrent {
 		} else if(this.connections[peer]) {
 			throw new DuplicatePeerException("Connection already established with peer: "+this.peers[peer]);
 		} else {
-			// get info
-			String ip = Utilities.getIPFromString(this.peers[peer]);
-			int port = Utilities.getPortFromString(this.peers[peer]);
-			// attempt peer
-			Peer p = new Peer(	ip,
-								port,
-								Utilities.getHashBytes(this.torrentInfo.info_hash),
-								this.clientID.getBytes(), 
-								this.collection,
-								this.verificationArray,
-								this.completedPieces,
-								this);
-			// add the peer to the peers list
-			synchronized(peerList) {
-				synchronized(connections) {
-					this.peerList.add(p);
-					ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.ADDPEER_UPDATE);
-					// mark the connection as boolean connected in this.connectios
-					this.connections[peer] = true;
+			try {
+				// get info
+				String ip = Utilities.getIPFromString(this.peers[peer]);
+				int port = Utilities.getPortFromString(this.peers[peer]);
+				// attempt peer
+				Peer p = new Peer(	ip,
+									port,
+									Utilities.getHashBytes(this.torrentInfo.info_hash),
+									this.clientID.getBytes(), 
+									this.collection,
+									this.verificationArray,
+									this.completedPieces,
+									this);
+				// add the peer to the peers list
+				synchronized(peerList) {
+					synchronized(connections) {
+						this.peerList.add(p);
+						ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.ADDPEER_UPDATE);
+						// mark the connection as boolean connected in this.connectios
+						this.connections[peer] = true;
+					}
 				}
+			} catch (Exception e) {
+				System.out.println("Connection failed to peer ID: "+peer);
 			}
 		}
 	}
@@ -827,6 +831,7 @@ public class Bittorrent {
 	 * It creates a queue for delivery pieces as per their priority.
 	 */
 	private void populateWeightedRequestQueue() {
+		System.out.println(" << POPULATING REQUEST QUEUE >>");
 		synchronized (weightedRequestQueue) {
 			for (int piece = 0; piece < collection.length - 1; ++piece) {
 				if (!this.completedPieces[piece]) {
@@ -916,10 +921,13 @@ public class Bittorrent {
 	 */
 	public void downloadAlgorithm() {
 		while(!isFileCompleted()) {
-			if (--this.countdownToRequeue < 0) {
+			System.out.println("Download algorithm working.");
+			if (this.countdownToRequeue <= 0) {
 				this.populateWeightedRequestQueue();
-				this.countdownToRequeue = 100;
+				this.countdownToRequeue = 15;
 			}
+			System.out.println(this.countdownToRequeue);
+			--this.countdownToRequeue;
 			updateWeights();
 			boolean requested = false;
 			PriorityBlockingQueue<WeightedRequest> nextQueue = new PriorityBlockingQueue<WeightedRequest>();
@@ -942,6 +950,7 @@ public class Bittorrent {
 											sent = true;
 										} catch (IOException e) {
 											try {
+												System.out.println("Sleeping on the download algorithm.");
 												Thread.sleep(50);
 											} catch (InterruptedException e1) {
 												continue;
