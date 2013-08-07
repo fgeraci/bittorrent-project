@@ -1,10 +1,8 @@
 package bt.Utils;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -36,45 +34,39 @@ public class Utilities {
 	 * @param file
 	 * @return byte[] File Bytes
 	 */
-	public static byte[] getBytesFromFile(File file) throws Exception {
-		byte[] bytes = null;
+	public static byte[] getBytesFromFile(File file) {
+		byte[] bytesArray = null;
 		try {
 			RandomAccessFile raf = new RandomAccessFile(file, "r");
-			bytes = new byte[(int)raf.length()];
-			raf.read(bytes);
-			
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		return bytes;
-		/*
-		ArrayList<Byte> bytes = new ArrayList<Byte>();
-		DataInputStream dis;
-		try {
-			// open file
-			dis = new DataInputStream(new FileInputStream(file));
-			int b;
-			// read bytes
-			while(true) {
-				b = dis.read();
-				if(b == -1) break;
-				else bytes.add((byte)b);
-			}
-			// close the file stream
-			dis.close();
+			bytesArray = new byte[(int)raf.length()];
+			raf.read(bytesArray);
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			System.out.println("Random Access File failed.");
 		}
-		// translate into byte[]
-		int listLength = bytes.size();
-		byte[] bytesArray = new byte[listLength];
-		for(int i = 0; i < listLength; ++i) {
-			bytesArray[i] = bytes.get(i);
-		}
-
 		return bytesArray;
-		*/
+	}
+	
+	/**
+	 * Writes the log to a file called log.txt in the root directory.
+	 * @param log
+	 */
+	public static void saveLogToFile(String log) {
+		File logFile = new File("log.txt");
+		if(logFile.exists()) {
+			try {
+				logFile.delete();
+			} catch (Exception e) { }
+		}
+		
+		try {
+			FileOutputStream fos = new FileOutputStream(logFile);
+			DataOutputStream dos = new DataOutputStream(fos);
+			StringTokenizer st = new StringTokenizer(log, "\n");
+			while(st.hasMoreTokens()) {
+				dos.write(st.nextToken().getBytes());
+				dos.write(System.getProperties().getProperty("line.separator").getBytes());
+			}
+		} catch (Exception e) { }
 	}
 	
 	/**
@@ -194,9 +186,7 @@ public class Utilities {
 			 
 			 Bittorrent.getInstance().stopServer();
 			 Bittorrent.getInstance().disposePeers();
-			 if(!Bittorrent.getInstance().isFileCompleted()) {
-				 Bittorrent.getInstance().saveHeap();
-			 }
+			 Bittorrent.getInstance().saveHeap();
 			 UserInterface.getInstance().stopUI();
 			 System.out.println("\n -- Client Terminated -- ");
 			 System.out.println("\t> Peers disposed");
@@ -342,7 +332,90 @@ public class Utilities {
 		 tempOut.close();
 	 }	  
 	 
-	
+	 /**
+	  * Loads previous client's state if file wasn't completed.
+	  * @param intArray
+	  * @param fileHeap
+	  * @param pieceLength
+	  * @param pieces
+	  * @param temp
+	  * @param completed
+	  * @param torrentInfo
+	  * @param verificationArray
+	  * @throws IOException
+	  * @throws NoSuchAlgorithmException
+	  * @throws UnknownBittorrentException
+	  */
+	 public static void loadState(int[] intArray, byte[][] fileHeap, 
+			 int pieceLength, 
+			 int pieces, 
+			 File temp, 
+			 boolean[] completed, 
+			 TorrentInfo torrentInfo,
+			 byte[][] verificationArray) throws IOException, 
+	 NoSuchAlgorithmException, UnknownBittorrentException {  
+		 	FileInputStream tempIn = new FileInputStream(temp);  
+		 	byte[] intByteArray = new byte[12];  
+		 	tempIn.read(intByteArray, 0, 12);  
+		 	ByteBuffer intBuffer = ByteBuffer.wrap(intByteArray);  
+		 	for (int i = 0; i < 3; i++) {  
+		 		intArray[i] = intBuffer.getInt();  
+		 	} 
+		 	byte[] bytes = Utilities.getBytesFromFile(temp);
+		 	int offset = 12;
+		 	for (int i = 0; i < pieces; ++i) {  
+		 		// tempIn.read(fileHeap[i], (i * pieceLength) + 12, pieceLength);
+		 		for(int u = 0; u < pieceLength; u++) {
+		 			fileHeap[i][u] = bytes[offset];
+		 			++offset;
+		 		}
+		 	}
+		 	Utilities.verifyPiecesSHA(fileHeap, completed, torrentInfo, verificationArray);
+		 	tempIn.close();
+	 } 
+	 
+	 /**
+	  * Verify the pieces loaded from .tmp file to complete the client's state bitfield.
+	  * @param fileHeap
+	  * @param completed
+	  * @throws UnknownBittorrentException
+	  */
+	 private static void verifyPiecesSHA(byte[][] fileHeap, boolean[] completed, TorrentInfo ti, byte[][] verificationArray) throws UnknownBittorrentException {
+		 MessageDigest sha = null;
+		 try {
+			 sha = MessageDigest.getInstance("SHA-1");
+		 } catch (NoSuchAlgorithmException e) {
+			 // decide what to do
+		 }
+		 int pieceLength = ti.piece_length; 
+		 for( int i = 0; i < fileHeap.length; ++i) { // for each piece
+			 // verify
+			 byte[] toDigest = null;
+				if (i < fileHeap.length - 1) {
+					toDigest = new byte[pieceLength];
+					synchronized(fileHeap) {
+						// load full-sized piece to be hashed
+						for(int u = 0; u < toDigest.length; ++u) {
+							toDigest[u] = fileHeap[i][u];
+					}
+				}
+			} else {
+				toDigest = new byte[ti.file_length - ((fileHeap.length-1)*pieceLength)];
+				synchronized(fileHeap) {
+					// load possibly partial-sized piece to be hashed
+					for(int s = 0; s < toDigest.length; ++s) {
+						toDigest[s] = fileHeap[i][s];
+					}
+				}
+			}
+			byte[] test = sha.digest(toDigest);
+			if (sameArray(verificationArray[i], test)) {
+				completed[i] = true;
+			} else {
+				completed[i] = false;
+			}
+		 } 
+	 }
 	 
 	 /**
 	 * Checks if two byte arrays contain the same values at all positions.
@@ -387,27 +460,5 @@ public class Utilities {
 			}
 		}
 		System.out.println("");
-	}
-	
-	public static void saveLogToFile(String log) {
-		File logFile = new File("log.txt");
-		if(logFile.exists()) {
-			try {
-				logFile.delete();
-			} catch (Exception ex) {
-				System.out.println(ex.getMessage());
-			}
-		}
-		// byte[] bytes = log.getBytes();
-		try {
-			FileOutputStream fos = new FileOutputStream(logFile);
-			DataOutputStream dos = new DataOutputStream(fos);
-			StringTokenizer st = new StringTokenizer(log, "\n");
-			while(st.hasMoreTokens()) {
-				dos.write(st.nextToken().getBytes());
-				dos.write(System.getProperties ().getProperty ("line.separator").getBytes());
-			}
-			fos.close();
-		} catch (Exception e) { }  
 	}
 }

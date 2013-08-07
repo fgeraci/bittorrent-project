@@ -3,7 +3,6 @@ package bt.View;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -71,13 +70,10 @@ public class ClientGUI extends JFrame {
 	private JMenuBar menuBar;
 	private JMenu fileOptions;
 	private JMenu helpOptions;
-	private JMenu menuActions;
 	private JMenuItem exitMenu;
 	private JMenuItem saveLogToFile;
 	private JMenuItem about;
-	private JMenuItem pauseResume;
 	
-	// main body container
 	private JPanel mainContainer;
 	
 	// data panel members
@@ -167,9 +163,7 @@ public class ClientGUI extends JFrame {
 		this.setVisible(true);
 		try {
 			Thread.sleep(1000);
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			this.bt = Bittorrent.getInstance();
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			while(this.bt == null) {
 				this.publishEvent("Initializing client...");
 				Thread.sleep(1000);
@@ -256,20 +250,6 @@ public class ClientGUI extends JFrame {
 	}
 	
 	/**
-	 * Disable Actions menu.
-	 */
-	public void disableAction() {
-		this.menuActions.setEnabled(false);
-	}
-	
-	/**
-	 * Enables Actions menu.
-	 */
-	public void enableActions() {
-		this.menuActions.setEnabled(true);
-	}
-	
-	/**
 	 * Initializes the command buttons.
 	 */
 	private void initBottomConsole() {
@@ -303,18 +283,14 @@ public class ClientGUI extends JFrame {
 		this.menuBar = new JMenuBar();
 		this.fileOptions = new JMenu("File");
 		this.helpOptions = new JMenu("Help");
-		this.menuActions = new JMenu("Actions...");
 		this.saveLogToFile = new JMenuItem("Save Log To File");
 		this.exitMenu = new JMenuItem("Exit");
 		this.about = new JMenuItem("About...");
-		this.pauseResume = new JMenuItem("Pause Execution");
 		this.fileOptions.add(this.saveLogToFile);
 		this.fileOptions.add(this.exitMenu);
-		this.menuActions.add(this.pauseResume);
 		this.helpOptions.add(this.about);
-		this.menuBar.add(this.fileOptions);
-		this.menuBar.add(this.menuActions);
-		this.menuBar.add(this.helpOptions);
+		this.menuBar.add(fileOptions);
+		this.menuBar.add(helpOptions);
 	}
 	
 	/**
@@ -409,7 +385,6 @@ public class ClientGUI extends JFrame {
 				String type;
 				if(bytes > 1048576) {
 					bytes = bytes / 1000000;
-					bytes = Math.round(((bytes*100)))/100;
 					type = " MB";
 				} else if(bytes > 1024) { 
 					bytes = bytes / 1000;
@@ -495,29 +470,11 @@ public class ClientGUI extends JFrame {
 		this.saveLogToFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Utilities.saveLogToFile(textFieldLog.getText());
-				
 			}
 		});
 		this.exitMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Utilities.callClose();
-			}
-		});
-		this.pauseResume.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					boolean onPause = Bittorrent.getInstance().isPaused();
-					if(onPause) {
-						Bittorrent.getInstance().resumeActivity();
-						ClientGUI.this.publishEvent("Client is RESUMING activities...");
-						pauseResume.setText("Pause Download");
-					} else {
-						Bittorrent.getInstance().pauseActivity();
-						ClientGUI.this.publishEvent("Client is currently PAUSED.");
-						pauseResume.setText("Resume Download");
-					}
-				} catch (Exception e) {}
 			}
 		});
 	}
