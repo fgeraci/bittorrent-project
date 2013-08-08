@@ -40,6 +40,7 @@ public class Utilities {
 			RandomAccessFile raf = new RandomAccessFile(file, "r");
 			bytesArray = new byte[(int)raf.length()];
 			raf.read(bytesArray);
+			raf.close();
 		} catch (Exception e) {
 			System.out.println("Random Access File failed.");
 		}
@@ -187,10 +188,6 @@ public class Utilities {
 			 Bittorrent.getInstance().stopServer();
 			 Bittorrent.getInstance().disposePeers();
 			 Bittorrent.getInstance().saveHeap();
-			 UserInterface.getInstance().stopUI();
-			 System.out.println("\n -- Client Terminated -- ");
-			 System.out.println("\t> Peers disposed");
-			 System.out.println("\t> Tracker Notified");
 			 System.exit(0);
 		 } catch (Exception e) { /* this should never happen */	 } 
 	 }

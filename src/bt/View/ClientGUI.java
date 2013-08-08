@@ -293,9 +293,9 @@ public class ClientGUI extends JFrame {
 		this.fileOptions.add(this.saveLogToFile);
 		this.fileOptions.add(this.exitMenu);
 		this.helpOptions.add(this.about);
-		this.actionMenu.add(this.pauseResumeMenu);
+		// this.actionMenu.add(this.pauseResumeMenu);
 		this.menuBar.add(fileOptions);
-		this.menuBar.add(actionMenu);
+		//this.menuBar.add(actionMenu);
 		this.menuBar.add(helpOptions);
 	}
 	
@@ -483,20 +483,21 @@ public class ClientGUI extends JFrame {
 				Utilities.callClose();
 			}
 		});
+		/*
 		this.pauseResumeMenu.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(bt.isPaused()) {
-					bt.resumeActivity();
+					bt.pauseActivity();
 					pauseResumeMenu.setText("Pause activity");
 				} else {
-					bt.pauseActivity();
+					bt.resumeActivity();
 					pauseResumeMenu.setText("Resume activity");
 				}
 				
 			}
 		});
+		*/
 	}
 	
 	/**

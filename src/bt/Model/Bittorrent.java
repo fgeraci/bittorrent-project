@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.PriorityBlockingQueue;
-
 import bt.Exceptions.DuplicatePeerException;
 import bt.Exceptions.UnknownBittorrentException;
 import bt.Utils.Bencoder2;
@@ -40,7 +39,7 @@ import bt.View.UserInterface;
 
 public class Bittorrent {
 	
-	private static final String TEMP_FILE = "./rsc/cs352.tmp";
+	private static final String TEMP_FILE = "rsc"+File.separator+"cs352.tmp";
 
 	/**
 	 * Will communicate with the tracker every N seconds.
@@ -246,9 +245,11 @@ public class Bittorrent {
 		File torrentFile = new File(this.torrentInfo.file_name);
 		File altTorrentFile = new File(this.fileName);
 		// if the file exists, just load it into memory for serving.
+		this.cGUI.updateProgressBar(this.downloaded);
 		if(torrentFile.exists() || altTorrentFile.exists()) {
-			Utilities.initializeFileHeap(this.torrentInfo.file_name);
+			Utilities.initializeFileHeap(this.fileName);
 			UserInterface.getInstance().receiveEvent("File successfully loaded in client's heap for uploading.");
+			this.cGUI.updateProgressBar(this.torrentInfo.file_length);
 		} else {
 			this.connectToPeer("128.6.171.8:6927");
 			this.connectToPeer("128.6.171.7:6888");
@@ -270,19 +271,6 @@ public class Bittorrent {
 	 */
 	public String[] getPeersArray() {
 			return this.peers.clone();
-	}
-	
-	
-	public boolean isPaused() {
-		return this.isPaused;
-	}
-	
-	public void pauseActivity() {
-		this.isPaused = true;
-	}
-	
-	public void resumeActivity() {
-		this.isPaused = false;
 	}
 	
 	/**
@@ -363,6 +351,7 @@ public class Bittorrent {
 							this.completedPieces, 
 							this.torrentInfo, 
 							this.verificationArray);
+					this.deleteTmpFile();
 				} catch (NoSuchAlgorithmException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -685,33 +674,36 @@ public class Bittorrent {
 	 */
 	public void connectToPeer(int peer) throws UnknownHostException, IOException, DuplicatePeerException {
 		// create peer, attempt connection, feed arguments.
-		
-		if(peer < 0 || peer >= this.peers.length) {
-			throw new IllegalArgumentException("Invalid peer number, out of range.");
-		} else if(this.connections[peer]) {
-			throw new DuplicatePeerException("Connection already established with peer: "+this.peers[peer]);
-		} else {
-			// get info
-			String ip = Utilities.getIPFromString(this.peers[peer]);
-			int port = Utilities.getPortFromString(this.peers[peer]);
-			// attempt peer
-			Peer p = new Peer(	ip,
-								port,
-								Utilities.getHashBytes(this.torrentInfo.info_hash),
-								this.clientID.getBytes(), 
-								this.collection,
-								this.verificationArray,
-								this.completedPieces,
-								this);
-			// add the peer to the peers list
-			synchronized(peerList) {
-				synchronized(connections) {
-					this.peerList.add(p);
-					ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.ADDPEER_UPDATE);
-					// mark the connection as boolean connected in this.connectios
-					this.connections[peer] = true;
+		try {
+			if(peer < 0 || peer >= this.peers.length) {
+				throw new IllegalArgumentException("Invalid peer number, out of range.");
+			} else if(this.connections[peer]) {
+				throw new DuplicatePeerException("Connection already established with peer: "+this.peers[peer]);
+			} else {
+				// get info
+				String ip = Utilities.getIPFromString(this.peers[peer]);
+				int port = Utilities.getPortFromString(this.peers[peer]);
+				// attempt peer
+				Peer p = new Peer(	ip,
+									port,
+									Utilities.getHashBytes(this.torrentInfo.info_hash),
+									this.clientID.getBytes(), 
+									this.collection,
+									this.verificationArray,
+									this.completedPieces,
+									this);
+				// add the peer to the peers list
+				synchronized(peerList) {
+					synchronized(connections) {
+						this.peerList.add(p);
+						ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.ADDPEER_UPDATE);
+						// mark the connection as boolean connected in this.connectios
+						this.connections[peer] = true;
+					}
 				}
 			}
+		}catch (Exception e) {
+			System.out.println("Connection to peer failed");
 		}
 	}
 	
@@ -870,16 +862,17 @@ public class Bittorrent {
 	 */
 	public void downloadAlgorithm() {
 		while(!isFileCompleted()) {
-			if (--this.countdownToRequeue < 0) {
+			if (this.countdownToRequeue < 0) {
 				this.populateWeightedRequestQueue();
-				this.countdownToRequeue = 100;
+				this.countdownToRequeue = 15;
 			}
+			--this.countdownToRequeue;
 			updateWeights();
 			boolean requested = false;
 			PriorityBlockingQueue<WeightedRequest> nextQueue = new PriorityBlockingQueue<WeightedRequest>();
 			synchronized(weightedRequestQueue) {
 				synchronized (peerList) {
-					while (!weightedRequestQueue.isEmpty()) {
+					while (!weightedRequestQueue.isEmpty() && !this.isPaused) {
 						WeightedRequest req = weightedRequestQueue.poll();
 						requested = false; // get the first piece we need
 						for (Peer peer: peerList) { // for each peer we are connected to
@@ -946,6 +939,7 @@ public class Bittorrent {
 	 * @throws IOException
 	 */
 	public void saveFile () throws IOException {
+		this.deleteTmpFile();
 		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
@@ -954,7 +948,6 @@ public class Bittorrent {
 				fileArray[i] = this.collection[i/this.pieceLength][i%this.pieceLength];
 			}
 		}
-		System.out.println("-- All file bytes completed");
 		fileOut.write(fileArray);
 		fileOut.close();
 	}
@@ -1014,10 +1007,6 @@ public class Bittorrent {
 			fromServer.close();
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
-		}
-		File temp = new File (TEMP_FILE);
-		if (temp.exists()) {
-			temp.delete();
 		}
 	}
 	
@@ -1115,6 +1104,19 @@ public class Bittorrent {
 				temp.delete();
 				System.err.println("unable to open cs352.tmp for writing.");
 			}
+		} else {
+			this.deleteTmpFile();
+		}
+	}
+	
+	private void deleteTmpFile() {
+		try {
+			File temp = new File (TEMP_FILE);
+			if (temp.exists()) {
+				temp.delete();
+			}
+		} catch (Exception e) {
+			System.out.println("Temp file couldn't be deleted.");
 		}
 	}
 }

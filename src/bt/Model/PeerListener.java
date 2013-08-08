@@ -149,6 +149,7 @@ class PeerListener implements Runnable, Timed {
 			switch (tcpArray[0]) {
 			case 0:	// choke
 				parent.setChoke(true);
+				ClientGUI.getInstance().publishEvent(">>> Peer: "+parent+" just chocked me.");
 				break;
 			case 1: // remote-peer is unchoked, start requesting
 				parent.setChoke(false);
