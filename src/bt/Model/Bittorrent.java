@@ -248,15 +248,21 @@ public class Bittorrent {
 		this.cGUI.updateProgressBar(this.downloaded);
 		if(torrentFile.exists() || altTorrentFile.exists()) {
 			Utilities.initializeFileHeap(this.fileName);
-			UserInterface.getInstance().receiveEvent("File successfully loaded in client's heap for uploading.");
+			int i = 0;
+			for(boolean b : this.completedPieces) {
+				this.completedPieces[i] = true;
+				++i;
+			}
+			this.cGUI.publishEvent("File successfully loaded in client's heap for uploading.");
 			this.cGUI.updateProgressBar(this.torrentInfo.file_length);
+			this.setEvent("completed");
 		} else {
 			this.connectToPeer("128.6.171.8:6927");
 			this.connectToPeer("128.6.171.7:6888");
 			this.connectToPeer("128.6.171.6:6928");
 			this.connectToPeer("128.6.171.5:6972");
 			this.connectToPeer("128.6.171.4:6988");
-			this.connectToPeer("128.6.171.3:6906");
+			// this.connectToPeer("74.95.182.13:6881");
 			this.downloadAlgorithm();
 		}
 	}
@@ -863,7 +869,7 @@ public class Bittorrent {
 	 */
 	public void downloadAlgorithm() {
 		while(!isFileCompleted()) {
-			if (this.countdownToRequeue < 0) {
+			if (this.countdownToRequeue <= 0) {
 				this.populateWeightedRequestQueue();
 				this.countdownToRequeue = 15;
 			}

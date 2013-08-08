@@ -228,7 +228,7 @@ public class Peer implements Runnable {
 			} else {
 				if (interestedQueue.isEmpty()) {
 					try {
-						Thread.sleep(50);
+						Thread.sleep(900);
 					} catch (InterruptedException e) {
 						continue;
 					}
