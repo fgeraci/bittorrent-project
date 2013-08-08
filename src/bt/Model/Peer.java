@@ -233,7 +233,7 @@ public class Peer implements Runnable {
 						continue;
 					}
 				} else {
-					if (interested && !choked) {
+					if (!choked) {
 						synchronized (interestedQueue) {
 							Request toSend = interestedQueue.poll();
 							if (completed[toSend.getIndex()]) {

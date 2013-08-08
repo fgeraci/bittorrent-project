@@ -730,6 +730,7 @@ public class Bittorrent {
 		synchronized(peerList) {
 			synchronized(connections) {
 				this.peerList.add(p);
+				ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.ADDPEER_UPDATE);
 			}
 		}
 	}
