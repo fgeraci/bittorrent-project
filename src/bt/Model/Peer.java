@@ -228,12 +228,15 @@ public class Peer implements Runnable {
 			} else {
 				if (interestedQueue.isEmpty()) {
 					try {
-						Thread.sleep(900);
+						Thread.sleep(50);
 					} catch (InterruptedException e) {
 						continue;
 					}
 				} else {
 					if (!choked) {
+						try {
+							Thread.sleep(900);
+						} catch (Exception e) {}
 						synchronized (interestedQueue) {
 							Request toSend = interestedQueue.poll();
 							if (completed[toSend.getIndex()]) {
@@ -375,13 +378,12 @@ public class Peer implements Runnable {
 	 * @throws IOException will be thrown if the system is unable to dispatch the message.
 	 */
 	void  sendPiece (int index, int begin, int payloadSize, byte[] payload) throws IOException {
-		int length = payloadSize + 9;
+		int length = 16393;
 		byte[] message = null;
 		ByteBuffer messageBuffer = ByteBuffer.allocate(length + 4);
 		messageBuffer.putInt(length).put((byte)7).putInt(index).putInt(begin).put(payload);
 		messageBuffer.rewind();
 		message = messageBuffer.array();
-		messageBuffer.get(message);
 		out.write(message);
 		out.flush();
 		ClientGUI.getInstance().publishEvent("Piece with index ("+ index +"), begin ("+ begin +
