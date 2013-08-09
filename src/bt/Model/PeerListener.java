@@ -49,12 +49,10 @@ class PeerListener implements Runnable, Timed {
 				receiveHandshake();
 			} else {
 				try { // ...reading InputStream to this instance
-					this.readLine();
 					try {
-						Thread.sleep(900);
-					} catch (InterruptedException e) {
-						continue;
-						}
+						Thread.sleep(1500);
+					} catch (InterruptedException e) { }
+					this.readLine();
 				} catch (IOException e) {
 					System.err.println(e.getMessage()); // this will be triggered if client drops connection.
 					try {
@@ -127,7 +125,7 @@ class PeerListener implements Runnable, Timed {
 	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
 		this.in.read(lengthArray, 0, 4);
-		this.lastReceived = System.currentTimeMillis();
+		this.updateInactive();
 		this.busy = true;
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
 		int length = lengthBuffer.getInt();
@@ -240,6 +238,10 @@ class PeerListener implements Runnable, Timed {
 		running = false;
 		this.in = null;
 		this.parent = null;
+	}
+	
+	public synchronized void updateInactive() {
+		this.lastReceived = System.currentTimeMillis();
 	}
 
 	/**

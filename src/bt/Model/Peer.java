@@ -241,6 +241,7 @@ public class Peer implements Runnable {
 							Request toSend = interestedQueue.poll();
 							if (completed[toSend.getIndex()]) {
 								send(toSend);
+								this.listener.updateInactive();
 							} else {
 								interestedQueue.offer(toSend);
 							}
@@ -378,11 +379,10 @@ public class Peer implements Runnable {
 	 * @throws IOException will be thrown if the system is unable to dispatch the message.
 	 */
 	void  sendPiece (int index, int begin, int payloadSize, byte[] payload) throws IOException {
-		int length = 16393;
+		int length = payloadSize + 9;
 		byte[] message = null;
 		ByteBuffer messageBuffer = ByteBuffer.allocate(length + 4);
 		messageBuffer.putInt(length).put((byte)7).putInt(index).putInt(begin).put(payload);
-		messageBuffer.rewind();
 		message = messageBuffer.array();
 		out.write(message);
 		out.flush();
