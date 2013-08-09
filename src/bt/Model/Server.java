@@ -127,9 +127,7 @@ public class Server implements Runnable {
 				String IPAddress = IP.getHostAddress();
 				// send it to the client for connection
 				Bittorrent.getInstance().connectToIncomingPeer(IPAddress, port, newSocket);
-			} catch (Exception e) {
-				System.out.println(" -- Server Terminated --");
-			}
+			} catch (Exception e) { }
 		}
 	}
 
