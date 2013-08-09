@@ -15,6 +15,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+/**
+ * Display the groups information.
+ * @author Fernando
+ *
+ */
+
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
 
@@ -22,11 +28,16 @@ public class AboutDialog extends JDialog {
 	private JLabel labelSemester = new JLabel(" Summer 2013 ");
 	private JLabel labelAuthors = new JLabel(" Authors: Isaac Yochelson, Robert Schomburg and Fernando Geraci ");
 	private JLabel labelIsaac = new JLabel(" Isaac Yochelson ");
-	private JLabel labelRobert = new JLabel("     Robert Schomburg ");
-	private JLabel labelFernando = new JLabel("         Fernando Geraci "); 
+	private JLabel labelRobert = new JLabel(" Robert Schomburg ");
+	private JLabel labelFernando = new JLabel(" Fernando Geraci "); 
 	private JButton buttonClose = new JButton(" Close ");
 	private JPanel panelContainer;
 	
+	/**
+	 * Constructs a dialog object.
+	 * @param parent
+	 * @param modal
+	 */
 	public AboutDialog(JFrame parent, boolean modal) {
 		super(parent, modal);
 		initLayout();
@@ -39,6 +50,9 @@ public class AboutDialog extends JDialog {
 		this.setVisible(true);
 	}
 	
+	/**
+	 * Initializes the dialog layout.
+	 */
 	private void initLayout() {
 		this.setLayout(new FlowLayout());
 		panelContainer = new JPanel(new GridBagLayout());
@@ -56,6 +70,9 @@ public class AboutDialog extends JDialog {
 		this.add(this.buttonClose, BorderLayout.SOUTH);
 	}
 	
+	/**
+	 * Initializes behaviors.
+	 */
 	private void initBehaviors() {
 		this.buttonClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {

@@ -11,6 +11,7 @@ import bt.Utils.CommandParser;
 import bt.Utils.Utilities;
 
 /**
+ * @deprecated
  * The class represents the UI between the user and the client.
  * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci
  *

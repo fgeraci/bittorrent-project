@@ -247,6 +247,9 @@ class PeerListener implements Runnable, Timed {
 		this.parent = null;
 	}
 	
+	/**
+	 * updates last time something was read.
+	 */
 	public synchronized void updateInactive() {
 		this.lastReceived = System.currentTimeMillis();
 	}

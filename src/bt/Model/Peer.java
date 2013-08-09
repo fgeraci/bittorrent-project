@@ -196,6 +196,10 @@ public class Peer implements Runnable {
 		this.downloadRate = (int)(this.downloaded) / (int)((System.currentTimeMillis()-this.startTime)/1000);
 	}
 	
+	/**
+	 * Returns the current peer's download rate in bps.
+	 * @return int
+	 */
 	public int getDownloadRate() {
 		return this.downloadRate;
 	}

@@ -7,6 +7,12 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+/**
+ * NOT UTILIZED.
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci.
+ *
+ */
+
 @SuppressWarnings("serial")
 public class TableCellRenderer extends DefaultTableCellRenderer {
 	

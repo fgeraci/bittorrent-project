@@ -13,6 +13,11 @@ public class Timer<T extends Timed> implements Runnable {
 	private boolean enabled;
 	private T timedObject;
 	
+	/**
+	 * Constructs a timer object.
+	 * @param milliseconds
+	 * @param object
+	 */
 	public Timer(long milliseconds, T object) {
 		this.milliseconds = milliseconds;
 		this.enabled = true;

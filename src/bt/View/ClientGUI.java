@@ -226,6 +226,9 @@ public class ClientGUI extends JFrame {
 		//this.container.add(this.bottomContainer, BorderLayout.SOUTH);
 	}
 	
+	/**
+	 * Initializes main body of the GUI.
+	 */
 	private void initMainBodyContainer() {
 		// data panel
 		this.initDataPanel();
@@ -485,21 +488,6 @@ public class ClientGUI extends JFrame {
 				Utilities.callClose();
 			}
 		});
-		/*
-		this.pauseResumeMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(bt.isPaused()) {
-					bt.pauseActivity();
-					pauseResumeMenu.setText("Pause activity");
-				} else {
-					bt.resumeActivity();
-					pauseResumeMenu.setText("Resume activity");
-				}
-				
-			}
-		});
-		*/
 	}
 	
 	/**
@@ -560,6 +548,11 @@ public class ClientGUI extends JFrame {
 		}
 	}
 	
+	/**
+	 * Returns the local row number of the peer in the bottom table.
+	 * @param peer
+	 * @return int
+	 */
 	private int getRowNumberOfPeer(String peer) {
 		int rows = this.tableConnectios.getRowCount();
 		for(int i = 0; i < rows; ++i) {

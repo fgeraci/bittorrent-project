@@ -267,6 +267,9 @@ public class Bittorrent {
 		}
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	public void updateGUIState() {
 		this.cGUI.updateTableModel();
 	}
@@ -1101,6 +1104,9 @@ public class Bittorrent {
 		System.out.println(Arrays.toString(this.completedPieces));
 	}
 
+	/**
+	 * Saves the current file heap to a tmp file for later reuse.
+	 */
 	public void saveHeap() {
 		if (!this.isFileCompleted()) {
 			File temp = null;
@@ -1116,6 +1122,9 @@ public class Bittorrent {
 		}
 	}
 	
+	/**
+	 * Wipes the tmp file if available.
+	 */
 	private void deleteTmpFile() {
 		try {
 			File temp = new File (TEMP_FILE);
