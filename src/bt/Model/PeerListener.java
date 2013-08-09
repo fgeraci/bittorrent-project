@@ -50,9 +50,9 @@ class PeerListener implements Runnable, Timed {
 			} else {
 				try { // ...reading InputStream to this instance
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(300);
+						this.readLine();
 					} catch (InterruptedException e) { }
-					this.readLine();
 				} catch (IOException e) {
 					System.err.println(e.getMessage()); // this will be triggered if client drops connection.
 					try {
@@ -122,10 +122,10 @@ class PeerListener implements Runnable, Timed {
 	 * This method handles any incoming message once handshaking has been completed successfully.
 	 * @throws IOException IOException is thrown when we cannot read from the TCP buffer.
 	 */
-	private void readLine() throws IOException {
+	private synchronized void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
 		try {
-			Thread.sleep(1250);
+			Thread.sleep(200);
 			this.in.read(lengthArray, 0, 4);
 		} catch (Exception e) {}
 		this.updateInactive();
@@ -140,7 +140,10 @@ class PeerListener implements Runnable, Timed {
 		}
 		byte[] tcpArray = new byte[length];
 		// read message from the remote parent peer of this instance
-		this.in.read(tcpArray, 0, length);
+		try {
+			Thread.sleep(300);
+			this.in.read(tcpArray, 0, length);
+		} catch (Exception e) {}
 		// load message into ByteBuffer container for convenience
 		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 
@@ -151,6 +154,7 @@ class PeerListener implements Runnable, Timed {
 			case 0:	// choke
 				parent.setChoke(true);
 				ClientGUI.getInstance().publishEvent(">>> Peer: "+parent+" just chocked me.");
+				ClientGUI.getInstance().updatePeerInTable(parent, ClientGUI.STATUS_UPDATE);
 				break;
 			case 1: // remote-peer is unchoked, start requesting
 				parent.setChoke(false);
