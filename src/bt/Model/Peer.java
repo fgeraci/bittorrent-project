@@ -200,7 +200,7 @@ public class Peer implements Runnable {
 	 * Returns the current peer's download rate in bps.
 	 * @return int
 	 */
-	public int getDownloadRate() {
+	public synchronized int getDownloadRate() {
 		return this.downloadRate;
 	}
 	

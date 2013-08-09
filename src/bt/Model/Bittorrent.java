@@ -182,6 +182,11 @@ public class Bittorrent {
 	 * Current list of peers.
 	 */
 	private List<Peer> peerList = null;
+	
+	/**
+	 * Responsible for spooling, choking and unchoking peers (sound terrible)
+	 */
+	private PeerSpooler peerSpooler;
 
 	/**
 	 * Priority queue of requests to be made
@@ -257,13 +262,31 @@ public class Bittorrent {
 			this.cGUI.updateProgressBar(this.torrentInfo.file_length);
 			this.setEvent("completed");
 		} else {
+			// Jeff, the idea is the following:
+			// We initially connect to ALL peers available for then, after 30 seconds (see the PeerSpooler ctor)
+			// we will evaluate their download rates and keep only 4 unchoked.
+			// we will leave the connections open though, sending keep alives accordingly for potentially unchoking them
+			// on the next cycle.
+			this.connectToAllPeers(6); // up to 6 connections open.
+			/*
 			this.connectToPeer("128.6.171.8:6927");
 			this.connectToPeer("128.6.171.7:6888");
 			this.connectToPeer("128.6.171.6:6928");
 			this.connectToPeer("128.6.171.5:6972");
 			this.connectToPeer("128.6.171.4:6988");
+			*/
 			// this.connectToPeer("74.95.182.13:6881");
+			this.peerSpooler = new PeerSpooler(this, 30*1000); // spool peers every 30 seconds.
 			this.downloadAlgorithm();
+		}
+	}
+	
+	private void connectToAllPeers(int limit) {
+		for(int i = 0; (i < this.peers.length) && (i < limit); ++i) {
+			String peer = this.peers[i];
+			try {
+				this.connectToPeer(peer);
+			} catch (Exception e) { this.cGUI.publishEvent("ERROR: Connecting to peer: "+peer+" failed."); }
 		}
 	}
 	
