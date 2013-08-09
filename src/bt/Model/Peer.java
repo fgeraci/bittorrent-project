@@ -235,13 +235,13 @@ public class Peer implements Runnable {
 				} else {
 					if (!choked) {
 						try {
-							Thread.sleep(900);
+							Thread.sleep(1000);
 						} catch (Exception e) {}
 						synchronized (interestedQueue) {
 							Request toSend = interestedQueue.poll();
 							if (completed[toSend.getIndex()]) {
 								send(toSend);
-								this.listener.updateInactive();
+								// this.listener.updateInactive();
 							} else {
 								interestedQueue.offer(toSend);
 							}

@@ -125,7 +125,7 @@ class PeerListener implements Runnable, Timed {
 	private synchronized void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
 		try {
-			Thread.sleep(200);
+			Thread.sleep(400);
 			this.in.read(lengthArray, 0, 4);
 		} catch (Exception e) {}
 		this.updateInactive();
@@ -141,7 +141,7 @@ class PeerListener implements Runnable, Timed {
 		byte[] tcpArray = new byte[length];
 		// read message from the remote parent peer of this instance
 		try {
-			Thread.sleep(300);
+			Thread.sleep(500);
 			this.in.read(tcpArray, 0, length);
 		} catch (Exception e) {}
 		// load message into ByteBuffer container for convenience
