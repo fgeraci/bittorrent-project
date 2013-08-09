@@ -50,7 +50,7 @@ class PeerListener implements Runnable, Timed {
 			} else {
 				try { // ...reading InputStream to this instance
 					try {
-						Thread.sleep(1500);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) { }
 					this.readLine();
 				} catch (IOException e) {
@@ -124,7 +124,10 @@ class PeerListener implements Runnable, Timed {
 	 */
 	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
-		this.in.read(lengthArray, 0, 4);
+		try {
+			Thread.sleep(1250);
+			this.in.read(lengthArray, 0, 4);
+		} catch (Exception e) {}
 		this.updateInactive();
 		this.busy = true;
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
