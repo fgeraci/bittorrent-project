@@ -60,6 +60,8 @@ public class ClientGUI extends JFrame {
 	public static int STATUS_UPDATE = 1;
 	public static int DOWNLOADED_UPDATE = 2;
 	public static int UPLOADED_UPDATE = 3;
+	public static int DOWNLOADRATE_UPDATE = 4;
+	public static int DELETEROW_UPDATE = 5;
 	
 	
 	GridBagLayout gb = new GridBagLayout();
@@ -266,7 +268,7 @@ public class ClientGUI extends JFrame {
 	 * Initializes the table sections of the GUI
 	 */
 	private void initBottomPanel() {
-		Object[] tableColumns = {"Connected to...", "State", "Downloaded", "Uploaded"};
+		Object[] tableColumns = {"Connected to...", "State", "Downloaded", "Uploaded", "Download Rate - bps"};
 		this.tableConnectios = new JTable();
 		this.tableConnectios.setDefaultRenderer(String.class, new bt.GUIComponents.TableCellRenderer());
 		this.tableModel = new DefaultTableModel();
@@ -523,7 +525,7 @@ public class ClientGUI extends JFrame {
 	 * @param peer
 	 * @param valueCode
 	 */
-	public void updatePeerInTable(Peer peer, int valueCode) {
+	public synchronized void updatePeerInTable(Peer peer, int valueCode) {
 		int row = this.getRowNumberOfPeer(peer.toString());
 		switch(valueCode) {
 		case 0: // add the peer
@@ -547,10 +549,13 @@ public class ClientGUI extends JFrame {
 		case 3: // uploaded
 			this.tableConnectios.setValueAt(peer.getUploaded()+"", row, valueCode);
 			break;
-		case 4: // delete peer from table
+		case 4:  // update download rate.
+			this.tableConnectios.setValueAt(peer.getDownloadRate(), row, valueCode);
+			break;
+		case 5:// delete peer from table
 			this.tableConnectios.remove(row);
 			break;
-		default:
+		default: // redundant.
 			break;
 		}
 	}

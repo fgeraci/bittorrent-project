@@ -122,7 +122,7 @@ class PeerListener implements Runnable, Timed {
 	 * This method handles any incoming message once handshaking has been completed successfully.
 	 * @throws IOException IOException is thrown when we cannot read from the TCP buffer.
 	 */
-	private synchronized void readLine() throws IOException {
+	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
 		try {
 			Thread.sleep(400);

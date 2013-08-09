@@ -54,6 +54,8 @@ public class Peer implements Runnable {
 	 * Peer's PeerListener instance.
 	 */
 	private PeerListener listener = null;
+	
+	private int downloadRate = 0;
 
 	private Bittorrent parent = null;
 	private int pendingRequests = 0;
@@ -71,6 +73,7 @@ public class Peer implements Runnable {
 	MessageDigest sha;
 	private int downloaded = 0;
 	private int uploaded = 0;
+	private long startTime;
 	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
@@ -125,6 +128,7 @@ public class Peer implements Runnable {
 		verifyHash = verifyReference;
 		completed = completedReference;	// points to bittorrent.completedPieces
 		bitField = new boolean[fileHeap.length];
+		startTime = System.currentTimeMillis();
 		// sha = MessageDigest.getInstance("SHA-1");
 		synchronized(bitField) {
 			for (int i = 0; i < bitField.length; ++i) {
@@ -172,6 +176,7 @@ public class Peer implements Runnable {
 		verifyHash = verifyReference;
 		completed = completedReference;	// points to bittorrent.completedPieces
 		bitField = new boolean[fileHeap.length];
+		startTime = System.currentTimeMillis();
 		synchronized(bitField) {
 			for (int i = 0; i < bitField.length; ++i) {
 				bitField[i] = false;
@@ -182,6 +187,17 @@ public class Peer implements Runnable {
 		Thread peerThread = new Thread(this);
 		peerThread.start();
 		updateTimeout();
+	}
+	
+	/**
+	 * Updates the downloadRate to bytes per second.
+	 */
+	private void updateDownloadRate() {
+		this.downloadRate = (int)(this.downloaded) / (int)((System.currentTimeMillis()-this.startTime)/1000);
+	}
+	
+	public int getDownloadRate() {
+		return this.downloadRate;
 	}
 	
 	/**
@@ -402,6 +418,8 @@ public class Peer implements Runnable {
 	void getPiece (int index, int begin, byte[] payload) {
 		updateTimeout();
 		this.pendingRequests--;
+		this.updateDownloadRate();
+		ClientGUI.getInstance().updatePeerInTable(this, ClientGUI.DOWNLOADRATE_UPDATE);
 		if (completed[index]) {
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every

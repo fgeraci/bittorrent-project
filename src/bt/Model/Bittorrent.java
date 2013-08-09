@@ -947,7 +947,6 @@ public class Bittorrent {
 	 */
 	public void saveFile () throws IOException {
 		this.deleteTmpFile();
-		System.out.println("-- Saving file...");
 		FileOutputStream fileOut = new FileOutputStream(fileName);
 		byte[] fileArray = new byte[torrentInfo.file_length];
 		synchronized(collection) {
@@ -1009,7 +1008,7 @@ public class Bittorrent {
 				responseInBytes[pos] = (byte)b;
 				++pos;
 			}
-			System.out.println("-- Tracker notified of download completion.");
+			this.cGUI.publishEvent("-- Tracker notified of download completion.");
 			// close streams
 			fromServer.close();
 		} catch (Exception e) {
@@ -1039,6 +1038,7 @@ public class Bittorrent {
 				p.dispose();
 				// I will complete these eventually.
 				this.peerList.remove((Peer)p);
+				this.cGUI.updatePeerInTable(p, ClientGUI.DELETEROW_UPDATE);
 				/*
 				for(int i = 0; i < this.peers.length; ++i) {
 					if(p.toString().equals(this.peers[i])) {
