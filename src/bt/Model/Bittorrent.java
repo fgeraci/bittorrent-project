@@ -912,8 +912,9 @@ public class Bittorrent {
 							if (!requested) { // always run at least once per peer
 								int pendingReqs = peer.getPendingRequests();
 								int pieceNumber = req.getIndex();
+								boolean isChoked = peer.isChoked();
 								boolean hasPiece = peer.peerHasPiece(pieceNumber);
-								if (pendingReqs < 3 && hasPiece) {
+								if (pendingReqs < 3 && hasPiece && !isChoked) {
 									boolean sent = false;
 									requested = true;
 									while (!sent) {
