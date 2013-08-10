@@ -267,7 +267,7 @@ public class Bittorrent {
 			// we will evaluate their download rates and keep only 4 unchoked.
 			// we will leave the connections open though, sending keep alives accordingly for potentially unchoking them
 			// on the next cycle.
-			this.connectToAllPeers(6); // up to 6 connections open.
+			this.connectToAllPeers(8); // up to 6 connections open.
 			/*
 			this.connectToPeer("128.6.171.8:6927");
 			this.connectToPeer("128.6.171.7:6888");
@@ -276,7 +276,7 @@ public class Bittorrent {
 			this.connectToPeer("128.6.171.4:6988");
 			*/
 			// this.connectToPeer("74.95.182.13:6881");
-			this.peerSpooler = new PeerSpooler(this, 30*1000); // spool peers every 30 seconds.
+			this.peerSpooler = new PeerSpooler(this, 20*1000); // spool peers every 30 seconds.
 			this.downloadAlgorithm();
 		}
 	}

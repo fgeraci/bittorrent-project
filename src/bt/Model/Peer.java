@@ -310,12 +310,9 @@ public class Peer implements Runnable {
 	 * @throws IOException If the system fails to send the TCP message, this exception will be thrown.
 	 */
 	void unChoke () throws IOException {
-		byte[] b = new byte[5];
-		b[0] = 0;
-		b[1] = 0;
-		b[2] = 0;
-		b[3] = (byte) 1;
-		b[4] = (byte) 1;
+		ByteBuffer bb = ByteBuffer.allocate(5);
+		bb.putInt(1).put((byte)0);
+		byte[] b = bb.array();
 		out.write(b);
 		out.flush();
 	}

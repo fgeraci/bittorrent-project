@@ -1,6 +1,9 @@
 package bt.Model;
 
+import java.io.IOException;
 import java.util.List;
+
+import bt.View.ClientGUI;
 
 public class PeerSpooler implements Runnable {
 
@@ -30,6 +33,11 @@ public class PeerSpooler implements Runnable {
 		}
 	}
 	
+	/**
+	 * If there are 4 or more connections available, it will rank the peers by their download rate,
+	 * leave the first 3 unchoked, choke the 4th and then pick a random one for unchoking. 
+	 * @throws IOException 
+	 */
 	private void execute() {
 		List<Peer> peers = bt.getPeerList();
 		int unchocked = 0;
@@ -42,14 +50,37 @@ public class PeerSpooler implements Runnable {
 			// get ranked list
 			Peer[] rankedList = this.getRankedList(peers);
 			int size = rankedList.length;
-			if(rankedList.length > 4) {
-				
-			} // if not don't even bother.
-			// leave first 3 unchocked
-			// choke th fourth
-			// select random peer
-			// unchoke random peer
+			try {
+				rankedList[3].choke();
+				Thread.sleep(100);
+				Peer[] rest = new Peer[rankedList.length-4];
+				int index = 0;
+				for(int i = 4; i < rankedList.length; ++i) {
+					rankedList[i].choke();
+					rest[index] = rankedList[i];
+					index++;
+				}
+				Peer p = this.getRandomPeer(rest);
+				Thread.sleep(400);
+				p.unChoke();
+			} catch (Exception e) {
+				ClientGUI.getInstance().publishEvent("ERROR: Peer "+rankedList[3]+" could not be choked successfully");
+			}
+		} else {
+			ClientGUI.getInstance().publishEvent(" -- Lees than 4 peers unchoked -- ");
 		}
+	}
+	
+	/**
+	 * Randomly selects a peer from a provided list.
+	 * @param rest
+	 * @return Peer
+	 */
+	private Peer getRandomPeer(Peer[] rest) {
+		int peers = rest.length;
+		int randomPeer = (int)((Math.random()*peers));
+		Peer p = rest[randomPeer];
+		return p;
 	}
 	
 	/**
