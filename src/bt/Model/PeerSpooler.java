@@ -5,12 +5,23 @@ import java.util.List;
 
 import bt.View.ClientGUI;
 
+/**
+ * It will be in charge of spooling, choking and unchoking peers every N amount of time.
+ * @author Isaac Yochelson, Robert Schomburg and Fernando Geraci.
+ *
+ */
 public class PeerSpooler implements Runnable {
 
 	Bittorrent bt;
 	private boolean running = true;
 	private long sleep;
 	
+	
+	/**
+	 * Constructs a PeerSpooler object
+	 * @param bt
+	 * @param sleep
+	 */
 	public PeerSpooler(Bittorrent bt, long sleep) {
 		this.bt = bt;
 		this.sleep = sleep;
@@ -56,13 +67,14 @@ public class PeerSpooler implements Runnable {
 				Peer[] rest = new Peer[rankedList.length-4];
 				int index = 0;
 				for(int i = 4; i < rankedList.length; ++i) {
-					rankedList[i].choke();
+					rankedList[i].setChoke(true);
+					ClientGUI.getInstance().updatePeerInTable(rankedList[i], ClientGUI.STATUS_UPDATE);
 					rest[index] = rankedList[i];
 					index++;
 				}
 				Peer p = this.getRandomPeer(rest);
 				Thread.sleep(400);
-				p.unChoke();
+				p.setChoke(false);
 			} catch (Exception e) {
 				ClientGUI.getInstance().publishEvent("ERROR: Peer "+rankedList[3]+" could not be choked successfully");
 			}
