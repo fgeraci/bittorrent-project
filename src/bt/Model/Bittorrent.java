@@ -267,6 +267,7 @@ public class Bittorrent {
 			// we will evaluate their download rates and keep only 4 unchoked.
 			// we will leave the connections open though, sending keep alives accordingly for potentially unchoking them
 			// on the next cycle.
+			this.cGUI.publishEvent("-- Establishing connections to Peers, please wait... ");
 			this.connectToAllPeers(8); // up to 6 connections open.
 			/*
 			this.connectToPeer("128.6.171.8:6927");
