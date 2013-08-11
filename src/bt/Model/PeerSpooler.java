@@ -57,7 +57,7 @@ public class PeerSpooler implements Runnable {
 				unchocked++;
 			}
 		}
-		if(unchocked > 4) {
+		if(unchocked >= 4) {
 			// get ranked list
 			Peer[] rankedList = this.getRankedList(peers);
 			int size = rankedList.length;
