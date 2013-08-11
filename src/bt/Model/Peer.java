@@ -253,7 +253,7 @@ public class Peer implements Runnable {
 						continue;
 					}
 				} else {
-					if (!choked) {
+					if (!choked && this.interested) {
 						try {
 							Thread.sleep(1000);
 						} catch (Exception e) {}

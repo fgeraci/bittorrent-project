@@ -276,7 +276,7 @@ public class Bittorrent {
 			this.connectToPeer("128.6.171.5:6972");
 			this.connectToPeer("128.6.171.4:6988");
 			*/
-			// this.connectToPeer("74.95.182.13:6881");
+			// this.connectToPeer("76.117.89.150:6881");
 			this.peerSpooler = new PeerSpooler(this, 30*1000); // spool peers every 30 seconds.
 			this.downloadAlgorithm();
 		}
