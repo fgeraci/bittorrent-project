@@ -51,7 +51,7 @@ public class PeerSpooler implements Runnable {
 	 */
 	private void execute() {
 		List<Peer> peers = bt.getPeerList();
-		int limit = 5;
+		int limit = 6;
 		int unchocked = 0;
 		for(Peer p:peers) {
 			if(!p.isChoked()) {
@@ -64,6 +64,7 @@ public class PeerSpooler implements Runnable {
 			int size = rankedList.length;
 			try {
 				rankedList[limit-1].setChoke(true);
+
 				ClientGUI.getInstance().updatePeerInTable(rankedList[3], ClientGUI.STATUS_UPDATE);
 				Thread.sleep(100);
 				Peer[] rest = new Peer[rankedList.length-4];
