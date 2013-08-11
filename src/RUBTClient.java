@@ -31,9 +31,11 @@ public class RUBTClient {
 		UserInterface ui = null;
 		try {
 			// GUI initialization
+			/*
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch (Exception e) {}
+			*/
 			ClientGUI cGUI = ClientGUI.getInstance();
 			cGUI.startGUI();
 		} catch (Exception e) {}
