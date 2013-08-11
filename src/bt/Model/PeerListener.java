@@ -94,25 +94,26 @@ class PeerListener implements Runnable, Timed {
 					parent.unChoke();
 					unchockedPeer = true;
 				} catch (Exception e) { ClientGUI.getInstance().publishEvent(e.getMessage()); }
-			}
-			ClientGUI.getInstance().publishEvent("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
-			// this is optional if client has no pieces
-			try {
-				if (!Bittorrent.getInstance().noPieces()) {
-					this.parent.sendBitfield(); 
+			} else {
+				ClientGUI.getInstance().publishEvent("-- HANDSHAKE VALIDATED !!! w/ peer "+this.parent+" -");
+				// this is optional if client has no pieces
+				try {
+					if (!Bittorrent.getInstance().noPieces()) {
+						this.parent.sendBitfield(); 
+					}
+				} catch (Exception e) {
+					ClientGUI.getInstance().publishEvent(e.getMessage());}
+				// initiate an open communication with the parent peer of this listener
+				this.parent.showInterested();
+				if(!unchockedPeer) {
+					this.parent.unChoke();
 				}
-			} catch (Exception e) {
-				ClientGUI.getInstance().publishEvent(e.getMessage());}
-			// initiate an open communication with the parent peer of this listener
-			this.parent.showInterested();
-			if(!unchockedPeer) {
-				this.parent.unChoke();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// This just means we are ahead slightly with our timing.
+				} 
 			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// This just means we are ahead slightly with our timing.
-			} 
 		} catch (IOException e) {
 			ClientGUI.getInstance().publishEvent(e.getMessage());
 		}
