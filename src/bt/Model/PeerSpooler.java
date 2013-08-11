@@ -62,7 +62,6 @@ public class PeerSpooler implements Runnable {
 			Peer[] rankedList = this.getRankedList(peers);
 			int size = rankedList.length;
 			try {
-				rankedList[3].setChoke(true);
 				ClientGUI.getInstance().updatePeerInTable(rankedList[3], ClientGUI.STATUS_UPDATE);
 				Thread.sleep(100);
 				Peer[] rest = new Peer[rankedList.length-4];
