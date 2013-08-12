@@ -40,7 +40,7 @@ import bt.View.UserInterface;
 public class Bittorrent {
 	
 	private static int SPOOLINGTIME = 30;
-	private static int UNCHOKEDPEERSLIMIT = 6;
+	private static int UNCHOKEDPEERSLIMIT = 5;
 	
 	private static final String TEMP_FILE = "rsc"+File.separator+"cs352.tmp";
 
