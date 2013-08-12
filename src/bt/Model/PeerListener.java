@@ -209,7 +209,6 @@ class PeerListener implements Runnable, Timed {
 						parent.getPiece(index, begin, payload);
 						parent.updateDownloaded(payload.length);
 						ClientGUI.getInstance().updatePeerInTable(parent, ClientGUI.DOWNLOADED_UPDATE);
-						ClientGUI.getInstance().updatePeerInTable(parent, ClientGUI.DOWNLOADRATE_UPDATE);
 					} catch (Exception e) {e.printStackTrace();}
 					break;
 				} else break;
