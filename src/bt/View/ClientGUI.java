@@ -490,12 +490,15 @@ public class ClientGUI extends JFrame {
 			}
 		});
 		this.about.addActionListener(new ActionListener() {
-
-			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane.showMessageDialog(this, "This Bittorrent was created by:\nFernando Geraci\nIsaac Yochelson\nRobert Schomburg\n for 198.352, Internet Technology\nat Rutgers, the state university of New Jersey.");
+				ClientGUI.getInstance().showAboutMessage();
 			}
 		});
+	}
+	
+	public void showAboutMessage() {
+		JOptionPane.showMessageDialog(this, "This Bittorrent was created by:\nFernando Geraci\nIsaac Yochelson\nRobert Schomburg\n"
+				+ "for 198.352, Internet Technology\nat Rutgers, the state university of New Jersey.", "About", JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	/**
