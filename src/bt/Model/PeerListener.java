@@ -60,12 +60,6 @@ class PeerListener implements Runnable, Timed {
 						break;
 					} catch (Exception ex) { /* why whould this happen? */ }
 				} catch (Exception e) {
-					try {
-						Bittorrent.getInstance().terminatePeer(parent.toString());
-					} catch (UnknownBittorrentException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
 					e.printStackTrace();
 					break;
 				}
@@ -105,9 +99,11 @@ class PeerListener implements Runnable, Timed {
 					ClientGUI.getInstance().publishEvent(e.getMessage());}
 				// initiate an open communication with the parent peer of this listener
 				this.parent.showInterested();
+				
 				if(!unchockedPeer) {
 					this.parent.unChoke();
 				}
+				
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

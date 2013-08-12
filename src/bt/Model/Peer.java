@@ -201,7 +201,16 @@ public class Peer implements Runnable {
 	 * @return int
 	 */
 	public synchronized int getDownloadRate() {
-		return this.downloadRate;
+		if(this.downloaded != 0 ) {
+			return this.downloadRate;
+		} else return 0;
+	}
+	
+	/**
+	 * Sets downloaded to 0 after getting chocked by the client.
+	 */
+	public void resetDownloaded() {
+		this.downloaded = 0;
 	}
 	
 	/**
@@ -303,6 +312,7 @@ public class Peer implements Runnable {
 		b[4] = (byte) 0;
 		out.write(b);
 		out.flush();
+		ClientGUI.getInstance().publishEvent(">>> I just choked peer "+this);
 	}
 	
 	/**
@@ -318,6 +328,7 @@ public class Peer implements Runnable {
 		b[4] = (byte) 1;
 		out.write(b);
 		out.flush();
+		ClientGUI.getInstance().publishEvent(">>> I just unchoked peer "+this);
 	}
 	
 	/**

@@ -15,6 +15,7 @@ public class PeerSpooler implements Runnable {
 	Bittorrent bt;
 	private boolean running = true;
 	private long sleep;
+	private int limit;
 	
 	
 	/**
@@ -22,7 +23,8 @@ public class PeerSpooler implements Runnable {
 	 * @param bt
 	 * @param sleep
 	 */
-	public PeerSpooler(Bittorrent bt, long sleep) {
+	public PeerSpooler(Bittorrent bt, long sleep, int peersLimit) {
+		this.limit = peersLimit;
 		this.bt = bt;
 		this.sleep = sleep;
 		Thread spooler = new Thread(this);
@@ -45,45 +47,40 @@ public class PeerSpooler implements Runnable {
 	}
 	
 	/**
-	 * If there are 4 or more connections available, it will rank the peers by their download rate,
-	 * leave the first 3 unchoked, choke the 4th and then pick a random one for unchoking. 
+	 * If there are limit or more connections available, it will rank the peers by their download rate,
+	 * leave the first limit-1 unchoked, choke the 4th and then pick a random one for unchoking. 
 	 * @throws IOException 
 	 */
-	private void execute() {
-		List<Peer> peers = bt.getPeerList();
-		int limit = 6;
-		int unchocked = 0;
-		for(Peer p:peers) {
-			if(!p.isChoked()) {
-				unchocked++;
-			}
-		}
-		if(unchocked >= limit) {
-			// get ranked list
+	
+	void execute() {
+		List<Peer>  peers = bt.getPeerList();
+		if(peers.size() > this.limit) {
 			Peer[] rankedList = this.getRankedList(peers);
-			int size = rankedList.length;
 			try {
-				rankedList[limit-1].setChoke(true);
-
-				ClientGUI.getInstance().updatePeerInTable(rankedList[3], ClientGUI.STATUS_UPDATE);
 				Thread.sleep(100);
-				Peer[] rest = new Peer[rankedList.length-4];
-				int index = 0;
-				for(int i = limit; i < rankedList.length; ++i) {
-					rankedList[i].setChoke(true);
-					ClientGUI.getInstance().updatePeerInTable(rankedList[i], ClientGUI.STATUS_UPDATE);
-					rest[index] = rankedList[i];
-					index++;
+				
+				// choke everything from limit-2 on.
+				for(int i = limit-2; i < peers.size(); i++) {
+					peers.get(i).setChoke(true);
+					peers.get(i).resetDownloaded();
+					ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.STATUS_UPDATE);
+					ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
+				}
+				
+				Peer[] rest = new Peer[rankedList.length-(this.limit-2)];
+				for(int i = 0; i < rest.length; ++i) {
+					rest[i] = rankedList[(limit-2)+i];
 				}
 				Peer p = this.getRandomPeer(rest);
 				Thread.sleep(400);
 				p.setChoke(false);
 				ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.STATUS_UPDATE);
+				
 			} catch (Exception e) {
 				ClientGUI.getInstance().publishEvent("ERROR: Peer "+rankedList[3]+" could not be choked successfully");
 			}
 		} else {
-			ClientGUI.getInstance().publishEvent(" -- Lees than 4 peers unchoked -- ");
+			ClientGUI.getInstance().publishEvent(" -- Lees than "+limit+" peers unchoked -- ");
 		}
 	}
 	
@@ -93,7 +90,7 @@ public class PeerSpooler implements Runnable {
 	 * @return Peer
 	 */
 	private Peer getRandomPeer(Peer[] rest) {
-		int peers = rest.length;
+		int peers = rest.length-1;
 		int randomPeer = (int)((Math.random()*peers));
 		Peer p = rest[randomPeer];
 		return p;

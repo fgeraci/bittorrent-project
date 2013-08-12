@@ -136,7 +136,7 @@ public class ClientGUI extends JFrame {
 			this.setMinimumSize(new Dimension((int)(xPanel*.8), (int)(yPanel*.8)));
 			this.container = this.getContentPane();
 			// this.container.setLayout(this.gb);
-			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			// initialize all layout components
 			this.initLayout();
 			this.pack();
@@ -146,7 +146,7 @@ public class ClientGUI extends JFrame {
 			// initialize generic window behaviors
 			this.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent we) {
-					// Utilities.callClose();
+					Utilities.callClose();
 				}
 			});
 		} catch(Exception e) {

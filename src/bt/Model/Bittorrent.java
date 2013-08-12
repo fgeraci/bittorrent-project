@@ -39,6 +39,9 @@ import bt.View.UserInterface;
 
 public class Bittorrent {
 	
+	private static int SPOOLINGTIME = 30;
+	private static int UNCHOKEDPEERSLIMIT = 6;
+	
 	private static final String TEMP_FILE = "rsc"+File.separator+"cs352.tmp";
 
 	/**
@@ -263,13 +266,12 @@ public class Bittorrent {
 			this.setEvent("completed");
 		} else {
 			// The idea is the following:
-			// We initially connect to 4 random peers.  We will allow up to 6 simultaneously unchoked connections,
+			// We initially connect to "limit-1" random peers.  We will allow up to 6 simultaneously unchoked connections,
 			// which allows for 2 incoming unchoked connections.  Every 30 seconds we will choke all but the
 			// top 3 peers, then unchoke a random peer.
 			// we will leave the other connections open, sending keep alives accordingly for potentially unchoking them
 			// on the next cycle.
 			this.cGUI.publishEvent("-- Establishing connections to Peers, please wait... ");
-			this.connectToAllPeers(6); // up to 6 connections open.
 			/*
 			this.connectToPeer("128.6.171.8:6927");
 			this.connectToPeer("128.6.171.7:6888");
@@ -278,21 +280,34 @@ public class Bittorrent {
 			this.connectToPeer("128.6.171.4:6988");
 			*/
 			// this.connectToPeer("76.117.89.150:6881");
-
 			//this.connectToPeer("76.117.89.150:6881");
-
-			this.peerSpooler = new PeerSpooler(this, 30*1000); // spool peers every 30 seconds.
+			this.peerSpooler = new PeerSpooler(this, Bittorrent.SPOOLINGTIME*1000, Bittorrent.UNCHOKEDPEERSLIMIT); // spool peers every 30 seconds.
+			this.connectToAllPeers(6); // up to 6 connections open.
 			this.downloadAlgorithm();
 		}
 	}
 	
+	/**
+	 * Connects to all available peers for then unchoking up to 6 and start executing the peer spooler method.
+	 * @param limit
+	 */
 	private void connectToAllPeers(int limit) {
-		for(int i = 0; (i < this.peers.length) && (i < limit); ++i) {
-			String peer = this.peers[i];
+		for(int i = 0; i < this.peers.length ; ++i) {
+			String peer = this.peers[this.peers.length-1-i];
 			try {
+				this.cGUI.publishEvent("Attemtping to connect to peer > "+peer+". Please wait...");
 				this.connectToPeer(peer);
 			} catch (Exception e) { this.cGUI.publishEvent("ERROR: Connecting to peer: "+peer+" failed."); }
 		}
+		this.peerSpooler.execute();
+	}
+	
+	private Peer getPeer(String peer) {
+		Peer tmp = null;
+		for(Peer p:this.peerList) {
+			if(p.toString().equalsIgnoreCase(peer)) return p;
+		}
+		return null;
 	}
 	
 	/**
@@ -740,7 +755,7 @@ public class Bittorrent {
 				}
 			}
 		}catch (Exception e) {
-			System.out.println("Connection to peer failed");
+			this.cGUI.publishEvent("Connection to peer failed, please wait for remaining peers...");
 		}
 	}
 	
