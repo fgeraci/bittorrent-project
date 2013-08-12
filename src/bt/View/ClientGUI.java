@@ -26,6 +26,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -486,6 +487,13 @@ public class ClientGUI extends JFrame {
 		this.exitMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Utilities.callClose();
+			}
+		});
+		this.about.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane.showMessageDialog(this, "This Bittorrent was created by:\nFernando Geraci\nIsaac Yochelson\nRobert Schomburg\n for 198.352, Internet Technology\nat Rutgers, the state university of New Jersey.");
 			}
 		});
 	}
