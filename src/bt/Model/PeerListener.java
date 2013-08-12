@@ -1,5 +1,6 @@
 package bt.Model;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -19,7 +20,7 @@ import bt.View.UserInterface;
 
 class PeerListener implements Runnable, Timed {
 	
-	private InputStream in = null;
+	private DataInputStream in = null;
 	private Peer parent = null;
 	private boolean running = true;
 	private boolean busy = false;
@@ -35,7 +36,7 @@ class PeerListener implements Runnable, Timed {
 	 * @param inStream
 	 */
 	PeerListener (Peer parent, InputStream inStream) {
-		this.in = inStream;
+		this.in = new DataInputStream(inStream);
 		this.parent = parent;
 		this.timer = new Timer<PeerListener>(60000*2,this);
 	}
@@ -75,16 +76,14 @@ class PeerListener implements Runnable, Timed {
 		boolean unchockedPeer = false;
 		byte[] tcpArray = new byte[68];
 		try {
-			this.in.read(tcpArray);
+			this.in.readFully(tcpArray);
 			ClientGUI.getInstance().publishEvent("<<< Data received, processing...");
 			ClientGUI.getInstance().publishEvent(">>> Listening from Peer : "+this.parent+"...");
 			this.parent.validateInfoHash(tcpArray);
 			if(parent.isIncoming()) {
 				try {
 					parent.handShake();
-					Thread.sleep(100);
 					parent.sendBitfield();
-					Thread.sleep(100);
 					parent.unChoke();
 					unchockedPeer = true;
 				} catch (Exception e) { ClientGUI.getInstance().publishEvent(e.getMessage()); }
@@ -103,12 +102,6 @@ class PeerListener implements Runnable, Timed {
 				if(!unchockedPeer) {
 					this.parent.unChoke();
 				}
-				
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// This just means we are ahead slightly with our timing.
-				} 
 			}
 		} catch (IOException e) {
 			ClientGUI.getInstance().publishEvent(e.getMessage());
@@ -121,10 +114,7 @@ class PeerListener implements Runnable, Timed {
 	 */
 	private void readLine() throws IOException {
 		byte[] lengthArray = new byte [4];
-		try {
-			Thread.sleep(400);
-			this.in.read(lengthArray, 0, 4);
-		} catch (Exception e) {}
+			this.in.readFully(lengthArray, 0, 4);
 		this.updateInactive();
 		this.busy = true;
 		ByteBuffer lengthBuffer = ByteBuffer.wrap(lengthArray);
@@ -137,10 +127,7 @@ class PeerListener implements Runnable, Timed {
 		}
 		byte[] tcpArray = new byte[length];
 		// read message from the remote parent peer of this instance
-		try {
-			Thread.sleep(500);
-			this.in.read(tcpArray, 0, length);
-		} catch (Exception e) {}
+			this.in.readFully(tcpArray, 0, length);
 		// load message into ByteBuffer container for convenience
 		ByteBuffer tcpInput = ByteBuffer.wrap(tcpArray);
 
