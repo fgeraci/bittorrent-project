@@ -189,7 +189,6 @@ public class ClientGUI extends JFrame {
 		try {
 			this.progressBar.setMaximum(Bittorrent.getInstance().getFileLength());
 		} catch (UnknownBittorrentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.progressBar.setStringPainted(true);
@@ -496,6 +495,9 @@ public class ClientGUI extends JFrame {
 		});
 	}
 	
+	/**
+	 * This method displays a simple message dialog about this project.
+	 */
 	public void showAboutMessage() {
 		JOptionPane.showMessageDialog(this, "This Bittorrent was created by:\nFernando Geraci\nIsaac Yochelson\nRobert Schomburg\n"
 				+ "for 198.352, Internet Technology\nat Rutgers, the state university of New Jersey.", "About", JOptionPane.PLAIN_MESSAGE);
