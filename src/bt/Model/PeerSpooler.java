@@ -54,54 +54,48 @@ public class PeerSpooler implements Runnable {
 	
 	void execute() {
 		List<Peer>  peers = bt.getPeerList();
-		if(peers.size() > this.limit) {
-			Peer[] rankedList = this.getRankedList(peers);
-			try {
-				Thread.sleep(100);
-				
-				// choke everything from limit-2 on.
-				boolean[] toChoke = new boolean[rankedList.length];
-				for (int i = 0; i < toChoke.length; ++i) {
-					toChoke[i] = !(i < limit - 1);
-					peers.get(i).resetDownloaded();
-				}
-				int lucky = (int)(((Math.random() * 100000.0)% toChoke.length - limit + 1) + limit - 1);
-				toChoke[lucky] = false;
-				for (int i = 0; i < toChoke.length; ++i) {
-					if (toChoke[i]) {
-						if (!rankedList[i].isChoked()) {
-							rankedList[i].choke();
-						}
-					} else {
-						if (rankedList[i].isChoked()) {
-							rankedList[i].unChoke();
-						}
-					}
-					ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.STATUS_UPDATE);
-					ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
-				}
-				/*
-				for(int i = limit-2; i < peers.size(); i++) {
-					peers.get(i).setChoke(true);
-					peers.get(i).resetDownloaded();
-					ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.STATUS_UPDATE);
-					ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
-				}
-				Peer[] rest = new Peer[rankedList.length-(this.limit-2)];
-				for(int i = 0; i < rest.length; ++i) {
-					rest[i] = rankedList[(limit-2)+i];
-				}
-				Peer p = this.getRandomPeer(rest);
-				Thread.sleep(400);
-				p.setChoke(false);
-				ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.STATUS_UPDATE);
-				*/
-				
-			} catch (Exception e) {
-				ClientGUI.getInstance().publishEvent("ERROR: Peer "+rankedList[3]+" could not be choked successfully");
+		Peer[] rankedList = this.getRankedList(peers);
+		try {
+			Thread.sleep(100);
+			
+			// choke everything from limit-2 on.
+			boolean[] toChoke = new boolean[rankedList.length];
+			for (int i = 0; i < toChoke.length; ++i) {
+				toChoke[i] = !(i < limit - 1);
+				peers.get(i).resetDownloaded();
 			}
-		} else {
-			ClientGUI.getInstance().publishEvent(" -- Lees than "+limit+" peers unchoked -- ");
+			int lucky = (int)(((Math.random() * 100000.0)% toChoke.length - limit + 1) + limit - 1);
+			toChoke[lucky] = false;
+			for (int i = 0; i < toChoke.length; ++i) {
+				if (toChoke[i]) {
+					if (!rankedList[i].isChoked()) {
+						rankedList[i].choke();
+					}
+				} else {
+					rankedList[i].unChoke();
+				}
+				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.STATUS_UPDATE);
+				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
+			}
+			/*
+			for(int i = limit-2; i < peers.size(); i++) {
+				peers.get(i).setChoke(true);
+				peers.get(i).resetDownloaded();
+				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.STATUS_UPDATE);
+				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
+			}
+			Peer[] rest = new Peer[rankedList.length-(this.limit-2)];
+			for(int i = 0; i < rest.length; ++i) {
+				rest[i] = rankedList[(limit-2)+i];
+			}
+			Peer p = this.getRandomPeer(rest);
+			Thread.sleep(400);
+			p.setChoke(false);
+			ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.STATUS_UPDATE);
+			*/
+			
+		} catch (Exception e) {
+			ClientGUI.getInstance().publishEvent("ERROR: Peer "+rankedList[3]+" could not be choked successfully");
 		}
 	}
 	
