@@ -1,12 +1,4 @@
-import java.util.Scanner;
-
-import javax.swing.UIManager;
-
-import bt.Exceptions.NotifyPromptException;
-import bt.Model.Bittorrent;
-import bt.Utils.CommandParser;
 import bt.View.ClientGUI;
-import bt.View.UserInterface;
 
 /**
  * This is the main entry point for the client. It will just simply
@@ -25,10 +17,6 @@ public class RUBTClient {
 	 * 	(e.g. somefile.torrent, picture.jpg)
 	 */
 	public static void main(String[] args) {
-		
-		Bittorrent bittorrent = null;
-		@SuppressWarnings("unused")
-		UserInterface ui = null;
 		try {
 			// GUI initialization
 			ClientGUI cGUI = ClientGUI.getInstance();

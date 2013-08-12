@@ -61,6 +61,7 @@ public class Peer implements Runnable {
 	private Bittorrent parent = null;
 	private int pendingRequests = 0;
 	private boolean choked = true;
+	private boolean haveChoked = false;
 	private boolean interested = false;
 	private Socket dataSocket = null;
 	private InputStream in = null;
@@ -326,6 +327,7 @@ public class Peer implements Runnable {
 		b[4] = (byte) 0;
 		out.write(b);
 		out.flush();
+		this.haveChoked = true;
 		ClientGUI.getInstance().publishEvent(">>> I just choked peer "+this);
 	}
 	
@@ -342,6 +344,7 @@ public class Peer implements Runnable {
 		b[4] = (byte) 1;
 		out.write(b);
 		out.flush();
+		this.haveChoked = false;
 		ClientGUI.getInstance().publishEvent(">>> I just unchoked peer "+this);
 	}
 	
@@ -536,7 +539,7 @@ public class Peer implements Runnable {
 	 * @return boolean True if choked, false otherwise.
 	 */
 	public boolean isChoked() {
-		return this.choked;
+		return (this.choked || this.haveChoked);
 	}
 	
 	/**
