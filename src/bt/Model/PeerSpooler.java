@@ -74,7 +74,6 @@ public class PeerSpooler implements Runnable {
 				} else {
 					rankedList[i].unChoke();
 				}
-				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.STATUS_UPDATE);
 				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
 			}
 			/*

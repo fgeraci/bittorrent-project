@@ -336,6 +336,7 @@ public class Peer implements Runnable {
 		out.flush();
 		this.haveChoked = true;
 		ClientGUI.getInstance().publishEvent(">>> I just choked peer "+this);
+		ClientGUI.getInstance().updatePeerInTable(this, ClientGUI.STATUS_UPDATE);
 	}
 	
 	/**
@@ -353,6 +354,7 @@ public class Peer implements Runnable {
 		out.flush();
 		this.haveChoked = false;
 		ClientGUI.getInstance().publishEvent(">>> I just unchoked peer "+this);
+		ClientGUI.getInstance().updatePeerInTable(this, ClientGUI.STATUS_UPDATE);
 	}
 	
 	/**
@@ -727,6 +729,7 @@ public class Peer implements Runnable {
 	void setChoke (boolean value) {
 		updateTimeout();
 		this.choked = value;
+		ClientGUI.getInstance().updatePeerInTable(this, ClientGUI.STATUS_UPDATE);
 		if (value) {
 			synchronized(interestedQueue) {
 				interestedQueue.clear();
