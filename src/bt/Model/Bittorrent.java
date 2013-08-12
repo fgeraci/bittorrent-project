@@ -262,10 +262,11 @@ public class Bittorrent {
 			this.cGUI.updateProgressBar(this.torrentInfo.file_length);
 			this.setEvent("completed");
 		} else {
-			// Tthe idea is the following:
-			// We initially connect to ALL peers available for then, after 30 seconds (see the PeerSpooler ctor)
-			// we will evaluate their download rates and keep only 4 unchoked.
-			// we will leave the connections open though, sending keep alives accordingly for potentially unchoking them
+			// The idea is the following:
+			// We initially connect to 4 random peers.  We will allow up to 6 simultaneously unchoked connections,
+			// which allows for 2 incoming unchoked connections.  Every 30 seconds we will choke all but the
+			// top 3 peers, then unchoke a random peer.
+			// we will leave the other connections open, sending keep alives accordingly for potentially unchoking them
 			// on the next cycle.
 			this.cGUI.publishEvent("-- Establishing connections to Peers, please wait... ");
 			this.connectToAllPeers(6); // up to 6 connections open.
