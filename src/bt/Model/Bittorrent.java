@@ -747,7 +747,10 @@ public class Bittorrent {
 				// add the peer to the peers list
 				synchronized(peerList) {
 					synchronized(connections) {
-						this.peerList.add(p);
+						Thread.sleep(300);
+						if(p.connectionEstablished()) {
+							this.peerList.add(p);
+						}
 						ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.ADDPEER_UPDATE);
 						// mark the connection as boolean connected in this.connectios
 						this.connections[peer] = true;

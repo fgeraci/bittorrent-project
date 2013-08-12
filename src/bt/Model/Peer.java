@@ -57,6 +57,7 @@ public class Peer implements Runnable {
 	
 	private int downloadRate = 0;
 
+	private boolean connectionEstablished = false;
 	private Bittorrent parent = null;
 	private int pendingRequests = 0;
 	private boolean choked = true;
@@ -74,6 +75,7 @@ public class Peer implements Runnable {
 	private int downloaded = 0;
 	private int uploaded = 0;
 	private long startTime;
+
 	
 	/**
 	 * This field, hash, holds the 20 byte info_hash of the .Torrent file being used by the client which
@@ -118,10 +120,10 @@ public class Peer implements Runnable {
 		this.port = port;
 		this.parent = creator;
 		interestedQueue = new ArrayDeque <Request> ();
-		dataSocket = new Socket(address, port);
-		in = dataSocket.getInputStream();
-		listener = new PeerListener(this, in);
-		out = dataSocket.getOutputStream();
+		//dataSocket = new Socket(address, port);
+		//in = dataSocket.getInputStream();
+		//listener = new PeerListener(this, in);
+		//out = dataSocket.getOutputStream();
 		hash = hashIn;
 		clientID = peerID;
 		fileHeap = heapReference;
@@ -139,6 +141,10 @@ public class Peer implements Runnable {
 		Thread peerThread = new Thread(this);
 		peerThread.start();
 		updateTimeout();
+	}
+	
+	public boolean connectionEstablished() {
+		return this.connectionEstablished;
 	}
 	
 	/**
@@ -237,6 +243,14 @@ public class Peer implements Runnable {
 	 * requested file pieces to that peer.
 	 */
 	public void run() {
+		try {
+			dataSocket = new Socket(this.IP, this.port);
+			this.connectionEstablished = true;
+			in = dataSocket.getInputStream();
+			listener = new PeerListener(this, in);
+			out = dataSocket.getOutputStream();
+			Thread.sleep(500);
+		} catch(Exception e) { ClientGUI.getInstance().publishEvent("Connection to peer: "+this+" timed out.");}
 		if(!this.incoming) {
 			handShake();
 		} else {
