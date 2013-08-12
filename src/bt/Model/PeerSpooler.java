@@ -66,7 +66,7 @@ public class PeerSpooler implements Runnable {
 				ClientGUI.getInstance().updatePeerInTable(rankedList[i], ClientGUI.DOWNLOADRATE_UPDATE);
 				// peers.get(i).resetDownloaded();
 			}
-			int lucky = (int)(((Math.random() * 100000.0)% toChoke.length - limit + 1) + limit - 1);
+			int lucky = (int)(((Math.random() * 100000.0)% (toChoke.length - limit + 2)) + limit - 2);
 			toChoke[lucky] = false;
 			for (int i = 0; i < toChoke.length; ++i) {
 				if (toChoke[i]) {
@@ -111,12 +111,20 @@ public class PeerSpooler implements Runnable {
 		}
 		for(int i = 1; i < peers.size(); i++) {
 			Peer currPeer = rankedList[i];
-			for(int u = i-1; u >= 0; --u) {
-				if(currPeer.getDownloadRate() > rankedList[u].getDownloadRate()) {
-					Peer tmp = rankedList[u];
-					rankedList[u] = currPeer;
-					rankedList[u+1] = tmp;
-				} else break;
+			for(int u = i-1; u >= 0; --u) { 
+				if (bt.isFileCompleted()) {
+					if (currPeer.getUploadRate() > rankedList[u].getUploadRate()) {
+						Peer tmp = rankedList[u];
+						rankedList[u] = currPeer;
+						rankedList[u+1] = tmp;
+					}
+				} else {
+					if(currPeer.getDownloadRate() > rankedList[u].getDownloadRate()) {
+						Peer tmp = rankedList[u];
+						rankedList[u] = currPeer;
+						rankedList[u+1] = tmp;
+					} else break;
+				}
 			}
 		}
 		return rankedList;

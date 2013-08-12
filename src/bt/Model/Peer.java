@@ -75,6 +75,7 @@ public class Peer implements Runnable {
 	private int downloaded = 0;
 	private int lastDownloaded = 0;
 	private int uploaded = 0;
+	private int lastUploaded = 0;
 	private long startTime = 0;
 	private long lastUpdate = 0;
 
@@ -96,6 +97,8 @@ public class Peer implements Runnable {
 	 * this queue will be sent to the peer.
 	 */
 	private Queue <Request> interestedQueue;
+
+	private int uploadRate;
 	
 	/**
 	 * This is a constructor for a Peer taking the address and port as parameters.  The address and port of a
@@ -205,8 +208,10 @@ public class Peer implements Runnable {
 			this.lastUpdate = this.startTime;
 		}
 		this.downloadRate = (int)(this.lastDownloaded) / (int)((System.currentTimeMillis()-this.lastUpdate)/1000);
+		this.uploadRate = (int)(this.lastUploaded) / (int)((System.currentTimeMillis()-this.lastUpdate)/1000);
 		this.lastUpdate = System.currentTimeMillis();
 		this.lastDownloaded = 0;
+		this.lastUploaded = 0;
 	}
 	
 	/**
@@ -216,6 +221,16 @@ public class Peer implements Runnable {
 	public synchronized int getDownloadRate() {
 		if(this.downloaded != 0 ) {
 			return this.downloadRate;
+		} else return 0;
+	}
+	
+	/**
+	 * Returns the current peer's upload rate in bps.
+	 * @return current peer's rate in bps
+	 */
+	public synchronized int getUploadRate() {
+		if(this.uploaded != 0 ) {
+			return this.uploadRate;
 		} else return 0;
 	}
 	
@@ -580,6 +595,7 @@ public class Peer implements Runnable {
 	 */
 	public void updateUploaded(int bytes) {
 		this.uploaded += bytes;
+		this.lastUploaded += bytes;
 		// this should trigger a table refresh.
 	}
 	
