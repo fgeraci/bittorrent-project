@@ -62,7 +62,7 @@ public class PeerSpooler implements Runnable {
 			boolean[] toChoke = new boolean[rankedList.length];
 			for (int i = 0; i < toChoke.length; ++i) {
 				toChoke[i] = !(i < limit - 1);
-				peers.get(i).resetDownloaded();
+				// peers.get(i).resetDownloaded();
 			}
 			int lucky = (int)(((Math.random() * 100000.0)% toChoke.length - limit + 1) + limit - 1);
 			toChoke[lucky] = false;

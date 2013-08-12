@@ -200,7 +200,11 @@ public class Peer implements Runnable {
 	 * Updates the downloadRate to bytes per second.
 	 */
 	private void updateDownloadRate() {
-		this.downloadRate = (int)(this.downloaded) / (int)((System.currentTimeMillis()-this.startTime)/1000);
+		if(!this.isChoked()) {
+			this.downloadRate = (int)(this.downloaded) / (int)((System.currentTimeMillis()-this.startTime)/1000);
+		} else {
+			this.downloadRate = 0;
+		}
 	}
 	
 	/**
