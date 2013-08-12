@@ -111,7 +111,7 @@ public class ClientGUI extends JFrame {
 	private JPanel bottomContainer;
 	private JButton buttonConnectToPeer;
 	private JButton buttonDownloadController;
-	private JButton chockePeer;
+	private JButton chokePeer;
 	
 	/**
 	 * Retrieves a single instance of ClientGUI
@@ -425,8 +425,8 @@ public class ClientGUI extends JFrame {
 				Peer temp = p;
 				Object[] columns = new String[4];
 				columns[0] = p.toString();
-				boolean chocked = p.isChoked();
-				String isChoked = chocked ? "Choked" : "Unchocked";
+				boolean choked = p.isChoked();
+				String isChoked = choked ? "Choked" : "Unchoked";
 				columns[1] = isChoked;
 				columns[2] = p.getDownloaded()+"";
 				columns[3] = p.getUploaded()+"";
@@ -526,20 +526,21 @@ public class ClientGUI extends JFrame {
 	 */
 	public synchronized void updatePeerInTable(Peer peer, int valueCode) {
 		int row = this.getRowNumberOfPeer(peer.toString());
+		boolean choked;
 		switch(valueCode) {
 		case 0: // add the peer
 			Object[] columns = new String[4];
 			columns[0] = peer.toString();
-			boolean chocked = peer.isChoked();
-			String isChokedString = chocked ? "Choked" : "Unchocked";
+			choked = peer.isChoked();
+			String isChokedString = choked ? "Choked" : "Unchoked";
 			columns[1] = isChokedString;
 			columns[2] = peer.getDownloaded()+"";
 			columns[3] = peer.getUploaded()+"";
 			this.tableModel.addRow(columns);
 			break;
 		case 1: // choke status
-			boolean choked = peer.isChoked();
-			String isChoked = choked ? "Choked" : "Unchocked";
+			choked = peer.isChoked();
+			String isChoked = choked ? "Choked" : "Unchoked";
 			this.tableConnectios.setValueAt(isChoked, row, valueCode);
 			break;
 		case 2: // downloaded
