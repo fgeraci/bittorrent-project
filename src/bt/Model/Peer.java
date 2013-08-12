@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -15,7 +16,6 @@ import java.util.Queue;
 
 import bt.Utils.Utilities;
 import bt.View.ClientGUI;
-import bt.View.UserInterface;
 
 /**
  * Creates a connection with a peer to download a file.
