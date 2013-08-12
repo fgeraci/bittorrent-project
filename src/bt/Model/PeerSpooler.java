@@ -62,6 +62,8 @@ public class PeerSpooler implements Runnable {
 			boolean[] toChoke = new boolean[rankedList.length];
 			for (int i = 0; i < toChoke.length; ++i) {
 				toChoke[i] = !(i < limit - 1);
+				rankedList[i].updateDownloadRate();
+				ClientGUI.getInstance().updatePeerInTable(rankedList[i], ClientGUI.DOWNLOADRATE_UPDATE);
 				// peers.get(i).resetDownloaded();
 			}
 			int lucky = (int)(((Math.random() * 100000.0)% toChoke.length - limit + 1) + limit - 1);
@@ -76,22 +78,6 @@ public class PeerSpooler implements Runnable {
 				}
 				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
 			}
-			/*
-			for(int i = limit-2; i < peers.size(); i++) {
-				peers.get(i).setChoke(true);
-				peers.get(i).resetDownloaded();
-				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.STATUS_UPDATE);
-				ClientGUI.getInstance().updatePeerInTable(peers.get(i), ClientGUI.DOWNLOADRATE_UPDATE);
-			}
-			Peer[] rest = new Peer[rankedList.length-(this.limit-2)];
-			for(int i = 0; i < rest.length; ++i) {
-				rest[i] = rankedList[(limit-2)+i];
-			}
-			Peer p = this.getRandomPeer(rest);
-			Thread.sleep(400);
-			p.setChoke(false);
-			ClientGUI.getInstance().updatePeerInTable(p, ClientGUI.STATUS_UPDATE);
-			*/
 			
 		} catch (Exception e) {
 			ClientGUI.getInstance().publishEvent("ERROR: Peer "+rankedList[3]+" could not be choked successfully");

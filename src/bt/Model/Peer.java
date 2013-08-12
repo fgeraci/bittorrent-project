@@ -200,13 +200,12 @@ public class Peer implements Runnable {
 	/**
 	 * Updates the downloadRate to bytes per second.
 	 */
-	private void updateDownloadRate() {
+	void updateDownloadRate() {
 		if (this.lastUpdate == 0) {
 			this.lastUpdate = this.startTime;
 		}
 		this.downloadRate = (int)(this.lastDownloaded) / (int)((System.currentTimeMillis()-this.lastUpdate)/1000);
 		this.lastUpdate = System.currentTimeMillis();
-		this.downloaded += this.lastDownloaded;
 		this.lastDownloaded = 0;
 	}
 	
@@ -459,8 +458,6 @@ public class Peer implements Runnable {
 	void getPiece (int index, int begin, byte[] payload) {
 		updateTimeout();
 		this.pendingRequests--;
-		this.updateDownloadRate();
-		ClientGUI.getInstance().updatePeerInTable(this, ClientGUI.DOWNLOADRATE_UPDATE);
 		if (completed[index]) {
 			boolean sent = false;
 			// This is a bit complicated looking, but this block attempts to send a have message every
@@ -564,6 +561,7 @@ public class Peer implements Runnable {
 	 * @param bytes
 	 */
 	public void updateDownloaded(int bytes) {
+		this.downloaded += bytes;
 		this.lastDownloaded += bytes;
 		// this should trigger a table refresh.
 	}
