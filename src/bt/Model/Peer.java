@@ -75,7 +75,8 @@ public class Peer implements Runnable {
 	private int downloaded = 0;
 	private int lastDownloaded = 0;
 	private int uploaded = 0;
-	private long startTime;
+	private long startTime = 0;
+	private long lastUpdate = 0;
 
 	
 	/**
@@ -200,14 +201,18 @@ public class Peer implements Runnable {
 	 * Updates the downloadRate to bytes per second.
 	 */
 	private void updateDownloadRate() {
-		this.downloadRate = (int)(this.lastDownloaded) / (int)((System.currentTimeMillis()-this.startTime)/1000);
+		if (this.lastUpdate == 0) {
+			this.lastUpdate = this.startTime;
+		}
+		this.downloadRate = (int)(this.lastDownloaded) / (int)((System.currentTimeMillis()-this.lastUpdate)/1000);
+		this.lastUpdate = System.currentTimeMillis();
 		this.downloaded += this.lastDownloaded;
 		this.lastDownloaded = 0;
 	}
 	
 	/**
 	 * Returns the current peer's download rate in bps.
-	 * @return int
+	 * @return current peer's rate in bps
 	 */
 	public synchronized int getDownloadRate() {
 		if(this.downloaded != 0 ) {
