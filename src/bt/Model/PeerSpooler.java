@@ -90,9 +90,10 @@ public class PeerSpooler implements Runnable {
 	 * @return Peer
 	 */
 	private Peer getRandomPeer(Peer[] rest) {
-		int peers = rest.length-1;
-		int randomPeer = (int)((Math.random()*peers));
-		Peer p = rest[randomPeer];
+		int peers = rest.length;
+		int random = (int)Math.random()*10000;
+		random = random % peers;
+		Peer p = rest[random];
 		return p;
 	}
 	
