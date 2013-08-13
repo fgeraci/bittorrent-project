@@ -542,6 +542,11 @@ public class Peer implements Runnable {
 					") is greater than maximum-piece-length"+ Utilities.MAX_PIECE_LENGTH + ".");
 			this.parent.terminatePeer(this.toString());
 		} 
+		if ((index+1) > this.completed.length) {
+			System.err.println("Peer = "+ this.toString() +" has requested a piece with index = "+
+				index +", out-of-range for piece count = "+ this.completed.length +
+				", for torrent = "+ this.parent.getFileName() +".");
+		}
 		synchronized(interestedQueue) {
 			interestedQueue.add(new Request(index, begin, length));
 		}
